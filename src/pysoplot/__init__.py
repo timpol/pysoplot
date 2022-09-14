@@ -7,6 +7,7 @@ from . import uxpb
 from .exceptions import ConvergenceError
 from . import cfg
 from . import concordia
+from . import data
 from . import isochron
 from . import misc
 from . import monte_carlo
