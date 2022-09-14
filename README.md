@@ -1,6 +1,6 @@
 # Pysoplot
 
-**Pysoplot** is a Python library that contains basic functions and routines 
+**Pysoplot** is a Python library that contains fundamental functions and routines 
 for geochronology. It implements some of the core functionality 
 of the popular (and now defunct) Isoplot/Ex. software, but also
 includes new algorithms and routines. Pysoplot is intended to be 
