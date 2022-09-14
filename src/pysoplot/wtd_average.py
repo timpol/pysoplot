@@ -426,17 +426,17 @@ def spine_wav_cor(x, V, xb0=None, maxiter=50, h=1.4, atol=1e-08, rtol=1e-08):
 # 2-D weighted average
 #=================================
 
-def wav_2d():
-    """Two-dimensional weighted average based on classical stats.
-    """
-    return
+# def wav_2d():
+#     """Two-dimensional weighted average based on classical stats.
+#     """
+#     return
 
 
-def spine_wav_2d():
-    """
-    Would this be useful? 
-    It would require a robust version of MSWD equivalence, then perhaps if
-    data points are deemed equivalent, the classical stats approach could still
-    be used to assess MSWD concordance and compute age uncertainty?
-    """
-    return
+# def spine_wav_2d():
+#     """
+#     Would this be useful?
+#     It would require a robust version of MSWD equivalence, then perhaps if
+#     data points are deemed equivalent, the classical stats approach could still
+#     be used to assess MSWD concordance and compute age uncertainty?
+#     """
+#     return

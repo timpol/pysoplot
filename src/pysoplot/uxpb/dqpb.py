@@ -785,16 +785,16 @@ def find_roots(f, df, args, range=(0., 20.), step= 1e-5, rtol=1e-9):
 # Analytical age uncertainty functions
 #=======================================
 
-def conint_age_uncert():
-    """ Analytical concordia-intercept age uncertainties.
-    """
-    return
+# def conint_age_uncert():
+#     """ Analytical concordia-intercept age uncertainties.
+#     """
+#     return
 
 
-def mod207Pb_age_uncert():
-    """ Analytical mod. 207Pb age uncertainties.
-    """
-    return
+# def mod207Pb_age_uncert():
+#     """ Analytical mod. 207Pb age uncertainties.
+#     """
+#     return
 
 
 
