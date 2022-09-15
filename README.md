@@ -4,7 +4,7 @@
 
 Pysoplot includes functions for:
 * regressing 2-D data using the model 1, 2 and 3 algorithms popularised by Isoplot/Ex.
-* regressing 2-D data using the robust spine algorithm of Powell et al. (2020) and a new robust model 2 algorithm
+* regressing 2-D data using the robust spine algorithm of Powell et al. (2020) and a new "robust model 2" algorithm
 * computing weighted averages using algorithms based on classical and robust statistics
 * computing classical isochron and U-Pb concordia-intercept ages
 * plotting isochron diagrams
