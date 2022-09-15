@@ -1,11 +1,6 @@
 # Pysoplot
 
-**Pysoplot** is a Python library that contains fundamental functions and routines 
-for geochronology. It implements some of the core functionality 
-of the popular (and now defunct) Isoplot/Ex. software, but also
-includes new algorithms and routines. Pysoplot is intended to be 
-used to build custom scripts and data processing 
-routines in order to meet individual requirements.
+**Pysoplot** is a Python library that provides basic functions and routines for geochronology. It implements some of the core functionality of the popular (and now defunct) Isoplot/Ex. software, but also includes new algorithms and routines. Pysoplot is intended to be used by geochronologists to build custom scripts and data processing routines in order to meet individual requirements.
 
 Pysoplot includes functions for:
 * regressing 2-D data using the model 1, 2 and 3 algorithms popularised by Isoplot/Ex.
@@ -18,7 +13,7 @@ Pysoplot includes functions for:
 
 * computing age uncertainties using Monte Carlo methods
 
-Full code documentation is coming soon!
+Full code documentation is coming soon.
 
 ## Installation
 
@@ -49,8 +44,7 @@ print(f"age: {result['age']:.2f} +/- {result['age_95pm']:.2f}")
 
 ## Acknowledgements
 
-Acknowledgement of all third-party algorithms implemented in Pysoplot with links to
-publications will be added here very soon... 
+Acknowledgement of all third-party algorithms implemented in Pysoplot with links to publications will be added here soon... 
 
 ## License
 
@@ -59,8 +53,4 @@ Pysoplot is distributed under the MIT license.
 ## Contact
 
 Timothy Pollard - pollard@student.unimelb.edu.au
-
-
-
-
 
