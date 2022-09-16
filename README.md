@@ -52,5 +52,5 @@ Pysoplot is distributed under the MIT license.
 
 ## Contact
 
-Timothy Pollard - pollard@student.unimelb.edu.au
+[Timothy Pollard](mailto:pollard@student.unimelb.edu.au)
 
