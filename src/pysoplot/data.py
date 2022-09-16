@@ -39,7 +39,7 @@ KAMO1996 = \
 
 
 """ 
-LA0708 speleothm LA-ICPMS 
+0708-LA speleothm LA-ICPMS 
 Woodhead, J., Petrus, J., 2019. Exploring the advantages and limitations of 
 in situ U–Pb carbonate geochronology using speleothems. Geochronology 1, 69–84. 
 https://doi.org/10.5194/gchron-1-69-2019
