@@ -202,7 +202,7 @@ def isochron_age(t, fit, A, sA, init=(True, True), trials=50_000,
 
     ok = flags == 0
 
-    if sum(ok) == 0:
+    if np.sum(ok) == 0:
         raise RuntimeError('all Monte Carlo simulation trials failed')
 
     age_95ci = np.quantile(ts[ok], (0.025, 0.975))
@@ -302,7 +302,7 @@ def fc_A48i(t57, A48i, fit_57, fit_86, A, sA, init, trials=50_000,
     flags = mc.check_ages(A48i_s, c, flags, negative_ages=negative_ar) # pretend ar48i solutions are ages
 
     ok = (flags == 0)
-    if sum(ok) == 0:
+    if np.sum(ok) == 0:
         raise RuntimeError('all Monte Carlo simulation trials failed')
     age_95ci = np.quantile(ts[ok], (0.025, 0.975))
     A48i_95ci = np.quantile(A48i_s[ok], (0.025, 0.975))
@@ -372,7 +372,8 @@ def pbu_age(t, x, sx, trials=10_000, DThU=None, DThU_1s=None, DPaU=None,
     """
     assert age_type in ('Pb6U8', 'Pb7U5')
     assert method in ('Ludwig', 'Guillong')
-    assert not any([np.isnan(t) for t in t])       # nan ages should be removed
+    if np.any(np.isnan(t)):     # nan ages should be removed
+        raise ValueError('cannot run Monte Carlo simulation if nans in ages array')
     if negative_ar:
         warnings.warn('negative_ar option not yet implemented in Monte Carlo simulation')
 
@@ -464,9 +465,14 @@ def pbu_age(t, x, sx, trials=10_000, DThU=None, DThU_1s=None, DPaU=None,
                                      negative_ages=negative_ages)
             tr[:, i] = r
 
+    # Note: to compute covariances, iteration that fail for one age point must
+    # discarded for all.
     ok = np.all(flags == 0, axis=1)
-    age_95ci = [np.quantile(t[ok], (0.025, 0.975)) for t in ts.T]
+    if np.sum(ok) == 0:
+        raise ValueError('all Monte Carlo trials failed')
+
     # compile results
+    age_95ci = [np.quantile(t[ok], (0.025, 0.975)) for t in ts.T]
     results = {
         'age_type': age_type,
         'age_1s': [np.nanstd(t[ok]) for t in ts.T],
@@ -514,7 +520,8 @@ def mod207_age(t, x, sx, y, sy, r_xy, Pb76, Pb76se, ThU_min=None,
     U and decay constant errors not included.
     """
     assert method in ('Ludwig', 'Sakata')
-    assert not any([np.isnan(t) for t in t])       # nan ages should be removed
+    if np.any(np.isnan(t)):  # nan ages should be removed
+        raise ValueError('cannot run Monte Carlo simulation if nans in ages array')
     if negative_ar:
         warnings.warn('negative_ar option not yet implemented in Monte Carlo simulation')
 
@@ -617,10 +624,13 @@ def mod207_age(t, x, sx, y, sy, r_xy, Pb76, Pb76se, ThU_min=None,
                                         negative_ages=negative_ages)
             tr[:, i] = r
 
-
-
-    # compile results
+    # Note: to compute covariances, iteration that fail for one age point must
+    # discarded for all.
     ok = np.all(flags == 0, axis=1)
+    if np.sum(ok) == 0:
+        raise ValueError('all Monte Carlo trials failed')
+
+    # compile results:
     results = {
         'age_type': 'Modified 207Pb',
         'method': method,

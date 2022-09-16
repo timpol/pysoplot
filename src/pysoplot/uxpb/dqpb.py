@@ -280,8 +280,11 @@ def pbu_age(x, sx, t0, ThU_min=None, ThU_melt=None, ThU_melt_1s=None,
             else:
                 t[i] = pbu(x[i], fXU[i], t0[i], age_type)
 
-    if np.all(np.isnan(t)):
-        raise ValueError('all age solutions failed to converge')
+    bad = np.argwhere(np.isnan(t))
+    if bad.size != 0:
+        msg = f'age calculation for data points {[x for x in bad.flatten()]} ' \
+              f'failed - could not run Monte Carlo simulation'
+        raise ValueError(msg)
 
     # Compute age uncertainties:
     mc = dqmc.pbu_age(
@@ -410,8 +413,11 @@ def mod207_age(dp, Pb76, Pb76se, t0, ThU_min=None, ThU_melt=None, ThU_melt_1s=No
         # except:
         #     t[i] = nan
 
-    if np.all(np.isnan(t)):
-        raise ValueError('all age solutions failed to converge')
+    bad = np.argwhere(np.isnan(t))
+    if bad.size != 0:
+        msg = f'age calculation for data points {[x for x in bad.flatten()]} ' \
+              f'failed - could not run Monte Carlo simulation'
+        raise ValueError(msg)
 
     # Compute age uncertainties:
     # dc_errors not yet implemented

@@ -507,8 +507,10 @@ def mc_concint(t, fit, trials=50_000, diagram='tw', dc_errors=False,
 
     flags = mc.check_ages(ts, c, flags, negative_ages=negative_ages)
     ok = flags == 0
-    age_95ci = np.quantile(ts[ok], (0.025, 0.975))
+    if np.sum(flags) == 0:
+        raise ValueError('no successful Monte Carlo simulations')
 
+    age_95ci = np.quantile(ts[ok], (0.025, 0.975))
     results = {
         'age_type': 'concordia-intercept',
         'diagram': diagram_names[diagram],
