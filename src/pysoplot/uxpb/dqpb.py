@@ -509,8 +509,8 @@ def fc_A48i(fit57, fit86, A, sA, t0=1.0, norm_isotope='204Pb',
 
     # Compute init [234U/238U] uncertainties:
     mc = dqmc.fc_A48i(t57, A48i, fit57, fit86, A, sA, [True, True], trials=trials,
-                    negative_ar=negative_ar, negative_ages=negative_ages,
-                    hist=hist)
+                     negative_ar=negative_ar, negative_ages=negative_ages,
+                     hist=hist)
 
     results = {
         'norm_isotope': norm_isotope,
@@ -536,7 +536,7 @@ def concint(a, b, A, init, t0):
     BC5 = ludwig.bateman(DC5, series='235U')
     fmin, dfmin = minimise.concint(t0=1.0, diagram='tw', init=init)
     args = (a, b, A[:-1], A[-1], DC8, DC5, BC8, BC5, cfg.U)
-    r = optimize.newton(fmin, t0, dfmin, full_output=True, disp=False, args=args)
+    r = optimize.newton(fmin, t0, dfmin, args=args, full_output=True, disp=False)
     if not r[1].converged:
         raise exceptions.ConvergenceError('disequilibrium concordia age did '
                   'not converge after maximum number of iterations')
@@ -557,8 +557,8 @@ def isochron(b, A, t0, age_type, init=(True, True)):
         BC = ludwig.bateman(DC, series='235U')
     args = (b, A, DC, BC)
     fmin, dfmin = minimise.isochron(t0=t0, age_type=age_type, init=init)
-    r = optimize.newton(fmin, t0, dfmin, full_output=True, disp=False,
-                        args=args)
+    r = optimize.newton(fmin, t0, dfmin, args=args, full_output=True,
+                        disp=False)
     if not r[1].converged:
         raise exceptions.ConvergenceError(f'disequilibrium isochron age did not '
               f'converge did not converge after maximum number of iterations, '
@@ -580,8 +580,8 @@ def pbu(x, A, t0, age_type, init=(True, True)):
         BC = ludwig.bateman(DC, series='235U')
     args = (x, A, DC, BC)
     fmin, dfmin = minimise.pbu(t0=t0, age_type=age_type, init=init)
-    t, r = optimize.newton(fmin, t0, dfmin, full_output=True, disp=False,
-            args=args)
+    t, r = optimize.newton(fmin, t0, dfmin, args=args, full_output=True,
+                           disp=False)
     if not r.converged:
         raise exceptions.ConvergenceError('Pb/U age routine did not converge '
                 'after maximum number of iterations')
@@ -598,7 +598,8 @@ def mod207(x, y, A, Pb76, t0, init=(True, True)):
     BC5 = ludwig.bateman(DC5, series='235U')
     args = (x, y, A, DC8, DC5, BC8, BC5, cfg.U, Pb76)
     fmin, dfmin = minimise.mod207(t0=t0, init=init)
-    t, r = optimize.newton(fmin, t0, dfmin, full_output=True, args=args)
+    t, r = optimize.newton(fmin, t0, dfmin, args=args, full_output=True,
+                           disp=True)
     if not r.converged:
         raise exceptions.ConvergenceError('Modified 207Pb age routine did not '
                 'converge after maximum number of iterations')
@@ -622,14 +623,15 @@ def guillong(x, fXU, t0, age_type):
     else:
         DC = (cfg.lam235, cfg.lam231)
     fmin, dfmin = minimise.guillong(t0=t0)
-    t, nr = optimize.newton(fmin, t0, dfmin, args=(x, fXU, *DC), full_output=True)
+    t, nr = optimize.newton(fmin, t0, dfmin, args=(x, fXU, *DC), full_output=True,
+                            disp=False)
     if not nr.converged:
         raise exceptions.ConvergenceError('Guillong modified Pb/U age routine '
                   'did not converge after maximum number of iterations')
     return t
 
 
-def sakata(x, y, fThU, fPaU, Pb76, t0, disp=False):
+def sakata(x, y, fThU, fPaU, Pb76, t0):
     """
     Numerically compute modified 207Pb age using the equations and approach of
     Sakata (2017).
@@ -638,7 +640,7 @@ def sakata(x, y, fThU, fPaU, Pb76, t0, disp=False):
     args = (x, y, fThU, fPaU, cfg.lam238, cfg.lam230, cfg.lam235, cfg.lam231,
             cfg.U, Pb76)
     t, nr = optimize.bisect(fmin, 1e-06, 100, args=args, full_output=True,
-                            disp=disp)
+                            disp=False)
     if not nr.converged:
         raise exceptions.ConvergenceError('Sakata modified 207Pb age routine '
                   'did not converge after maximum number of iterations')
@@ -655,8 +657,8 @@ def concordant_A48i(t75, b86, A08, A68, DC8, BC8, A48i_guess=1.):
     """
     args = (t75, b86, [nan, A08, A68], DC8, BC8)
     fmin, dfmin = minimise.concordant_A48()
-    r = optimize.newton(fmin, A48i_guess, dfmin, args=args,
-            full_output=True, disp=False)
+    r = optimize.newton(fmin, A48i_guess, dfmin, args=args, full_output=True,
+                        disp=False)
     if not r[1].converged:
         raise exceptions.ConvergenceError('forced concordant initial [234U/238U] '
                'routine did not converge after maximum number of iterations')
