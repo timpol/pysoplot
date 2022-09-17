@@ -580,8 +580,8 @@ def pbu(x, A, t0, age_type, init=(True, True)):
         BC = ludwig.bateman(DC, series='235U')
     args = (x, A, DC, BC)
     fmin, dfmin = minimise.pbu(t0=t0, age_type=age_type, init=init)
-    t, r = optimize.newton(fmin, t0, dfmin, args=args, full_output=True,
-                           disp=False)
+    t, r = optimize.newton(fmin, t0, dfmin, full_output=True, disp=False,
+            args=args)
     if not r.converged:
         raise exceptions.ConvergenceError('Pb/U age routine did not converge '
                 'after maximum number of iterations')
@@ -598,8 +598,7 @@ def mod207(x, y, A, Pb76, t0, init=(True, True)):
     BC5 = ludwig.bateman(DC5, series='235U')
     args = (x, y, A, DC8, DC5, BC8, BC5, cfg.U, Pb76)
     fmin, dfmin = minimise.mod207(t0=t0, init=init)
-    t, r = optimize.newton(fmin, t0, dfmin, args=args, full_output=True,
-                           disp=False)
+    t, r = optimize.newton(fmin, t0, dfmin, full_output=True, args=args)
     if not r.converged:
         raise exceptions.ConvergenceError('Modified 207Pb age routine did not '
                 'converge after maximum number of iterations')
