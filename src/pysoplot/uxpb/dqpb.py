@@ -100,8 +100,8 @@ def concint_age(fit, A, sA, init, t0, diagram='tw', dc_errors=False, trials=50_0
             raise RuntimeError(f'negative disequilibrium age solution: {t} Ma')
 
     # Get initial acitivity rario solutions:
-    A48i, A08i = useries.Ai_solutions(t, A[:-1], init, (cfg.lam238,
-                            cfg.lam234, cfg.lam230))
+    A48i, A08i = useries.ari_solutions(t, A[:-1], init, (cfg.lam238,
+                                                         cfg.lam234, cfg.lam230))
 
     # Compute age uncertainties:
     mc = dqmc.concint_age(t, fit, A, sA, init, trials=trials, dc_errors=dc_errors,
@@ -179,7 +179,7 @@ def isochron_age(fit, A, sA, t0, init=(True, True), age_type='iso-Pb6U8',
     # Back-calculate activity ratios:
     if age_type == 'iso-Pb6U8':
         DC = (cfg.lam238, cfg.lam234, cfg.lam230, cfg.lam226)
-        A48i, A08i = useries.Ai_solutions(t, A, init, DC)
+        A48i, A08i = useries.ari_solutions(t, A, init, DC)
     else:
         A48i, A08i = (None, None)
 

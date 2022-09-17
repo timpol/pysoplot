@@ -77,8 +77,8 @@ def concint_age(t, fit, A, sA, init, trials=50_000, dc_errors=False,
                                 full_output=True)
     flags = mc.check_ages(ts, c, flags, negative_ages=negative_ages)
 
-    # calculate initial activity ratios
-    A48i, A08i = useries.Ai_solutions(ts, pA[:3, :], init, DC8)
+    # get initial activity ratio solutions
+    A48i, A08i = useries.ari_solutions(ts, pA[:3, :], init, DC8)
 
     if not negative_ar:
         if A48i is not None:
@@ -193,7 +193,7 @@ def isochron_age(t, fit, A, sA, init=(True, True), trials=50_000,
 
     # back-calculate activity ratios
     if age_type == 'iso-Pb6U8':
-        A48i, A08i = useries.Ai_solutions(ts, pA, init, DC)
+        A48i, A08i = useries.ari_solutions(ts, pA, init, DC)
         if not negative_ar:
             if A48i is not None:
                 flags = mc.update_flags(flags, A48i < 0., mc.NEGATIVE_AR_SOL)
