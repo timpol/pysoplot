@@ -155,19 +155,19 @@ def Th230_isochron():
 # Back-calculate initial activity ratio solutions
 #===================================================
 
-def Ai_solutions(t, A, init, DC):
+def ari_solutions(t, A, init, DC):
     """
     Compute initial activity ratio solutions from present-day values and U-Pb age
     solution. In principle these values are computed iteratively along with the
     age solution, but practically it is more convenient to compute them after
     the fact.
     """
-    a48i = None
-    a08i = None
+    A48i = None
+    A08i = None
     if not init[0]:        # present [234U/238U]
-        a48i = ar48i(t, A[0], DC[0], DC[1])
+        A48i = ar48i(t, A[0], DC[0], DC[1])
         if not init[1]:    # present [234U/238U] and [230Th/238U]
-            a08i = ar08i(t, ar48i, A[1], DC[0], DC[1], DC[2])
+            A08i = ar08i(t, ar48i, A[1], DC[0], DC[1], DC[2])
     elif not init[1]:      # only present [230Th/238U]
-        a08i = ar08i(t, A[0], A[1], DC[0], DC[1], DC[2], init=init[0])
-    return a48i, a08i
+        A08i = ar08i(t, A[0], A[1], DC[0], DC[1], DC[2], init=init[0])
+    return A48i, A08i
