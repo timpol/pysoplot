@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setup(
 	name='pysoplot',
-	version='0.0.1',
+	version='0.0.2',
 	description='a Python geochronology library',
 	license='MIT',
 	packages=['pysoplot', 'pysoplot.uxpb'],
