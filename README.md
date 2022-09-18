@@ -1,5 +1,12 @@
 # Pysoplot
 
+![[release](https://img.shields.io/github/release/timpol/pysoplot.svg)](https://github.com/timpol/pysoplot/releases)
+
+[//]: # ([![DOI]&#40;https://zenodo.org/badge/DOI/....svg&#41;]&#40;https://doi.org/...&#41;)
+
+![[license](https://img.shields.io/github/license/timpol/pysoplot.svg](https://github.com/timpol/pysoplot/blob/master/LICENSE.txt)
+
+
 **Pysoplot** is a Python library that provides basic functions and routines for geochronology. It implements some of the core functionality of the popular (and now defunct) Isoplot/Ex. software, but also includes new algorithms and routines. Pysoplot is intended to be used by geochronologists to build custom scripts and data processing routines in order to meet individual requirements.
 
 Pysoplot includes functions for:
