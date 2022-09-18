@@ -1,14 +1,14 @@
 # Pysoplot
 
-[![release](https://img.shields.io/github/v/release/timpol/pysoplot.svg)](https://github.com/timpol/pysoplot/releases) [![license](https://img.shields.io/github/license/timpol/pysoplot.svg)](https://github.com/timpol/pysoplot/blob/master/LICENSE.txt)
+[![license](https://img.shields.io/github/license/timpol/pysoplot.svg)](https://github.com/timpol/pysoplot/blob/master/LICENSE.txt)
 
 [//]: # ([![DOI]&#40;https://zenodo.org/badge/DOI/....svg&#41;]&#40;https://doi.org/...&#41;)
 
 **Pysoplot** is a Python library that provides basic functions and routines for geochronology. It implements some of the core functionality of the popular (and now defunct) Isoplot/Ex. software, but also includes new algorithms and routines. Pysoplot is intended to be used by geochronologists to build custom scripts and data processing routines in order to meet individual requirements.
 
 Pysoplot includes functions for:
-* regressing 2-D data using the model 1, 2 and 3 algorithms popularised by Isoplot/Ex.
-* regressing 2-D data using the robust spine algorithm of Powell et al. (2020) and a new "robust model 2" algorithm
+* performing linear regression on 2-D data using the model 1, 2 and 3 algorithms popularised by Isoplot/Ex.
+* performing linear regression on 2-D data using the robust spine algorithm of Powell et al. (2020) and a new "robust model 2" algorithm
 * computing weighted averages using algorithms based on classical and robust statistics
 * computing classical isochron and U-Pb concordia-intercept ages
 * plotting isochron diagrams
