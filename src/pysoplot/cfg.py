@@ -81,7 +81,7 @@ cor_234_230 = 0.67631         # estimated from Cheng et al. (2013)
 U = 137.818                               # Hiess, 2012 (approx. 'bulk Earth' value)
 sU = 0.0225                               # Hiess, 2012
 
-# Equilbrium activity ratio values
+# Equilibrium activity ratio values
 A48_eq = 1.0
 A08_eq = 1.0
 A68_eq = 1.0
@@ -126,8 +126,8 @@ rng = np.random.default_rng()
 #     element is 0.70?
 #==============================================================================
 h = 1.4
-mswd_ci_thresholds = (0.85, 0.95)
-mswd_wav_ci_thresholds = (0.85, 0.95)
+mswd_ci_thresholds = [0.85, 0.95]
+mswd_wav_ci_thresholds = [0.85, 0.95]
 
 
 #===========================================
