@@ -246,7 +246,7 @@ def concint_ludwig(theta, diagram='tw', t0=10., maxiter=40):
 
 
 def concint_uncert_ludwig1980(t, theta, theta_95ci, xbar, diagram='wc',
-          maxiter=40, disp=True):
+          maxiter=40):
     """
     Compute concordia-intercept age uncertainties using the approach of Ludwig (1980).
     The algorithm can account for asymmetric age uncertainties, but not decay
@@ -292,7 +292,7 @@ def concint_uncert_ludwig1980(t, theta, theta_95ci, xbar, diagram='wc',
 
 
 def concint_powell(theta, covtheta=None, uncert=False, maxiter=30,
-                   diagram='tw', disp=True):
+                   diagram='tw'):
     """
     Compute Tera-Wasserburg concordia intercept age and uncertainty focussing
     on lower intercept only using the method of Powell et al. (2020). Converges
@@ -503,11 +503,11 @@ def mc_concint(t, fit, trials=50_000, diagram='tw', dc_errors=False,
     fmin, dfmin = concint_age_min(diagram='tw', t0=t)
     ts, c, zd = newton(fmin, np.full(trials, t), fprime=dfmin,
             args=(a, b, lam238, lam235, U), tol=1e-09, rtol=0, disp=False,
-            maxiter=50, full_output=True)
+                  maxiter=50, full_output=True)
 
     flags = mc.check_ages(ts, c, flags, negative_ages=negative_ages)
-    ok = flags == 0
-    if np.sum(flags) == 0:
+    ok = (flags == 0)
+    if np.sum(ok) == 0:
         raise ValueError('no successful Monte Carlo simulations')
 
     age_95ci = np.quantile(ts[ok], (0.025, 0.975))
@@ -541,11 +541,13 @@ def mc_concint(t, fit, trials=50_000, diagram='tw', dc_errors=False,
         y = (np.exp(lam235 * ts) - 1.) * x / U
 
         if intercept_points:
-            ax.plot(x, y, label="mc marker", **cfg.conc_intercept_markers_kw)
+            ax.plot(x, y, label="intercept markers", **cfg.conc_intercept_markers_kw)
         if intercept_ellipse:
             cov = np.cov(x, y)
-            e = plotting.confidence_ellipse2(ax, np.mean(x), np.mean(y), cov,
-                                             **cfg.conc_intercept_ellipse_kw)
+            e = plotting.confidence_ellipse2(
+                ax, np.mean(x), np.mean(y), cov, **cfg.conc_intercept_ellipse_kw,
+                label='intercept ellipse'
+            )
             ax.add_patch(e)
 
         mc.intercept_plot_ax_limits(ax, fit['theta'][1], x, y, diagram='tw')
