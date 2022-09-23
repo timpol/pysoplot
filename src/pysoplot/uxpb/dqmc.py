@@ -768,12 +768,12 @@ def diseq_intercept_plot(ts, fit, A8, A15, DC8, DC5, BC8, BC5, U, flags,
     mc.intercept_plot_axis_limits(ax, x, y, diagram=diagram)
 
     if intercept_points:
-        ax.plot(x, y, **cfg.conc_intercept_markers_kw)
+        ax.plot(x, y, **cfg.conc_intercept_markers_kw, label='intercept markers')
 
     if intercept_ellipse:
         cov = np.cov(x, y)
         e = plotting.confidence_ellipse2(ax, np.nanmean(x), np.nanmean(y), cov,
-                     **cfg.conc_intercept_ellipse_kw)
+                     **cfg.conc_intercept_ellipse_kw, label='intercept ellipse')
         ax.add_patch(e)
 
     # Plot data ellipses if dp given:
