@@ -60,8 +60,8 @@ def mc_uncert(fit, age_type='iso-68', dc_errors=False, norm_isotope='204Pb',
     ts = 1. / dc * np.log(theta[1] + 1.)
     flags = mc.update_flags(flags, ts < 0, mc.NEGATIVE_AGE)
 
-    ok = flags == 0
-    if np.sum(flags) == 0:
+    ok = (flags == 0)
+    if np.sum(ok) == 0:
         raise ValueError('no successful Monte Carlo simulations')
 
     age_95ci = np.quantile(ts[ok], (0.025, 0.975))
