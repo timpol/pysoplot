@@ -625,6 +625,7 @@ def refine_t_limit(limits0, t_bounds, xlim, ylim, increasing_t,
     t0, t1 = limits0
 
     if eq:
+        # TODO: what is going on here?
         x0, y0 = conc_xy(t0, diagram)
         x1, y1 = conc_xy(t1, diagram)
         tpts, xpts, ypts = equi_points(t0, t1, xlim, ylim, diagram, ngp=20_000,
@@ -1083,6 +1084,12 @@ def plot_age_markers(ax, markers, p=0.95):
             #                     n_std=2.0, **cfg.conc_ellipse_kw)
             # --- or this ----
             r_xy = cov_xy[i] / (sx[i] * sy[i])
+
+            if abs(r_xy) > (1 - 1e-8):
+                # msg = f'age ellipse correlation is greater than 1, r_xy = {r_xy} '
+                # warnings.warn(msg)
+                r_xy = np.sign(r_xy) * (1. - 1e-8)   # reset to ~1?
+
             ellipse = plotting.confidence_ellipse(ax, xm[i], sx[i], ym[i], sy[i],
                                  r_xy, p=p, mpl_label=f'age ellipse, {t[i]:.6f} Ma',
                                  ellipse_kw=cfg.conc_age_ellipse_kw,
@@ -1692,7 +1699,7 @@ def individualised_labels(ax, markers_dict, diagram, eq=True, A=None,
             # -------
 
             # get ellipse bbox from path:
-            path_xy  = ax.transData.inverted().transform(ell_obj[i].get_verts())
+            # path_xy  = ax.transData.inverted().transform(ell_obj[i].get_verts())
             path_xy = ell_obj[i].get_verts()
             ind_xmin = np.argmin(path_xy[:, 0])
             ind_xmax = np.argmax(path_xy[:, 0])
@@ -1751,7 +1758,8 @@ def individualised_labels(ax, markers_dict, diagram, eq=True, A=None,
                                 xy_ymin[1], xy_ymax[1], ea_disp, eb_disp)
 
             if ints.size == 0:
-                warnings.warn(f'plotting age ellipse t = {t[i]} Ma failed')
+                warnings.warn(f'individualised age ellipse label routine failed '
+                              f'for {t[i]} Ma marker')
                 np.array(markers_dict['add_label'])[i] = False
                 an.remove()
                 continue
