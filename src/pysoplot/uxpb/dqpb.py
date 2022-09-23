@@ -560,9 +560,8 @@ def isochron(b, A, t0, age_type, init=(True, True)):
     r = optimize.newton(fmin, t0, dfmin, args=args, full_output=True,
                         disp=False)
     if not r[1].converged:
-        raise exceptions.ConvergenceError(f'disequilibrium isochron age did not '
-              f'converge did not converge after maximum number of iterations, '
-              f'fmin = {fmin(r[0], *args)}')
+        raise exceptions.ConvergenceError('disequilibrium isochron age did not '
+              'converge did not converge after maximum number of iterations')
     t = r[0]
     return t
 
@@ -583,7 +582,7 @@ def pbu(x, A, t0, age_type, init=(True, True)):
     t, r = optimize.newton(fmin, t0, dfmin, args=args, full_output=True,
                            disp=False)
     if not r.converged:
-        raise exceptions.ConvergenceError('Pb/U age routine did not converge '
+        raise exceptions.ConvergenceError('disequilibrium Pb/U age did not converge '
                 'after maximum number of iterations')
     return t
 
@@ -626,7 +625,7 @@ def guillong(x, fXU, t0, age_type):
     t, nr = optimize.newton(fmin, t0, dfmin, args=(x, fXU, *DC), full_output=True,
                             disp=False)
     if not nr.converged:
-        raise exceptions.ConvergenceError('Guillong modified Pb/U age routine '
+        raise exceptions.ConvergenceError('Guillong disequilibrium Pb/U age '
                   'did not converge after maximum number of iterations')
     return t
 
@@ -642,7 +641,7 @@ def sakata(x, y, fThU, fPaU, Pb76, t0):
     t, nr = optimize.bisect(fmin, 1e-06, 100, args=args, full_output=True,
                             disp=False)
     if not nr.converged:
-        raise exceptions.ConvergenceError('Sakata modified 207Pb age routine '
+        raise exceptions.ConvergenceError('Sakata modified 207Pb age '
                   'did not converge after maximum number of iterations')
     return t
 
@@ -661,7 +660,7 @@ def concordant_A48i(t75, b86, A08, A68, DC8, BC8, A48i_guess=1.):
                         disp=False)
     if not r[1].converged:
         raise exceptions.ConvergenceError('forced concordant initial [234U/238U] '
-               'routine did not converge after maximum number of iterations')
+               'value did not converge after maximum number of iterations')
     return r[0]
 
 
@@ -747,7 +746,7 @@ def concint_multiple(a, b, A, init, t0, age_lim=(0., 20.), t_step=1e-5,
         A08i = A08i[accept]
 
     if len(ages) < 1:
-        raise ValueError('no disequilibrium age solutions found within '
+        raise ValueError('no disequilibrium concordia-intercept age solutions found within '
                          'age and activity ratio limits')
 
     return ages, A48i, A08i
