@@ -400,7 +400,7 @@ def oned_dp(ax, x, xpm, rand_pm=None, sorted=False, labels=None):
     top = np.max(x + xpm)
     bottom = np.min(x - xpm)
     yspread = top - bottom
-    ypad = 0.1 * yspread
+    ypad = 0.33 * yspread
     ax.set_ylim((bottom - ypad, top + ypad))
 
     # add labels
