@@ -268,8 +268,9 @@ def lsq(x, y):
     inv = np.linalg.inv(x.T @ x)
     theta = inv @ x.T @ y
     e = np.dot(x, theta) - y
+    e = e.flatten()
     sigfit2 = (e.T @ e) / (n - 2)
-    return theta, sigfit2 * inv
+    return theta.flatten(), sigfit2 * inv
 
 
 def lad(x, y):
