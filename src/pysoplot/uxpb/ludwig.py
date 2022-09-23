@@ -112,7 +112,7 @@ def bateman(DC, series='238U'):
         # DC[1] = lam234
         # DC[2] = lam230
         # DC[3] = lam226
-        # DC[4] = lam210
+        # DC[4] = lam210 <- not currently used
 
         # ignoring 210Pb
         c1 = DC[1] * DC[2] * DC[3] / ((DC[0] - DC[1]) * (DC[0] - DC[2]) * (DC[0] - DC[3]))
@@ -131,7 +131,7 @@ def bateman(DC, series='238U'):
     else:
         # DC[0] = lam235
         # DC[1] = lam231
-        # DC[2] = lam227
+        # DC[2] = lam227 <- not currently used
         
         # ignoring 227Ac
         d1 = DC[1] / (DC[0] - DC[1])
