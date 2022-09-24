@@ -194,7 +194,7 @@ def robust_fit(x, sx, y, sy, r_xy, model='ra', plot=False,
         excess_scatter = True if s > s_upper95 else False
         fitted_model = 'spine'
 
-        if 'rx':    # experimental only
+        if model == 'rx':    # !!! experimental only !!!
             if excess_scatter:
                 covtheta *= (s / s_upper95) ** 2
                 fitted_model = 'spine x'
