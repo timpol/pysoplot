@@ -377,9 +377,6 @@ def pbu_age(t, x, sx, trials=10_000, DThU=None, DThU_1s=None, DPaU=None,
     if negative_ar:
         warnings.warn('negative_ar option not yet implemented in Monte Carlo simulation')
 
-    A48_eq = 1.0
-    A68_eq = 1.0
-
     n = x.size
     flags = np.zeros((trials, n), dtype='uint8')
     ts = np.empty((trials, n))                  # pre-allocate ages array
@@ -419,7 +416,7 @@ def pbu_age(t, x, sx, trials=10_000, DThU=None, DThU_1s=None, DPaU=None,
         # simulate activity ratios
         if method == 'Ludwig':
             if age_type == 'Pb6U8':
-                args = (xs, (A48_eq, fXU[:, i], A68_eq), DC, BC)
+                args = (xs, (cfg.A48_eq, fXU[:, i], cfg.A68_eq), DC, BC)
             else:
                 args = (xs, (fXU[:, i]), DC, BC)
         elif method == 'Guillong':
@@ -448,7 +445,7 @@ def pbu_age(t, x, sx, trials=10_000, DThU=None, DThU_1s=None, DPaU=None,
                 if age_type == 'Pb6U8':
                     DC = (cfg.lam238, cfg.lam234, cfg.lam230, cfg.lam226)
                     BC = ludwig.bateman(DC)
-                    args = (xs, [A48_eq, rfXU, A68_eq], DC, BC)
+                    args = (xs, [cfg.A48_eq, rfXU, cfg.A68_eq], DC, BC)
                 else:
                     DC = (cfg.lam235, cfg.lam231)
                     BC = ludwig.bateman(DC, series='235U')
@@ -482,10 +479,10 @@ def pbu_age(t, x, sx, trials=10_000, DThU=None, DThU_1s=None, DPaU=None,
         'median_age': [np.nanmedian(t[ok]) for t in ts.T],
         'cov_t': np.cov(np.transpose(ts[ok])),
         'trials': trials,
-        'fails': np.sum(flags != 0, axis=1),
-        'not_converged': np.sum(flags == mc.NON_CONVERGENCE, axis=1),
-        'negative_ages': np.sum(flags == mc.NEGATIVE_AGE, axis=1),
-        'negative_distr_coeff': np.sum(flags == mc.NEGATIVE_AR_SIM, axis=1)
+        'fails': np.sum(flags != 0, axis=0),
+        'not_converged': np.sum(flags == mc.NON_CONVERGENCE, axis=0),
+        'negative_ages': np.sum(flags == mc.NEGATIVE_AGE, axis=0),
+        'negative_distr_coeff': np.sum(flags == mc.NEGATIVE_AR_SIM, axis=0)
     }
     if rand:
         okr = np.all(flagr == 0, axis=1)
@@ -495,10 +492,10 @@ def pbu_age(t, x, sx, trials=10_000, DThU=None, DThU_1s=None, DPaU=None,
         results['age_rand_95pm'] = [np.nanmean((t - m, p - t)) for m, p in rand_age_95ci]
         results['mean_rand_age'] = [np.nanmean(t[okr]) for t in tr.T]
         results['median_rand_age'] = [np.nanmedian(t[okr]) for t in tr.T]
-        results['rand_fails'] = np.sum(flagr != 0, axis=1)
-        results['rand_not_converged'] = np.sum(flagr == mc.NON_CONVERGENCE, axis=1)
-        results['rand_negative_ages'] = np.sum(flagr == mc.NEGATIVE_AGE, axis=1)
-        results['rand_distr_coeff'] = np.sum(flagr == mc.NEGATIVE_AR_SIM, axis=1)
+        results['rand_fails'] = np.sum(~okr)
+        results['rand_not_converged'] = np.sum(flagr == mc.NON_CONVERGENCE, axis=0)
+        results['rand_negative_ages'] = np.sum(flagr == mc.NEGATIVE_AGE, axis=0)
+        results['rand_distr_coeff'] = np.sum(flagr == mc.NEGATIVE_AR_SIM, axis=0)
 
     if any(hist):
         raise ValueError('not yet coded')
@@ -640,10 +637,10 @@ def mod207_age(t, x, sx, y, sy, r_xy, Pb76, Pb76se, ThU_min=None,
         'median_age': [np.nanmedian(t[ok]) for t in ts.T],
         'cov_t': np.cov(np.transpose(ts[ok])),
         'trials': trials,
-        'fails': np.sum(flags != 0, axis=1),
-        'not_converged': np.sum(flags == mc.NON_CONVERGENCE, axis=1),
-        'negative_ages': np.sum(flags == mc.NEGATIVE_AGE, axis=1),
-        'negative_distr_coeff': np.sum(flags == mc.NEGATIVE_AR_SIM, axis=1),
+        'fails': np.sum(flags != 0, axis=0),
+        'not_converged': np.sum(flags == mc.NON_CONVERGENCE, axis=0),
+        'negative_ages': np.sum(flags == mc.NEGATIVE_AGE, axis=0),
+        'negative_distr_coeff': np.sum(flags == mc.NEGATIVE_AR_SIM, axis=0),
     }
     if rand:
         okr = np.all(flagr == 0, axis=1)
@@ -651,10 +648,10 @@ def mod207_age(t, x, sx, y, sy, r_xy, Pb76, Pb76se, ThU_min=None,
         results['age_rand_95ci'] = [np.quantile(t[okr], (0.025, 0.975)) for t in tr.T]
         results['mean_rand_age'] = [np.nanmean(t[okr]) for t in tr.T]
         results['median_rand_age'] = [np.nanmedian(t[okr]) for t in tr.T]
-        results['rand_fails'] = np.sum(flagr != 0, axis=1)
-        results['rand_not_converged'] = np.sum(flagr == mc.NON_CONVERGENCE, axis=1)
-        results['rand_negative_ages'] = np.sum(flagr == mc.NEGATIVE_AGE, axis=1)
-        results['rand_distr_coeff'] = np.sum(flagr == mc.NEGATIVE_AR_SIM, axis=1)
+        results['rand_fails'] = np.sum(flagr != 0, axis=0)
+        results['rand_not_converged'] = np.sum(flagr == mc.NON_CONVERGENCE, axis=0)
+        results['rand_negative_ages'] = np.sum(flagr == mc.NEGATIVE_AGE, axis=0)
+        results['rand_distr_coeff'] = np.sum(flagr == mc.NEGATIVE_AR_SIM, axis=0)
 
     if hist[0]:
         results['age_hist'] = age_hist
