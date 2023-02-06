@@ -1,5 +1,5 @@
 """
-Miscellaneous functions
+Miscellaneous functions.
 
 """
 
@@ -39,7 +39,14 @@ def pos_def(x, tol=1e-8):
 
 def cdiff(x, f, h, *args, **kwargs):
     """
-    Estimate derivative using central difference method
+    Estimate derivative using central difference method.
+
+    Notes
+    ------
+    The result is quite sensitive to the h value chosen. A suitable h is
+    difficult to determine a priori, but often 1e-08 \times x is a reasonable
+    guess.
+
     """
     return (f(x + h, *args, **kwargs) - f(x - h, *args, **kwargs)) / (2.0 * h)
 
@@ -65,6 +72,33 @@ def covmat_to_cormat(cov):
     cor = cov / outer_v
     cor[cov == 0] = 0
     return cor
+
+
+def compile_vxy(x, sx, y, sy, rxy=None):
+    """
+    Compile full covariance matrix for 2-D data points.
+    """
+    if x.ndim != 1:
+        raise ValueError('inputs must be 1-D arrays')
+    elif not x.shape == sx.shape == y.shape == sy.shape:
+        raise ValueError
+    if rxy is not None:
+        if rxy.shape != x.shape:
+            raise ValueError
+    else:
+        rxy = np.zeros_like(x)
+
+    n = x.size
+
+    i1 = np.arange(n)
+    i2 = np.arange(n, 2 * n)
+    cov_xy = rxy * sx * sy
+    Vxy = np.block([[np.diag(sx ** 2), np.zeros((n, n))],
+                       [np.zeros((n, n)), np.diag(sy ** 2)]])
+    Vxy[i1, i2] = cov_xy
+    Vxy[i2, i1] = cov_xy
+
+    return Vxy
 
 
 #=========================
