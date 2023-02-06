@@ -224,8 +224,11 @@ def pbu_iterative(age_type='206Pb*', meas_232Th_238U=True):
 
             def dfmin(t, x, y, Th232_U238, ThU_melt, fPaU, alpha, Lam238, Lam235,
                      coef238, coef235):
-
-                raise ValueError('not yet coded')
+                # TODO: code analytical derivative
+                h = t * 1e-08
+                args = (x, y, Th232_U238, ThU_melt, fPaU, alpha, Lam238, Lam235,
+                     coef238, coef235)
+                return misc.cdiff(t, fmin, h, *args)
 
         else:
             def fmin(t, x, y, Pb208_206, ThU_melt, fPaU, alpha, Lam238, Lam235,
@@ -235,7 +238,8 @@ def pbu_iterative(age_type='206Pb*', meas_232Th_238U=True):
                 y : measured 207Pb/206Pb
                 alpha : common 207Pb/206Pb
                 """
-                Th232_U238 = x * Pb208_206 * (1. / (np.exp(cfg.lam232 * t) - 1.))
+
+                Th232_U238 = (1. / x) * Pb208_206 * (1. / (np.exp(cfg.lam232 * t) - 1.))
                 ThU_min = Th232_U238 * (exp(cfg.lam232 * t)
                         / (exp(cfg.lam238 * t) + np.exp(cfg.lam235 * t) / cfg.U))
                 fThU = ThU_min / ThU_melt
@@ -250,34 +254,39 @@ def pbu_iterative(age_type='206Pb*', meas_232Th_238U=True):
                 """
 
                 """
-                num = np.exp(cfg.lam232 * t) / (np.exp(cfg.lam232 * t) - 1.)
-                den = np.exp(cfg.lam238 * t) +  np.exp(cfg.lam235 * t) / cfg.U
-                fThU = x * Pb208_206 * (num / den) / ThU_melt
-
-                dnum = -cfg.lam232 * np.exp(cfg.lam232 * t) / (
-                        np.exp(cfg.lam232 * t) - 1.) ** 2
-                dden = cfg.lam238 * np.exp(cfg.lam238 * t) \
-                       + cfg.lam235 * np.exp(cfg.lam235 * t) / cfg.U
-                dfThU = x * Pb208_206 / ThU_melt * (dnum * den
-                            - num * dden) / den ** 2
-
-                num = ludwig.g(t, fPaU, Lam235, coef235) / cfg.U - (y - alpha) / x
-                dnum = ludwig.dgdt(t, fPaU, Lam235, coef235) / cfg.U
-
-                den = ludwig.f(t, [cfg.a234_238_eq, fThU, cfg.a226_238_eq],
-                                    Lam238, coef238)
-                df1, df2, _, df4 = ludwig.dfdt_comp(t, [cfg.a234_238_eq, np.nan,
-                                     cfg.a226_238_eq], Lam238, coef238)
-                df3 = dfThU * Lam238[0] / Lam238[2] * (
-                        coef238[7] * exp((Lam238[0] - Lam238[2]) * t)
-                        + coef238[8] * exp((Lam238[0] - Lam238[3]) * t) + exp(Lam238[0] * t)) \
-                      + fThU * Lam238[0] / Lam238[2] * (
-                        coef238[7] * (Lam238[0] - Lam238[2]) * exp((Lam238[0] - Lam238[2]) * t)
-                        + coef238[8] * (Lam238[0] - Lam238[3]) * exp((Lam238[0] - Lam238[3]) * t)
-                        + Lam238[0] * exp(Lam238[0] * t))
-                dden = df1 + df2 + df3 + df4
-
-                return (dnum * den - num * dden) / den ** 2
+                # TODO: double chek this
+                # num = np.exp(cfg.lam232 * t) / (np.exp(cfg.lam232 * t) - 1.)
+                # den = np.exp(cfg.lam238 * t) +  np.exp(cfg.lam235 * t) / cfg.U
+                # fThU = x * Pb208_206 * (num / den) / ThU_melt
+                #
+                # dnum = -cfg.lam232 * np.exp(cfg.lam232 * t) / (
+                #         np.exp(cfg.lam232 * t) - 1.) ** 2
+                # dden = cfg.lam238 * np.exp(cfg.lam238 * t) \
+                #        + cfg.lam235 * np.exp(cfg.lam235 * t) / cfg.U
+                # dfThU = x * Pb208_206 / ThU_melt * (dnum * den
+                #             - num * dden) / den ** 2
+                #
+                # num = ludwig.g(t, fPaU, Lam235, coef235) / cfg.U - (y - alpha) / x
+                # dnum = ludwig.dgdt(t, fPaU, Lam235, coef235) / cfg.U
+                #
+                # den = ludwig.f(t, [cfg.a234_238_eq, fThU, cfg.a226_238_eq],
+                #                     Lam238, coef238)
+                # df1, df2, _, df4 = ludwig.dfdt_comp(t, [cfg.a234_238_eq, np.nan,
+                #                      cfg.a226_238_eq], Lam238, coef238)
+                # df3 = dfThU * Lam238[0] / Lam238[2] * (
+                #         coef238[7] * exp((Lam238[0] - Lam238[2]) * t)
+                #         + coef238[8] * exp((Lam238[0] - Lam238[3]) * t) + exp(Lam238[0] * t)) \
+                #       + fThU * Lam238[0] / Lam238[2] * (
+                #         coef238[7] * (Lam238[0] - Lam238[2]) * exp((Lam238[0] - Lam238[2]) * t)
+                #         + coef238[8] * (Lam238[0] - Lam238[3]) * exp((Lam238[0] - Lam238[3]) * t)
+                #         + Lam238[0] * exp(Lam238[0] * t))
+                # dden = df1 + df2 + df3 + df4
+                #
+                # return (dnum * den - num * dden) / den ** 2
+                h = t * 1e-08
+                args = (x, y, Pb208_206, ThU_melt, fPaU, alpha, Lam238, Lam235,
+                        coef238, coef235)
+                return misc.cdiff(t, fmin, h, *args)
 
     return fmin, dfmin
 
