@@ -95,6 +95,7 @@ def classical_wav(x, sx=None, V=None, method='ca'):
     """
     assert method in ('ca')                  # only one method at present
     assert (sx is not None) ^ (V is not None)
+    assert cfg.mswd_ci_thresholds[1] >= cfg.mswd_ci_thresholds[0]
 
     n = x.shape[0]
     assert n > 1
@@ -112,12 +113,12 @@ def classical_wav(x, sx=None, V=None, method='ca'):
     p = stats.pr_fit(df, mswd)
 
     # get mswd_regression_thresholds:
-    mswd_threshold_1 = stats.mswd_conf_limits(df, p=cfg.mswd_ci_thresholds[0])
-    mswd_threshold_2 = stats.mswd_conf_limits(df, p=cfg.mswd_ci_thresholds[1])
+    mswd_threshold_1 = stats.mswd_conf_limits(df, p=cfg.mswd_wav_ci_thresholds[0])
+    mswd_threshold_2 = stats.mswd_conf_limits(df, p=cfg.mswd_wav_ci_thresholds[1])
 
     # equivalent p thresholds -
-    p_threshold_1 = 1. - cfg.mswd_ci_thresholds[0]
-    p_threshold_2 = 1. - cfg.mswd_ci_thresholds[1]
+    p_threshold_1 = 1. - cfg.mswd_wav_ci_thresholds[0]
+    p_threshold_2 = 1. - cfg.mswd_wav_ci_thresholds[1]
 
     # If p is below limit, then expand errors to account for excess scatter.
     excess_scatter = True if mswd > mswd_threshold_1 else False
