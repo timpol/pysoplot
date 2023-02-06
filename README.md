@@ -4,7 +4,7 @@
 
 [//]: # ([![DOI]&#40;https://zenodo.org/badge/DOI/....svg&#41;]&#40;https://doi.org/...&#41;)
 
-**Pysoplot** is a Python library that provides basic functions and routines for geochronology. It implements some of the core functionality of the popular (and now defunct) Isoplot/Ex. software, but also includes new algorithms and routines. Pysoplot is intended to be used by geochronologists to build custom scripts and data processing routines in order to meet individual requirements.
+**Pysoplot** is a Python library that provides basic functions and routines for geochronology. It implements some of the core functionality of the popular (and now defunct) Isoplot/Ex. software, but also includes new algorithms and routines. Pysoplot is intended to be used to build custom geochronology scripts and data processing routines in order to meet individual requirements.
 
 Pysoplot includes functions for:
 * performing linear regression on 2-D data using the model 1, 2 and 3 algorithms popularised by Isoplot/Ex.
