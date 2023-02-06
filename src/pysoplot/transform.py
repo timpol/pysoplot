@@ -1,14 +1,8 @@
 """
 Transform data points, regression fits, etc.
 
-References
-----------
-.. [Ludwig2000]
-    Ludwig, K.R., 2000. Decay constant errors in U–Pb concordia-intercept ages.
-    Chemical Geology 166, 315–318.
-    https://doi.org/10.1016/S0009-2541(99)00219-3
-
 """
+
 
 import numpy as np
 
@@ -18,7 +12,7 @@ from . import cfg
 def dp_errors(dp, in_error_type, append_corr=True, row_wise=True, dim=2,
               tol=1e-10):
     """
-    Convert data point errors to 1 sigma absolute.
+    Convert data point uncertainties to 1 :math:`\sigma` absolute.
 
     Parameters
     ----------
@@ -31,7 +25,7 @@ def dp_errors(dp, in_error_type, append_corr=True, row_wise=True, dim=2,
         True if each row is a data point and each column is a variable. False if
         vice versa.
     dim : int
-        1 for single variable data, 2 for diagram data.
+        1 for univariate data (e.g. Pb*/U data), 2 for multivariate (2-D) data.
 
     """
     assert in_error_type in ('abs1s', 'abs2s', 'per1s', 'per2s', 'rel1s', 'rel2s')
@@ -91,8 +85,16 @@ def dp_errors(dp, in_error_type, append_corr=True, row_wise=True, dim=2,
 def transform_fit(fit, transform_to='wc'):
     """
     Transform regression theta and covtheta from Tera-Wasserburg
-    coordinates to Wetheril (conventional discordia) coordinates or vice versa
+    coordinates to Wetheril coordinates (or vice versa)
     in one go.
+
+    Parameters
+    ----------
+    fit : dict
+        Regression fit parameters.
+    transform_to : {'wc', 'tw'}, optional
+        Diagram coordinates to output.
+
     """
     theta = transform_theta(fit['theta'], transform_to=transform_to)
     covtheta = transform_covtheta(fit['theta'], fit['covtheta'],
@@ -104,9 +106,18 @@ def transform_theta(theta, transform_to='wc'):
     """
     Transform theta from Tera-Wasserburg (tw) coordinates to Wetheril
     (conventional concordia, wc) coordinates or vice versa.
-    WC int / slope are denoted A / B.
-    T-W int / slope are denoted a / b.
+
+    Parameters
+    ----------
+    theta : array-like, 1-D
+        Linear regression y-intercept and slope values.
+    transform_to : {'wc', 'tw'}, optional
+        Diagram coordinates to output.
+
     """
+    # WC int / slope are denoted A / B.
+    # T-W int / slope are denoted a / b.
+
     assert transform_to in ('wc', 'tw')
     if transform_to == 'wc':
         a, b = theta
@@ -124,7 +135,23 @@ def transform_covtheta(theta0, covtheta0, transform_to='wc'):
     """
     Transform regression fit covtheta from Tera-Wasserburg coordinates to
     Wetheril (conventional discordia) coordinates or vice versa.
-    See, e.g., Ludwig (2000), Chemical Geology, 166, 315–318
+    See, e.g., Ludwig (2000).
+
+    Parameters
+    ----------
+    theta0: array-like, 1-D
+        Linear regression y-intercept and slope parameters.
+    covtheta0 : np.ndarray, 2 x 2
+        Covariance matrix of regression fit parameters.
+    transform_to : {'wc', 'tw'}, optional
+        Diagram coordinates to output.
+
+    References
+    ----------
+    Ludwig, K.R., 2000. Decay constant errors in U–Pb concordia-intercept ages.
+    Chemical Geology 166, 315–318.
+    https://doi.org/10.1016/S0009-2541(99)00219-3
+
     """
     assert transform_to in ('tw', 'wc')
     a, b = theta0
@@ -134,7 +161,7 @@ def transform_covtheta(theta0, covtheta0, transform_to='wc'):
     else:
         raise ValueError('not yet coded')
     covtheta = jac @ covtheta0 @ jac.T
-    #TODO: there is an error here causing incorrect sign for covariance!!!
+    #TODO: there is an error here causing incorrect sign for covariance!?!
     covtheta[1, 0] *= -1.
     covtheta[0, 1] *= -1.
     return covtheta
@@ -144,9 +171,10 @@ def transform_centroid(xbar, ybar, transform_to='wc'):
     """
     Transform x-bar and y-bar for classical regression fit from Terra-Wasserburg
     to Wetheril or vice versa.
-    WC variables are denoted X, Y
-    T-W variables are denoted x, y
     """
+    # WC variables are denoted X, Y
+    # T-W variables are denoted x, y
+
     assert transform_to in ('wc', 'tw')
     if transform_to == 'wc':
         Xbar = ybar * cfg.U / xbar
@@ -160,11 +188,26 @@ def transform_centroid(xbar, ybar, transform_to='wc'):
 
 def transform_dp(x0, ox0, y0, oy0, r_xy0, to='wc'):
     """
-    Transform data points. E.g. see Ludwig (1998, 2012) and Noda (2017).
-    WC --> X, Y
-    T-W --> x, y
+    Transform concordia diagram data points from Tera-Wasserburg to Wetheril
+    concordia or vice versa.
 
+    Notes
+    -----
+    E.g., see Ludwig (1998) and Noda (2017).
+
+    References
+    ----------
+    Ludwig, K.R., 1998. On the treatment of concordant uranium-lead ages.
+    Geochimica et Cosmochimica Acta 62, 665–676.
+    https://doi.org/10.1016/S0016-7037(98)00059-3
+
+    Noda, A., 2017. A new tool for calculation and visualization of U.
+    Bulletin of the Geological Survey of Japan 1–10.
     """
+
+    # WC --> X, Y
+    # T-W --> x, y
+
     assert to in ('wc', 'tw')
     #TODO: use matrix multiplication instead ??
     if to == 'wc':
