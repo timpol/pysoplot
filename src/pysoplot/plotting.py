@@ -1,20 +1,6 @@
 """
 Plotting routines and functions.
 
-Notes
-------
-Currently based on matplotlib. In future core functions may be re-written
-to make them plotting libray independent.
-
-References
-----------
-.. [Ludwig1980]
-    Ludwig, K.R., 1980. Calculation of uncertainties of U-Pb isotope data. Earth
-    and Planetary Science Letters 212–202.
-.. [Noda2017]
-    Noda, A., 2017. A new tool for calculation and visualization of U. Bulletin of
-    the Geological Survey of Japan 1–10.
-
 """
 
 
@@ -23,12 +9,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from matplotlib import ticker
-from matplotlib import transforms
 from matplotlib.patches import Ellipse
 from matplotlib.colors import to_rgba
 from scipy import stats
 
-from . import cfg
+from . import cfg, ludwig
 from . import misc
 
 
@@ -38,7 +23,15 @@ from . import misc
 
 def rline(ax, theta):
     """
-    Add regression line to plot.
+    Plot regression line.
+
+    Parameters
+    -----------
+    ax : matplotlib.pyplot.Axes
+        Axes to plot to.
+    theta: array-like
+        Array with y-intercept as first element and slope as second.
+
     """
     xmin, xmax = ax.get_xlim()
     ax.plot([xmin, xmax],
@@ -48,9 +41,22 @@ def rline(ax, theta):
 
 def renv(ax, fit):
     """
-    Plot error envelope about regression line showing 95% confidence
+    Plot uncertainty envelope about regression line indicating 95% confidence
     limits on fit. For classical regression fits, uses the approach of
     Ludwig (1980), for non-classical fits uses Monte Carlo simulation.
+
+    Parameters
+    -----------
+    ax : matplotlib.pyplot.Axes
+        Axes to plot to.
+    fit: dict
+        Linear regression fit results.
+        
+    References
+    ----------
+    Ludwig, K.R., 1980. Calculation of uncertainties of U-Pb
+    isotope data. Earth and Planetary Science Letters 212–202.
+
     """
     # TODO: this approach fails when x at ymin and x at ymax are very close (?)
 
@@ -79,14 +85,14 @@ def renv_mc(ax, fit):
     """
     Use Monte Carlo simulation to plot regression error envelope.
     """
-    npts = 100                  # number of points to construct curve
-    ns = 10_000                 # number of simulated theta
+    n = 100                  # number of points to construct curve
+    m = 10_000                 # number of simulated theta
 
     theta = fit['theta']
     covtheta = fit['covtheta']
 
     # simulate slope and intercept values
-    ths = cfg.rng.multivariate_normal(theta, covtheta, ns)
+    ths = cfg.rng.multivariate_normal(theta, covtheta, m)
 
     # Find intercept points b/w regression line and axis frame, then
     # sort these by increasing y.
@@ -106,13 +112,13 @@ def renv_mc(ax, fit):
         ymax = w_intercepts[1, 1]
         yspan = ymax - ymin
         # increase span a bit to avoid edge effects
-        yq = np.linspace(ymin - 1.25 * yspan, ymax + 1.25 * yspan, num=npts,
+        yq = np.linspace(ymin - 1.25 * yspan, ymax + 1.25 * yspan, num=n,
                          endpoint=True)
 
         # calculate simulated x for each y and theta combination
         # x = (y - a) / b over each y and a, b combination
-        xq = np.tile(yq, (ns, 1)).T - ths[:, 0]
-        xq /= np.tile(ths[:, 1], (npts, 1))
+        xq = np.tile(yq, (m, 1)).T - ths[:, 0]
+        xq /= np.tile(ths[:, 1], (n, 1))
 
         # get upper and lower limits
         xhigh = np.quantile(xq, 0.975, axis=1)
@@ -128,12 +134,12 @@ def renv_mc(ax, fit):
         xmax = w_intercepts[1, 0]
         xspan = xmax - xmin
         # increase span a bit to avoid edge effects
-        xq = np.linspace(xmin - 1.25 * xspan, xmax + 1.25 * xspan, num=npts,
+        xq = np.linspace(xmin - 1.25 * xspan, xmax + 1.25 * xspan, num=n,
                          endpoint=True)
 
         # calculate simulated y values
         # y = theta . X
-        yq = ths @ np.array((np.ones(npts), xq))
+        yq = ths @ np.array((np.ones(n), xq))
 
         # get upper and lower limits
         yhigh = np.quantile(yq, 0.975, axis=0)
@@ -145,27 +151,75 @@ def renv_mc(ax, fit):
 
 
 def plot_rfit(ax, fit):
-    """Add regression line and regression error envelope to plot in one go.
+    """
+    Plot regression line and uncertainty envelope about regression line
+    indicating 95% confidence limits on fit.
+
+    Parameters
+    -----------
+    ax : matplotlib.pyplot.Axes
+        Axes to plot fit to.
+    fit: dict
+        Linear regression fit results.
+
     """
     rline(ax, fit['theta'])
     renv(ax, fit)
 
 
-def plot_mod207_projection(ax, x, sx, y, sy, r_xy, Pb76):
-    """  """
+def plot_cor207_projection(ax, x, sx, y, sy, r_xy, Pb76, t=None, A=None,
+                           init=None):
+    """
+    Plot projection line from the common 207Pb/206Pb value through the center
+    of the data ellipse. If t is supplied, then the line will be projected to the
+    concordia intercept. Otherwise, it will continue to the edge of the plot.
+
+    Parameters
+    ----------
+    t : array-like, optional
+        Intercept age for data point. Must be same length as x and y.
+    """
     n = x.shape[0]
+    if t is not None:
+        assert t.shape[0] == n
+        assert A is not None and init is not None
+
     for i in range(n):
         a = Pb76
         b = (y[i] - a) / x[i]
-        theta = (a, b)
-        ax.plot([0, x[i]],
-                [np.dot(theta, [1., 0.]), np.dot(theta, [1., x[i]])],
+
+        if t is not None:
+            DC8 = np.array((cfg.lam238, cfg.lam234, cfg.lam230, cfg.lam226))
+            DC5 = np.array((cfg.lam235, cfg.lam231))
+            BC8 = ludwig.bateman(DC8)
+            BC5 = ludwig.bateman(DC5, series='235U')
+            xc = 1. / ludwig.f(t[i], A[:-1], DC8, BC8, init=init)
+            yc = ludwig.g(t[i], A[-1], DC5, BC5) * xc / cfg.U
+        else:
+            yc = ax.get_ylim()[0]
+            xc = (yc - a) / b
+
+        ax.plot([0, xc], [a, yc],
                 label='projection line', **cfg.pb76_line_kw)
 
 
 def plot_dp(x, sx, y, sy, r_xy, labels=None, p=0.95, reset_axis_limits=True):
     """
-    Plot 2-dimensional data points as confidence ellipses.
+    Plot 2-dimensional data points with assigned uncertainties as confidence
+    ellipses.
+
+    Parameters
+    -----------
+    x : np.ndarray
+        x values (as 1-dimensional array)
+    sx : np.ndarray
+        uncertainty on x at :math:`1\sigma` abs.
+    y : np.ndarray
+        y values
+    sy : np.ndaray
+        uncertainty on y at :math:`1\sigma` abs.
+    r_xy : np.ndarray
+        x-y correlation coefficient
 
     Notes
     ------
@@ -262,53 +316,6 @@ def confidence_ellipse(ax, x, sx, y, sy, r_xy, p=0.95, mpl_label='data ellipse',
     return ax.add_patch(ellipse)
 
 
-def confidence_ellipse2(ax, x, y, cov, n_std=2.0, **ellipse_kw):
-    """
-    Alternative confidence ellipse routine from:
-    https://matplotlib.org/devdocs/gallery/statistics/confidence_ellipse.html
-
-    Create a plot of the covariance confidence ellipse of *x* and *y*.
-    n_std : The number of standard deviations to determine the ellipse's
-            radii.
-
-    CAREFUL : is the scaling here correct for a true confidence ellipse? definition
-    from the doc string seems incorrect.
-
-    """
-    if x.size != y.size:
-        raise ValueError("x and y must be the same size")
-
-    if not misc.pos_def(cov):
-        raise ValueError('data point covariance matrix is not positive definite')
-
-    # cov = np.cov(x, y)
-    pearson = cov[0, 1] / np.sqrt(cov[0, 0] * cov[1, 1])
-    # Using a special case to obtain the eigenvalues of this
-    # two-dimensionl dataset.
-    ell_radius_x = np.sqrt(1 + pearson)
-    ell_radius_y = np.sqrt(1 - pearson)
-    ellipse = Ellipse((0, 0), width=ell_radius_x * 2, height=ell_radius_y * 2,
-                      **ellipse_kw)
-
-    # Calculating the stdandard deviation of x from
-    # the squareroot of the variance and multiplying
-    # with the given number of standard deviations.
-    scale_x = np.sqrt(cov[0, 0]) * n_std
-    mean_x = np.mean(x)
-
-    # calculating the stdandard deviation of y ...
-    scale_y = np.sqrt(cov[1, 1]) * n_std
-    mean_y = np.mean(y)
-
-    transf = transforms.Affine2D() \
-        .rotate_deg(45) \
-        .scale(scale_x, scale_y) \
-        .translate(mean_x, mean_y)
-
-    ellipse.set_transform(transf + ax.transData)
-    return ax.add_patch(ellipse)
-
-
 #=================================
 # Weighted average plots
 #=================================
@@ -316,24 +323,25 @@ def confidence_ellipse2(ax, x, y, cov, n_std=2.0, **ellipse_kw):
 def wav_plot(x, xpm, xb, xbpm, rand_pm=None, sorted=False, ylim=(None, None),
              x_multiplier=1., dp_labels=None):
     """
-    Plot 1d data points and weighted average as line and uncertainty band.
+    Plot weighted average as line and uncertainty band and data points as
+    uncertainty bars.
 
     Parameters
     ----------
     x : np.ndarray
-        values to be averaged
+        Values to be averaged as 1-dimensional array.
     xpm : np.ndarray
-        symmetrical +/- errors on x
+        Symmetrical +/- errors on x.
     xb : float
-        average value (x-bar)
+        Average value (x-bar).
     xbpm : float
-        symmetrical +/- error on xb
+        Symmetrical +/- error on xb.
     rand_pm : np.ndarray, optional
-        random symmetrical +/- errors on x
+        Random symmetrical +/- errors on x.
     x_multiplier :
-        Use for unit conversion (e.g. set to 1000 for Ma to ka)
+        Use for unit conversion (e.g. set to 1000 for Ma to ka conversion)
     dp_labels : array-like, optional
-        data point labels
+        Data point labels.
 
     """
     assert all([x >= 0 for x in xpm])
@@ -379,9 +387,9 @@ def oned_dp(ax, x, xpm, rand_pm=None, sorted=False, labels=None):
         ax.bar(ind, heights, bottom=bottoms, width=cfg.wav_marker_width,
                **cfg.wav_markers_rand_kw, label='wav marker rand')
         # systematic errors
-        if not all(xpm > rand_pm):
+        if not np.all(xpm >= rand_pm):
             warnings.warn('random only analytical errors were greater than '
-                          'totol errors for one or more data points')
+                          'or equal to total errors for one or more data points')
         # upper segment:
         heights = xpm - rand_pm
         ax.bar(ind, heights, bottom=(x + rand_pm), width=cfg.wav_marker_width,
@@ -394,7 +402,7 @@ def oned_dp(ax, x, xpm, rand_pm=None, sorted=False, labels=None):
         heights = 2. * xpm
         bottoms = x - xpm
         ax.bar(ind, heights, bottom=bottoms, width=cfg.wav_marker_width,
-               **cfg.wav_markers_rand_kw, label='wav marker full')
+               **cfg.wav_markers_kw, label='wav marker full')
 
     # set y-axis limits
     top = np.max(x + xpm)
@@ -422,19 +430,30 @@ def wav_line(ax, xb, xbpm, env=True):
     if env:
         y_low = xb - xbpm
         y_hi = xb + xbpm
-        ax.axhspan(y_low, y_hi, **cfg.wav_env_kw, label='wav env')
+        ax.axhspan(y_low, y_hi, **cfg.wav_env_kw)
 
+        # ax.axhspan(y_low, y_hi, **cfg.wav_env_kw, label='wav env')
+        # xx = ax.get_xlim()
+        # ax.fill_between(xx, y_hi, y_low, **cfg.wav_env_kw)
 
 #=================================
 # Plot settings and formatting
 #=================================
 
 def apply_plot_settings(fig, plot_type='isochron', diagram=None,
-                xlim=(None, None), ylim=(None, None), axis_labels=(None, None),
-                tight_layout=True, norm_isotope='204Pb'):
+        xlim=(None, None), ylim=(None, None), axis_labels=(None, None),
+        norm_isotope='204Pb'):
     """
-    Set labels, axis limits, and apply label, tick, grid formatting settings
-    from cfg.
+    Set axis labels and limits. Apply label, tick, grid formatting settings as
+    defined in pysoplot.cfg.
+
+    Parameters
+    -----------
+    fig : matplotlib.pyplot.Figure
+        Figure to apply settings to.
+    plot_type : {'isochron', 'intercept', 'wav', 'hist'}, optional
+        Plot type.
+
     """
     assert plot_type in ('isochron', 'intercept', 'wav', 'hist')
 
@@ -448,15 +467,11 @@ def apply_plot_settings(fig, plot_type='isochron', diagram=None,
             set_axis_labels(ax, diagram=diagram, norm_isotope=norm_isotope,
                         axis_labels=axis_labels)
 
-        # # set spine params
-        # for pos in ['left', 'right', 'bottom', 'top']:
-        #     ax.spines['left'].set(**cfg.spine_kw)
-
-        # Set spine options
-        if len(cfg.spine_kw.keys()) > 0:
-            plt.setp(ax.spines.values(), **cfg.spine_kw)
+        # set spine params
+        ax.spines[:].set_zorder(100)
 
         # Set major tick properties.
+        # TODO: tick zorder still not working properly due a mpl bug.
         if plot_type == 'wav':
             ax.tick_params(axis='y', which='major', **cfg.major_ticks_kw)
             # Set minor tick properties.
@@ -520,7 +535,8 @@ def apply_plot_settings(fig, plot_type='isochron', diagram=None,
         t.set_size(cfg.exp_font_size)
 
     # tight layout
-    fig.tight_layout()
+    # note - calling this if tight_layout is already True, may set it to False?
+    # fig.tight_layout()
 
 
 def set_axis_limits(ax, xmin=None, xmax=None, ymin=None, ymax=None):
@@ -572,14 +588,14 @@ def set_axis_labels(ax, diagram='tw', norm_isotope='204Pb',
     """
     xlabel, ylabel = None, None
 
-    if diagram == 'Pb6U8':
+    if diagram == 'Pb206*':
         ylabel = "$^{206}$Pb/$^{238}$U age (Ma)"
 
-    elif diagram == 'Pb7U5':
+    elif diagram == 'Pb207*':
         ylabel = "$^{207}$Pb/$^{235}$U age (Ma)"
 
-    elif diagram == 'mod-207Pb':
-        ylabel = "Modified $^{207}$Pb age (Ma)"
+    elif diagram == 'cor-207Pb':
+        ylabel = "$^{207}$Pb-corrected age (Ma)"
 
     elif diagram == "tw":
         xlabel = "$^{238}$U/$^{206}$Pb"
@@ -589,19 +605,19 @@ def set_axis_labels(ax, diagram='tw', norm_isotope='204Pb',
         xlabel = "$^{207}$Pb/$^{235}$U"
         ylabel = "$^{206}$Pb/$^{238}$U"
 
-    elif diagram == 'iso-Pb6U8' and norm_isotope == '208Pb':
+    elif diagram == 'iso-206Pb' and norm_isotope == '208Pb':
         xlabel = "$^{238}$U/$^{208}$Pb"
         ylabel = "$^{206}$Pb/$^{208}$Pb"
 
-    elif diagram == 'iso-Pb6U8' and norm_isotope == '204Pb':
+    elif diagram == 'iso-206Pb' and norm_isotope == '204Pb':
         xlabel = "$^{238}$U/$^{204}$Pb"
         ylabel = "$^{206}$Pb/$^{204}$Pb"
 
-    elif diagram == 'iso-Pb7U5' and norm_isotope == '208Pb':
+    elif diagram == 'iso-207Pb' and norm_isotope == '208Pb':
         xlabel = "$^{235}$U/$^{208}$Pb"
         ylabel = "$^{207}$Pb/$^{208}$Pb"
 
-    elif diagram == 'iso-Pb7U5' and norm_isotope == '204Pb':
+    elif diagram == 'iso-207Pb' and norm_isotope == '204Pb':
         xlabel = "$^{235}$U/$^{204}$Pb"
         ylabel = "$^{207}$Pb/$^{204}$Pb"
 
