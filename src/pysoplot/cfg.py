@@ -1,39 +1,5 @@
 """
-Settings, constants and options used package-wide.
-
-In future these settings may be stored in a configuration file instead.
-
-References
-----------
-.. [Cheng2013]
-    Cheng, H., Lawrence Edwards, R., Shen, C.-C., Polyak, V.J., Asmerom, Y.,
-    Woodhead, J., Hellstrom, J., Wang, Y., Kong, X., Spötl, C., Wang, X.,
-    Calvin Alexander, E., 2013. Improvements in 230Th dating, 230Th and
-    234U half-life values, and U–Th isotopic measurements by multi-collector
-    inductively coupled plasma mass spectrometry. Earth and Planetary
-    Science Letters 371–372, 82–91. https://doi.org/10.1016/j.epsl.2013.04.006
-.. [Hiess2012]
-    Hiess, J., Condon, D.J., McLean, N., Science, S.N., 2012. 238U/235U
-    systematics in terrestrial uranium-bearing minerals. Science.
-    https://doi.org/10.1126/science.1215507
-.. [Jaffey1971]
-    Jaffey, A.H., Flynn, K.F., Glendeni, L.E., Bentley, W.C., Essling, A.M.,
-    1971. Precision measurement of half-lives and specific activities of
-    U-235 and U-238. Physical Review C 4, 1889–1906.
-.. [Jerome2020]
-    Jerome, S., Bobin, C., Cassette, P., Dersch, R., Galea, R., Liu, H., Honig,
-    A., Keightley, J., Kossert, K., Liang, J., Marouli, M., Michotte, C.,
-    Pommé, S., Röttger, S., Williams, R., Zhang, M., 2020. Half-life
-    determination and comparison of activity standards of 231Pa. Applied
-    Radiation and Isotopes 155, 108837.
-    https://doi.org/10.1016/j.apradiso.2019.108837
-.. [Ludwig1977]
-    Ludwig, K.R., 1977. Effect of initial radioactive-daughter disequilibrium on
-    U-Pb isotope apparent ages of young minerals. Journal of Research of
-    the US Geological Survey 5, 663–667.
-.. [Robert1969]
-    Robert, J., Miranda, C.F., Muxart, R., 1969. Mesure de la période du
-    protactinium 231 par microcalorimétrie. Radiochimica Acta 11, 104–108.
+Package-wide settings and constants.
 
 """
 
@@ -42,107 +8,86 @@ import numpy as np
 
 #==============================================================================
 # Physical Constants
-# All decay constants are in Ma^-1.
-# Computations are performed in Ma as this tends to promote numerical stability
-# over using a.
 #==============================================================================
+lam238 = 0.000155125479614  #: 238U decay constant [Ma^-1]. Default [JAFFEY1971]_.
+lam235 = 0.000984849860843  #: 235U decay constant [Ma^-1]. Default [JAFFEY1971]_.
+lam234 = 2.822030700105632  #: 234U decay constant [Ma^-1]. Default [CHENG2013]_.
+lam231 = 21.15511004303205  #: 231Pa decay constant [Ma^-1]. Default [ROBERT1969]_.
+lam230 = 9.170554357535263  #: 230Th decay constant [Ma^-1]. Default [CHENG2013]_.
+lam227 = 31506.69
+lam226 = 433.2169878499658  #: 226Ra decay constant [Ma^-1]
+lam210 = 31506.69
+lam232 = 4.947517348750502e-05  #: 232Th decay constant [Ma^-1] (default [HOLDEN1990]_)
 
-# Decay constants in Ma^-1
-lam238 = np.log(2) / (4.4683E09 * 1E-6)    # Jaffey et al., (1971)
-lam235 = np.log(2) / (7.0381E08 * 1E-6)    # Jaffey et al., (1971)
-lam234 = np.log(2) / (245620 * 1E-6)       # Cheng et al., (2013)
-lam231 = np.log(2) / (3.2765e4 * 1E-6)     # Robert et al., (1969)
-# lam231 = np.log(2) / (3.2570e4 * 1E-6)     # Jerome et al., (2020)
-lam230 = np.log(2) / (75584 * 1E-6)        # Cheng et al., (2013)
-lam227 = np.log(2) / (22. * 1E-6)
-lam226 = np.log(2) / (1600. * 1E-6)
-lam210 = np.log(2) / (22. * 1E-6)
-
-# Decay constant errors
-# 1 sigma absolute in Ma^-1
-s238 = lam238 ** 2 / np.log(2) * (0.0024E09 * 1E-6)   # Jaffey et al., (1971)
-s235 = lam235 ** 2 / np.log(2) * (0.0048E08 * 1E-6)   # Jaffey et al., (1971)
-s234 = lam234 ** 2 / np.log(2) * (130. * 1E-6)        # Cheng et al., (2013)
-s231 = lam231 ** 2 / np.log(2) * (110. * 1E-6)        # Robert et al., (1969)
-# s231 = lam231 ** 2 / np.log(2) * (130. * 1E-6 )       # Jerome et al., (2020)
-s230 = lam230 ** 2 / np.log(2) * (55. * 1E-6)         # Cheng et al., (2013)
-s227 = 0.
-s226 = lam226 ** 2 / np.log(2) * (7. * 1E-6)
-s210 = 0.
+s238 = 8.332053601458737e-08  #: 238U decay constant 1 sigma uncertainty [Ma^-1]. Default [JAFFEY1971]_.
+s235 = 6.716698160081028e-07  #: 235U decay constant 1 sigma uncertainty [Ma^-1]. Default [JAFFEY1971]_.
+s234 = 0.001493624261109568   #: 234U decay constant 1 sigma uncertainty [Ma^-1]. Default [CHENG2013]_.
+s231 = 0.07102280191465059    #: 231Pa decay constant 1 sigma uncertainty [Ma^-1]. Default [ROBERT1969]_.
+s230 = 0.006673111897550267   #: 230Th decay constant 1 sigma uncertainty [Ma^-1]. Default [CHENG2013]_.
+s227 = 0.0
+s226 = 1.8953243218436007     #: 226Ra decay constant 1 sigma uncertainty [Ma^-1]
+s210 = 0.0
+s232 = 3.531422306388949e-07  #: 232Th decay constant 1 sigma uncertainty [Ma^-1]. Default [HOLDEN1990]_.
 
 # Decay constant error correlations
 # Note: there are probably no practical cases where these error correlations
-# are significant ???
+# are significant?
 cor_238_234 = 0.95194         # estimated from Cheng et al. (2013)
 cor_238_230 = 0.71046         # estimated from Cheng et al. (2013)
 cor_234_230 = 0.67631         # estimated from Cheng et al. (2013)
 
 # Natural uranium 238U/235U ratio
-U = 137.818                               # Hiess, 2012 (approx. 'bulk Earth' value)
-sU = 0.0225                               # Hiess, 2012
+U = 137.818                   #: Modern natural 238U/235U ratio. Default [HIESS2012]_.
+sU = 0.0225                   #: Modern natural 238U/235U ratio 1 sigma uncertainty. Default [HIESS2012]_.
 
 # Equilibrium activity ratio values
-A48_eq = 1.0
-A08_eq = 1.0
-A68_eq = 1.0
-A15_eq = 1.0
+a234_238_eq = 1.0
+a230_238_eq = 1.0
+a226_238_eq = 1.0
+a231_235_eq = 1.0
+
+a234_238_eq_1s = 0.
+a230_238_eq_1s = 0.
+a226_238_eq_1s = 0.
+a231_235_eq_1s = 0.
 
 
 #==============================================================================
 # Computation parameters
-#
-# secular_eq : bool
-#   !!! Experimental feature !!!
-#   If False, U-series equations derived following the approach of Ludwig (1977)
-#   are implemented rather than the standard equations based on the assumption of
-#   no decay of 238U. Note, that Cheng et al. (2013) decay constants
-#   are computed assuming secular equilibrium so these should be re-computed
-#   using their measured eq. 234U/238U and 230Th/238U values if implementing
-#   this option. I.e. lam234 = 2.8221577 [Ma^-1] and lam230 = 9.1705 [Ma^-1].
-#   TODO: double check these values
-#
-# cfg.rng : Generator object
-#   Used across all modules.
-#   Allows for reproducible Monte Carlo simulations results.
-#   See: https://numpy.org/doc/stable/reference/random/generator.html
-#
-#==============================================================================\
+#==============================================================================
+
+#: bool: If False, U-series equations based on Bateman (1910) are implemented
+#:    rather than the standard equations that rely on the assumption of negligible
+#:   decay of 238U. Note, that the default Cheng et al. (2013) decay constants
+#:   are computed assuming secular equilibrium so these should be re-computed
+#:   using their measured eq. 234U/238U and 230Th/238U values if implementing
+#:   this option. I.e., lam234 = 2.8221577 [Ma^-1] and lam230 = 9.1705 [Ma^-1].
+#:   This is an *experimental* feature.
+# TODO: double check the above calcs
 secular_eq = True
+
+#: :class:`numpy.Generator` : Random number generator used across all modules.
+#:  Allows for reproducible Monte Carlo simulations results.
 rng = np.random.default_rng()
 
 
 #==============================================================================
 # Statistical parameters
-# h : float
-#   spine cut-off value (see Powell et al., 2020)
-# mswd_ci_thresholds: array-like
-#     MSWD one-sided confidence interval thresholds for classical regression
-#     fits. First element is the model 1 –> 1x threshold, second element is the
-#     model 1x –> 2/3 threshold.
-# mswd_wav_ci_thresholds : array-like
-#     MSWD one-sided confidence interval thresholds for classical wtd.averages.
-#     First element is analytical –> analytical + observed scatter threshold.
-#     Second element is not yet used. Equivalent Isoplot default for first
-#     element is 0.70?
 #==============================================================================
+
+#: float : Spine h value (see [Powell2020]_).
 h = 1.4
+
+#: MSWD one-sided confidence interval thresholds for classical
+#: regression fits. First element is the model 1 –> 1x threshold, second element
+#: is the model 1x –> 2/3 threshold.
 mswd_ci_thresholds = [0.85, 0.95]
+
+#: MSWD one-sided confidence interval thresholds for classical wtd. averages.
+#: First element is analytical –> analytical + observed scatter threshold.
+#: Second element is not yet used. Equivalent Isoplot default for first
+#: element is 0.70.
 mswd_wav_ci_thresholds = [0.85, 0.95]
-
-
-#===========================================
-# Isoplot constants - for testing purposes
-#===========================================
-IsoLam238 = 1.55125E-10 * (10 ** 6)     # in Ma^-1
-IsoLam234 = 2.8338E-6 * (10 ** 6)
-IsoLam230 = 9.19525E-6 * (10 ** 6)
-IsoLam235 = 9.8485E-10 * (10 ** 6)
-IsoLam231 = 2.13276E-5 * (10 ** 6)
-IsoS238 = 0.107 * IsoLam238 / 200.
-IsoS234 = 0.2 * IsoLam234 / 200.
-IsoS230 = 0.3 * IsoLam230 / 200.
-IsoS235 = 0.136 * IsoLam235 / 200.
-IsoU = 137.88
 
 
 #=================================
@@ -217,44 +162,49 @@ remove_overlaps = False
 # Plot format settings
 #=================================
 
+#: Axis labels key-word arguments.
 axis_labels_kw = {
-    'color': 'k',
+    'color': 'black',
     'fontsize': 10,
 }
 
+#: Concordia age ellipse marker key-word arguments.
 conc_age_ellipse_kw = {
     'alpha': 1.0,
     'edgecolor': 'black',
     'facecolor': "white",
     'linewidth': 0.5,
-    'zorder': 20
+    'zorder': 10
 }
-
+#: Concordia uncertainty envelope fill key-word arguments.
 conc_env_kw = {
     'alpha': 1.0,
     'edgecolor': 'none',
-    'facecolor': '#FFFFC0',
-    'linestyle': '--',
+    'facecolor': 'white',
+    'linestyle': '-',
     'linewidth': 0.0,
-    'zorder': 18
+    'zorder': 8
 }
 
+#: Concordia envelope line key-word arguments.
 conc_env_line_kw = {
     'alpha': 1.0,
     'color': 'black',
     'linestyle': '--',
-    'linewidth': 0.80,
-    'zorder': 18
+    'linewidth': 1.0,
+    'zorder': 8
 }
 
+#: Concordia intercept ellipse key-word arguments.
 conc_intercept_ellipse_kw = {
     'alpha': 0.60,
     'edgecolor': 'black',
-    'facecolor': '#C5F7C5',
+    'facecolor': 'lightgrey',
     'linewidth': 1.0,
-    'zorder': 25
+    'zorder': 30
 }
 
+#: Concordia intercept markers key-word arguments.
 conc_intercept_markers_kw = {
     'alpha': 0.5,
     'markeredgecolor': 'none',
@@ -262,17 +212,19 @@ conc_intercept_markers_kw = {
     'linewidth': 0,
     'marker': ',',
     'markersize': 4,
-    'zorder': 25,
+    'zorder': 30,
 }
 
+#: Concordia line key-word arguments.
 conc_line_kw = {
     'alpha': 1.0,
     'color': 'black',
     'linestyle': '-',
     'linewidth': 0.80,
-    'zorder': 19,
+    'zorder': 9,
 }
 
+#: Concordia age markers key-word arguments.
 conc_markers_kw = {
     'alpha': 1.0,
     'linewidth': 0,
@@ -280,12 +232,11 @@ conc_markers_kw = {
     'markeredgecolor': 'black',
     'markerfacecolor': 'white',
     'markersize': 4,
-    'zorder': 20,
+    'zorder': 10,
 }
 
-# Be careful changing the annotation_clip and clip_on settings!!!
-# Note: Some settings will be filtered out if the individualised_labels
-# routine is called.
+#: Concordia marker labels key-word arguments.
+#: Caution: Be careful changing the annotation_clip and clip_on settings.
 conc_text_kw = {
     'annotation_clip': False,
     'clip_on': True,
@@ -295,17 +246,19 @@ conc_text_kw = {
     'textcoords': 'offset points',
     'verticalalignment': 'center',
     'xytext': (3, 3),
-    'zorder': 21,
+    'zorder': 11,
 }
 
+#: Data point confidence ellipse key-word arguments.
 dp_ellipse_kw = {
-    'alpha': 0.8,
+    'alpha': 1.0,
     'edgecolor': 'black',
-    'facecolor': '#1FB714',
-    'linewidth': 0.50,
-    'zorder': 30
+    'facecolor': 'white',
+    'linewidth': 0.80,
+    'zorder': 40
 }
 
+#: Data point confidence ellipse key-word arguments.
 dp_label_kw = {
     'color': 'black',
     'fontsize': 8,
@@ -313,16 +266,18 @@ dp_label_kw = {
     'textcoords': 'offset points',
     'verticalalignment': 'center',
     'xytext': (10, 0),
-    'zorder': 30
+    'zorder': 40
 }
 
+#: Figure key-word arguments.
 fig_kw = {
     'dpi': 300,
-    'facecolor': 'whitesmoke',
+    'facecolor': 'white',
     'figsize': (4.72, 4.012),
     'tight_layout': True,
 }
 
+#: Figure gridline key-word arguments.
 gridlines_kw = {
     'alpha': 1.0,
     'color': 'black',
@@ -330,6 +285,7 @@ gridlines_kw = {
     'linewidth': 0.5,
 }
 
+#: Histogram bar key-word arguments.
 hist_bars_kw = {
     'alpha': 0.75,
     'edgecolor': 'red',
@@ -338,59 +294,70 @@ hist_bars_kw = {
     'linewidth': 0.75,
 }
 
+#: Histogram figure key-word arguments.
 hist_fig_kw = {
     'dpi': 300,
-    'facecolor': 'whitesmoke',
+    'facecolor': 'white',
     'figsize': (4.72, 4.012),
     'tight_layout': True,
 }
 
+#: Major axis tick key-word arguments.
 major_ticks_kw = {
     'color': 'black',
     'direction': 'in',
     'length': 4,
     'width': 0.5,
+    'zorder': 100,
 }
 
+#: Minor axis tick key-word arguments.
 minor_ticks_kw = {
     'color': 'black',
     'direction': 'in',
     'length': 2,
     'width': 0.5,
+    'zorder': 100,
 }
 
+#: Common 207Pb/206Pb projection line key-word arguments.
 pb76_line_kw = {
     'alpha': 0.5,
-    'color': 'blue',
+    'color': 'red',
     'linestyle': '--',
     'linewidth': 1.,
     'zorder': 10,
 
 }
 
+#: Regression envelope key-word arguments.
 renv_kw = {
     'alpha': 0.30,
     'edgecolor': 'none',
-    'facecolor': 'blue',
+    'facecolor': 'none',
     'linewidth': 0.,
-    'zorder': 9,
+    'zorder': 20,
 }
 
+#: Regression envelope line key-word arguments.
 renv_line_kw = {
     'alpha': 1.0,
-    'color': 'blue',
-    'linewidth': 0.,
-    'zorder': 9,
+    'color': 'red',
+    'linewidth': 0.8,
+    'linestyle': '--',
+    'zorder': 20,
 }
 
+#: Regression line key-word arguments.
 rline_kw = {
     'alpha': 1.0,
-    'color': 'blue',
+    'color': 'red',
     'linestyle': '-',
-    'linewidth': 0.80,
-    'zorder': 10,
+    'linewidth': 0.75,
+    'zorder': 21,
 }
 
+#: Scatter plot marker key-word arguments.
 scatter_markers_kw = {
     "alpha": 0.3,
     "markeredgecolor": "none",
@@ -401,49 +368,60 @@ scatter_markers_kw = {
     "zorder": 1,
 }
 
+#: Figure axis spine key-word arguments. Spines are the axis lines.
 spine_kw = {
-    'color': 'k',
+    'color': 'red',
     'linewidth': 0.8,
+    'zorder': 100
 }
 
-# subplot_kw passed to matplotlib.pyplot.subplots()
+#: subplot_kw passed to matplotlib.pyplot.subplots().
 subplot_kw = {
     'facecolor': 'white'
 }
 
+#: Weighted average envelope key-word arguments.
 wav_env_kw = {
     'alpha': 0.8,
-    'facecolor': 'palegreen',
+    'facecolor': 'lightgrey',
     'edgecolor': 'none',
-    'linestyle': '--',
+    'linestyle': '-',
     'linewidth': 0.0,
-    'zorder': 9,
+    'zorder': 19,
 }
 
+#: Weighted average figure key-word arguments.
 wav_fig_kw = {
     'dpi': 300,
-    'facecolor': 'whitesmoke',
+    'facecolor': 'white',
     'figsize': (4.72, 4.012),
     'tight_layout': True,
 }
 
+#: Weighted average line key-word arguments.
 wav_line_kw = {
     'alpha': 1.0,
     'color': 'black',
     'linestyle': '-',
     'linewidth': 1.,
-    'zorder': 10,
+    'zorder': 20,
 }
 
-
+#: Weighted average data point marker key-word arguments.
 wav_markers_kw = {
     'alpha': 1.0,
-    'color': 'lightblue',
-    'zorder': 31
+    'color': 'white',
+    'edgecolor': 'blue',
+    'linewidth': 1.,
+    'zorder': 41
+
 }
 
+#: Weighted average random only uncertainty data point marker key-word arguments.
 wav_markers_rand_kw = {
     'alpha': 1.0,
     'color': 'blue',
-    'zorder': 30
+    'edgecolor': 'blue',
+    'linewidth': 1.,
+    'zorder': 40
 }
