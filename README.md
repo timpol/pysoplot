@@ -17,7 +17,7 @@ Pysoplot includes functions for:
 
 * computing age uncertainties using Monte Carlo methods
 
-For more info, see the online [documentation](https://timpol.github.io/DQPB/).
+For more info, see the online [documentation](https://timpol.github.io/pysoplot/).
 
 ## Installation
 
