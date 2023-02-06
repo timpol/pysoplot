@@ -547,14 +547,15 @@ def pbu_iterative_age(x, Vx, ThU_melt, ThU_melt_1s, t0, Pb208_206=None,
     if age_type == '206Pb*':
         if x.ndim != 1 or Vx.shape != (x.size, x.size):
             raise ValueError('inputs have incompatible dimensions')
+        n = len(x)
 
     if age_type == 'cor207Pb':
         if x.ndim != 2 or x.shape[0] != 2 or Vx.shape != (2 * x[1].size, 2 * x[1].size):
             raise ValueError('inputs have incompatible dimensions')
         if (DPaU is None) or (alpha is None):
             raise ValueError('must provide y, D_PaU, and alpha for cor-207Pb age')
+        n = len(x[0])
 
-    n = len(x)
     v_shape = (n, n)
 
     if Th232_U238 is not None:
@@ -583,7 +584,7 @@ def pbu_iterative_age(x, Vx, ThU_melt, ThU_melt_1s, t0, Pb208_206=None,
 
     for i in range(n):
 
-        kwargs = {}
+        kwargs = dict(age_type=age_type)
 
         try:
             if meas_Th232_U238:
@@ -591,7 +592,7 @@ def pbu_iterative_age(x, Vx, ThU_melt, ThU_melt_1s, t0, Pb208_206=None,
             else:
                 kwargs.update(dict(Pb208_206=Pb208_206[i]))
             if age_type == 'cor207Pb':
-                kwargs.update(dict(D_PaU=DPaU, alpha=alpha))
+                kwargs.update(dict(DPaU=DPaU, alpha=alpha))
 
             if age_type == '206Pb*':
                 t[i], ThU_min[i] = pbu_iterative(x[i], ThU_melt, t0[i], **kwargs)
@@ -839,8 +840,8 @@ def pbu(x, A, t0, age_type, alpha=None, init=(True, True)):
     return t
 
 
-def pbu_iterative(x, ThU_melt, t0, y=None, Th232_U238=None, Pb208_206=None,
-        D_PaU=None, alpha=None, age_type='206Pb*', maxiter=50,
+def pbu_iterative(x, ThU_melt, t0, Th232_U238=None, Pb208_206=None,
+        DPaU=None, alpha=None, age_type='206Pb*', maxiter=50,
         tol=1e-08):
     """
     Compute disequilibrium 206Pb*/U238 or 207Pb-corrected ages iteratively.
@@ -879,18 +880,24 @@ def pbu_iterative(x, ThU_melt, t0, y=None, Th232_U238=None, Pb208_206=None,
     if age_type == 'cor207Pb':
         Lam235 = (cfg.lam235, cfg.lam231)
         coef235 = ludwig.bateman(Lam235, series='235U')
+        x, y = x
+        Pb206_U238 = 1. / x
+    else:
+        Pb206_U238 = x
 
     meas_Th232_U238 = True if Th232_U238 is not None else False
-    fmin, dfmin = minimise.pbu(age_type=age_type)
+    fmin, dfmin = minimise.pbu(age_type=age_type)   # note: use pbu not pbu_iterative here
+
     iter = 1
 
     while iter < maxiter:
         iter += 1
 
         if not meas_Th232_U238:
-            Th232_U238 = x * Pb208_206 * (1. / (np.exp(cfg.lam232 * t0) - 1.))
+            Th232_U238 = Pb206_U238 * Pb208_206 * (1. / (np.exp(cfg.lam232 * t0) - 1.))
 
-        # Compute initial Th/U ratio from measured 232Th/238U ratio:
+        # Compute initial Th/U ratio from measured 232Th/238U ratio (perhaps
+        # this is excessive?):
         ThU_min = Th232_U238 * (exp(cfg.lam232 * t0)
             / (exp(cfg.lam238 * t0) + np.exp(cfg.lam235 * t0) / cfg.U))
         fThU = ThU_min / ThU_melt
@@ -899,8 +906,8 @@ def pbu_iterative(x, ThU_melt, t0, y=None, Th232_U238=None, Pb208_206=None,
             args = (x, [cfg.a234_238_eq, fThU, cfg.a226_238_eq], Lam238,
                     coef238)
         else:
-            args = (x, y, Pb208_206, ThU_melt, D_PaU, Lam238, Lam235, coef238,
-                     coef235, alpha)
+            args = (x, y, [cfg.a234_238_eq, fThU, cfg.a226_238_eq, DPaU], alpha,
+                    cfg.U, Lam238, Lam235, coef238, coef235)
 
         t, r = optimize.newton(fmin, t0, dfmin, args=args, full_output=True,
                        disp=False)
@@ -910,6 +917,9 @@ def pbu_iterative(x, ThU_melt, t0, y=None, Th232_U238=None, Pb208_206=None,
               f'iteration {iter} of Pb/U iterative age routine')
 
         if abs(t - t0) / t0 < tol:
+            # Get Th/U_min solution
+            if not meas_Th232_U238:
+                Th232_U238 = Pb206_U238 * Pb208_206 * (1. / (np.exp(cfg.lam232 * t0) - 1.))
             ThU_min = Th232_U238 * (exp(cfg.lam232 * t)
                     / (exp(cfg.lam238 * t) + np.exp(cfg.lam235 * t) / cfg.U))
             return t, ThU_min
@@ -1268,7 +1278,7 @@ def pbu_uncert(t, x, Vx, a230_238=None, a231_235=None,
 
 def pbu_iterative_uncert(t, ThU_min, x, Vx, ThU_melt, ThU_melt_1s,
         Th232_U238=None, V_Th232_U238=None, Pb208_206=None, V_Pb208_206=None,
-        alpha=None, alpha_1s=None, age_type='206Pb*'):
+        DPaU=None, DPaU_1s=None, alpha=None, alpha_1s=None, age_type='206Pb*'):
     """
     Compute uncertainties for a suite of co-genetic disequilibrium 206Pb*/238U,
     207Pb*/235U or 207Pb-corrected ages using analytical error propagation.
@@ -1321,7 +1331,7 @@ def pbu_iterative_uncert(t, ThU_min, x, Vx, ThU_melt, ThU_melt_1s,
             raise ValueError('inputs have incompatible dimensions')
 
     if age_type == 'cor207Pb':
-        if x.ndim != 2 or x.shape[0] != 2 or Vx.shape != (x[1].size, x[1].size):
+        if x.ndim != 2 or x.shape[0] != 2 or Vx.shape != (2. * x[1].size, 2. * x[1].size):
             raise ValueError('inputs have incompatible dimensions')
 
     meas_Th232_U238 = False
@@ -1475,7 +1485,7 @@ def pbu_iterative_uncert(t, ThU_min, x, Vx, ThU_melt, ThU_melt_1s,
                           [np.diag(dtdPb208_206)],
                           [dtdThU_melt.reshape(1, n)]])
 
-    elif age_type == 'corPb207':
+    elif age_type == 'cor207Pb':
         raise ValueError('analytical uncertainties not yet implemented for iterative '
                          'cor-207Pb ages')
 
