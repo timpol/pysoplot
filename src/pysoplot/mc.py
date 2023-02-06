@@ -740,7 +740,7 @@ def pbu_iterative_age(t, ThU_min, x, Vx, ThU_melt, ThU_melt_1s, Th232_U238=None,
         raise ValueError('cannot run Monte Carlo simulation if nans in ages array')
 
     meas_232Th_238U = True if Th232_U238 is not None else False
-    n = x.size
+    n = t.size
     failures = np.zeros((trials, n), dtype='uint8')
 
     # pre-allocate ages arrays to store results
@@ -753,7 +753,7 @@ def pbu_iterative_age(t, ThU_min, x, Vx, ThU_melt, ThU_melt_1s, Th232_U238=None,
     coef238 = ludwig.bateman(Lam238)
     if age_type == 'cor207Pb':
         Lam235 = (cfg.lam235, cfg.lam231)
-        coef235 = ludwig.bateman(Lam235)
+        coef235 = ludwig.bateman(Lam235, series='235U')
 
     # Common variables
     ThU_melt_sim = np.random.normal(ThU_melt, ThU_melt_1s, trials)
@@ -774,10 +774,11 @@ def pbu_iterative_age(t, ThU_min, x, Vx, ThU_melt, ThU_melt_1s, Th232_U238=None,
 
     # (Possibly) correlated variables
     if age_type == 'cor207Pb':
-        x_sim, y_sim = cfg.rng.multivariate_normal(
-            x, Vx, trials)
+        xy_sim = cfg.rng.multivariate_normal(x.flatten(), Vx, trials)
+        x_sim, y_sim = np.split(xy_sim, 2, axis=1)
     else:
         x_sim = cfg.rng.multivariate_normal(x, Vx, trials)
+
     if meas_232Th_238U:
         Th232_U238_sim = cfg.rng.multivariate_normal(
             Th232_U238, V_Th232_U238, trials)
