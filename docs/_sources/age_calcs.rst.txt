@@ -2,3 +2,7 @@ Age calculation routines
 ------------------------
 
 Coming soon...
+
+For now, see the DQPB `documentation`_ .
+
+.. _documentation: https://timpol.github.io/DQPB/age_calcs
