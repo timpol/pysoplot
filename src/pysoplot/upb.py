@@ -3,9 +3,12 @@ Functions and routines for U-Pb geochronology.
 
 Notes
 -----
-See pysoplot.uxpb for equivalent functions that account for
+See :mod:`pysoplot.dqpb` for equivalent functions that account for
 disequilibrium in the uranium-series decay chains.
 
+"""
+
+"""
 References
 ----------
 .. [Horstwood2016]
@@ -25,7 +28,6 @@ References
     Powell, R., Green, E.C.R., Marillo Sialer, E., Woodhead, J., 2020. Robust
     isochron calculation. Geochronology 2, 325–342.
     https://doi.org/10.5194/gchron-2-325-2020
-
 """
 
 import warnings
@@ -37,7 +39,7 @@ from scipy.optimize import newton
 from . import isochron
 from . import cfg
 from . import transform
-from . import monte_carlo as mc
+from . import mc as mc
 from . import plotting
 from . import exceptions
 
@@ -64,17 +66,16 @@ def concint_age(fit, method='L1980', diagram='tw', dc_errors=False):
     Returns
     -------
     results : dict
-        Age and age uncertainty results.
-        `t_95ci` is uncertainty given as a 95% confidence interval.
-        `t _95pm` is uncertainty given as a symmetric 95% confidence plus/minus error.
+        Age results.
 
     Notes
     -----
-    The 'Powell' method focusses on lower intercept age only (< ~100 Ma),
-    but works with all fit type. Age uncertainties are symmetric. The 'L1980' method
-    only works with classical fits. Age uncertainties are asymmetric. The 'L2000'
-    method works with all fit types and optionally accounts for decay constant
-    errors, but requires 2 intercept age solutions.
+        - The 'Powell' method focuses on lower intercept age only (< ~1 Ga),
+          but works with all fit types. Age uncertainties are symmetric.
+        - The 'L1980' method only works with classical fits. Age uncertainties
+          are asymmetric.
+        - The 'L2000' method works with all fit types and optionally accounts \
+          for decay constant errors, but requires 2 intercept age solutions.
 
     """
     assert method in ('Powell', 'L1980', 'L2000')
@@ -166,11 +167,24 @@ def concint_age(fit, method='L1980', diagram='tw', dc_errors=False):
     return results
 
 
-def isochron_age(fit, age_type='iso-Pb6U8', dc_errors=False, norm_isotope='204Pb'):
+def isochron_age(fit, age_type='iso-206Pb', dc_errors=False, norm_isotope='204Pb'):
     """
     Classical U-Pb isochron age and uncertainty.
+
+    Parameters
+    ----------
+    fit : :obj:`dict`
+        Regression fit parameters.
+    age_type : {'iso-206Pb', 'iso-207Pb'}, optional
+        Isochron type.
+
+    Returns
+    -------
+    results : dict
+        Age results.
+
     """
-    assert age_type in ('iso-Pb6U8', 'iso-Pb7U5')
+    assert age_type in ('iso-206Pb', 'iso-207Pb')
     b_95pm = fit['theta_95ci'][1]
     t, t_95pm = isochron.age(fit['theta'][1], sb=b_95pm, age_type=age_type,
                              dc_errors=dc_errors)
@@ -182,24 +196,24 @@ def isochron_age(fit, age_type='iso-Pb6U8', dc_errors=False, norm_isotope='204Pb
     return results
 
 
-def pbu_ages(dp, age_type='Pb6U8', cov=False, Pb76=None, wav=False):
+def pbu_ages(dp, age_type='206Pb*', cov=False, alpha=None, wav=False):
     """
     Pb/U ages and uncertainty.
     !!! Not yet fully coded !!!
     """
-    assert age_type in ('Pb6U8', 'Pb7U5', 'mod-207Pb')
+    assert age_type in ('206Pb*', '207Pb*', 'cor207Pb')
     st = None
 
-    if age_type in ('Pb6U8', 'Pb7U5'):
+    if age_type in ('206Pb*', '207Pb*'):
         x, sx = dp
         n = x.shape[0]
-        t, st = pbu_age(x, sx, age_type=age_type, uncert=True)
+        t, st = pbu_age(x, sx, age_type=age_type)
     else:
-        # use for initial guess at diseq. mod207 ages only !!!
-        assert Pb76 is not None
+        # use for initial guess at diseq. mod207 ages only!
+        assert alpha is not None
         x, sx, y, sy, r_xy = dp
         n = x.shape[0]
-        a = Pb76
+        a = alpha
         b = (y - a) / x
         t = np.empty(x.size)
         for i in range(n):
@@ -414,7 +428,7 @@ def concint_uncert_ludwig2000(t1, t2, theta, covtheta, t_mult, dc_errors=True):
 # Single analysis Pb/U ages
 #==================================================================
 
-def pbu_age(x, sx, age_type='Pb6U8', dc_errors=False, uncert=False):
+def pbu_age(x, sx=None, age_type='206Pb*', dc_errors=False):
     """
     Single analysis Pb/U age.
 
@@ -425,11 +439,11 @@ def pbu_age(x, sx, age_type='Pb6U8', dc_errors=False, uncert=False):
     Horstwood, 2016).
 
     """
-    assert age_type in ('Pb6U8', 'Pb7U5')
-    dc = cfg.lam238 if age_type == 'Pb6U8' else cfg.lam235
-    sdc = cfg.s238 if age_type == 'Pb6U8' else cfg.s235
+    assert age_type in ('206Pb*', '207Pb*')
+    dc = cfg.lam238 if age_type == '206Pb*' else cfg.lam235
+    sdc = cfg.s238 if age_type == '206Pb*' else cfg.s235
     t = 1. / dc * np.log(x + 1.)
-    if not uncert:
+    if sx is None:
         return t
     # Propagate age uncertainty...
     dx = (1. / dc) * 1. / (x + 1.)                        # dt/dx
@@ -442,24 +456,25 @@ def pbu_age(x, sx, age_type='Pb6U8', dc_errors=False, uncert=False):
 # Age minimisation functions
 #=================================
 
-def concint_age_min(t0=1.0, diagram='tw', A48_init=True, A08_init=True):
+def concint_age_min(diagram='tw'):
     """
     Concordia-intercept age minimisation functions for Monte Carlo
     simulation.
     """
     assert diagram in ('tw', 'wc')
-    h = t0 * np.sqrt(np.finfo(float).eps)
 
     if diagram == 'tw':
-        def f(t, a, b, lam238, lam235, U):
-            return (b + a * (np.exp(lam238 * t) - 1.) - (np.exp(lam235 * t) - 1.) / U)
-        def fprime(t, a, b, lam238, lam235, U):
-            return (a * lam238 * np.exp(lam238 * t) - lam235 / U * np.exp(lam235 * t))
+        def fmin(t, a, b, lam238, lam235, U):
+            return b + a * (np.exp(lam238 * t) - 1.) \
+                   - (np.exp(lam235 * t) - 1.) / U
+        def dfmin(t, a, b, lam238, lam235, U):
+            return a * lam238 * np.exp(lam238 * t) \
+                    - lam235 / U * np.exp(lam235 * t)
 
     else:
         raise ValueError('not yet implemented')
 
-    return f, fprime
+    return fmin, dfmin
 
 
 #==================================================================
@@ -470,25 +485,38 @@ def mc_concint(t, fit, trials=50_000, diagram='tw', dc_errors=False,
         U_errors=False, intercept_plot=False, hist=False,
         xlim=(None, None), ylim=(None, None), env=False,
         age_ellipses=False, marker_max=None, marker_ages=(), auto_marker_ages=True,
-        remove_overlaps=True, intercept_points=True, intercept_ellipse=False,
+        remove_overlaps=False, intercept_points=True, intercept_ellipse=False,
         negative_ages=True, age_prefix='Ma'):
     """
-    Equilibrium discordia intercept age errors.
+    Compute Monte Carlo age uncertainties for equilibrium concordia intercept
+    age.
+
+    Parameters
+    -----------
+    t : float
+        Calculated age (Ma).
+    fit : dict
+        Linear regression fit parameters.
+    trials : int
+        Number of Monte Carlo trials.
 
     """
+    # TODO: take in conc_opt dict as arg
     assert diagram in ('tw', 'wc')
 
     if env and not dc_errors:
-        warnings.warn('cannot plot equilbrium concordia envelope if dc_errors set to False')
+        warnings.warn('cannot plot equilbrium concordia envelope if dc_errors '
+                      'set to False')
         env = False
     if age_ellipses and not dc_errors:
-        warnings.warn('cannot plot equilibrium age ellipse markers if dc_errors set to False')
+        warnings.warn('cannot plot equilibrium age ellipse markers if dc_errors '
+                      'set to False')
         age_ellipses = False
 
-    flags = np.zeros(trials)
+    failures = np.zeros(trials)
 
     # draw randomised slope-intercept values
-    (a, b), flags = mc.draw_theta(fit, trials, flags)
+    (a, b), failures = mc.draw_theta(fit, trials, failures)
 
     # draw randomised constants
     if dc_errors:
@@ -500,13 +528,15 @@ def mc_concint(t, fit, trials=50_000, diagram='tw', dc_errors=False,
     U = cfg.rng.normal(cfg.U, cfg.sU, trials) if U_errors else cfg.U
 
     # solve for age using vectorised Newton
-    fmin, dfmin = concint_age_min(diagram='tw', t0=t)
+    fmin, dfmin = concint_age_min(diagram='tw')
     ts, c, zd = newton(fmin, np.full(trials, t), fprime=dfmin,
             args=(a, b, lam238, lam235, U), tol=1e-09, rtol=0, disp=False,
                   maxiter=50, full_output=True)
 
-    flags = mc.check_ages(ts, c, flags, negative_ages=negative_ages)
-    ok = (flags == 0)
+    ts = np.where(c, ts, np.nan)
+    failures = mc.check_ages(ts, ~np.isnan(ts), failures, negative_ages=negative_ages)
+
+    ok = (failures == 0)
     if np.sum(ok) == 0:
         raise ValueError('no successful Monte Carlo simulations')
 
@@ -520,9 +550,9 @@ def mc_concint(t, fit, trials=50_000, diagram='tw', dc_errors=False,
         'mean_age': np.nanmean(ts[ok]),
         'median_age': np.nanmedian(ts[ok]),
         'trials': trials,
-        'fails': sum(flags != 0),
-        'not_converged': sum(flags == mc.NON_CONVERGENCE),
-        'negative_ages': sum(flags == mc.NEGATIVE_AGE)
+        'fails': sum(failures != 0),
+        'not_converged': np.sum(failures == mc.NON_CONVERGENCE),
+        'negative_ages': np.sum(failures == mc.NEGATIVE_AGE)
     }
 
     if hist:
@@ -534,23 +564,26 @@ def mc_concint(t, fit, trials=50_000, diagram='tw', dc_errors=False,
         fig, ax = plt.subplots(**cfg.fig_kw)
 
         # x, y intercep points
-        lams238 = lam238 if not dc_errors else lam238[ok]
-        lams238 = lam238 if not dc_errors else lam238[ok]
+        lam238 = lam238 if not dc_errors else lam238[ok]
+        lam238 = lam238 if not dc_errors else lam238[ok]
         U = U if not U_errors else U[ok]
-        x = 1. / (np.exp(lam238 * ts) - 1.)
-        y = (np.exp(lam235 * ts) - 1.) * x / U
+        xs = 1. / (np.exp(lam238 * ts[ok]) - 1.)
+        ys = (np.exp(lam235 * ts[ok]) - 1.) * xs / U
 
         if intercept_points:
-            ax.plot(x, y, label="intercept markers", **cfg.conc_intercept_markers_kw)
+            ax.plot(xs, ys, label="intercept markers", **cfg.conc_intercept_markers_kw)
         if intercept_ellipse:
-            cov = np.cov(x, y)
-            e = plotting.confidence_ellipse2(
-                ax, np.mean(x), np.mean(y), cov, **cfg.conc_intercept_ellipse_kw,
-                label='intercept ellipse'
-            )
+            x = np.nanmean(xs)
+            y = np.nanmean(ys)
+            sx = np.nanstd(xs)
+            sy = np.nanstd(ys)
+            r_xy = np.corrcoef(xs, ys)[0, 1]
+            e = plotting.confidence_ellipse(ax, x, sx, y, sy, r_xy,
+                        ellipse_kw=cfg.conc_intercept_ellipse_kw,
+                        mpl_label='intercept ellipse')
             ax.add_patch(e)
 
-        mc.intercept_plot_ax_limits(ax, fit['theta'][1], x, y, diagram='tw')
+        mc.intercept_plot_ax_limits(ax, fit['theta'][1], xs, ys, diagram='tw')
         plotting.apply_plot_settings(fig, plot_type='intercept', diagram=diagram,
                                      xlim=xlim, ylim=ylim)
 
