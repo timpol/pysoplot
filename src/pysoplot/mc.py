@@ -78,7 +78,8 @@ def multivariate_t_rvs(m, S, df, n):
 
 def update_failures(failures, cond, code_num):
     """
-    Update array of failed iteration failures.
+    Update array of failed iteration codes without overwriting pre-existing
+    codes.
     """
     if len(cond) != len(failures):
         raise ValueError('flags0, cond, and msk  must be of equal length')
