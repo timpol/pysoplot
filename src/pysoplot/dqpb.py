@@ -27,8 +27,8 @@ nan = np.nan
 # Age calculation routines
 #===========================================
 
-def concint_age(fit, A, sA, init, t0, diagram='tw', dc_errors=False, trials=50_000,
-        u_errors=False, negative_ratios=True, negative_ages=True,
+def concint_age(fit, A, sA, init, t0, diagram='tw', dc_errors=False,
+        trials=50_000, u_errors=False, negative_ratios=True, negative_ages=True,
         intercept_plot=True, hist=(False, False), conc_kw=None,
         intercept_plot_kw=None, A48i_lim=(0., 20.), A08i_lim=(0., 10.),
         age_lim=(0., 20.), uncert='mc'):
@@ -36,6 +36,10 @@ def concint_age(fit, A, sA, init, t0, diagram='tw', dc_errors=False, trials=50_0
     Compute disequilibrium U-Pb concordia intercept age and age uncertainties
     using Monte Carlo simulation. Optionally, produce a plot of the
     concordia intercept.
+
+    Notes
+    ------
+    Only accepts data in 2-D Tera-Wasserburg form at present.
     
     Parameters
     ----------
@@ -56,8 +60,12 @@ def concint_age(fit, A, sA, init, t0, diagram='tw', dc_errors=False, trials=50_0
         typically good enough).
     uncert : {'mc', 'none'}
         Method of computing age uncertainties.
+    diagram : {'tw'}
+        Concordia diagram type. Currently only accepts 'tw', i.e.
+        Tera-Waserburg.
     
     """
+    assert diagram == 'tw'
     assert type(init[0]) == bool and type(init[1] == bool)
 
     if intercept_plot_kw is None:
