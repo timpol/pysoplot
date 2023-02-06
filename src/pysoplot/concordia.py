@@ -1,5 +1,5 @@
 """
-Concordia plotting routines for (dis)equilibrium and U-Pb datasets
+Concordia plotting routines for (dis)equilibrium U-Pb datasets.
 
 """
 
@@ -9,12 +9,10 @@ import numpy as np
 from scipy import integrate
 from scipy.interpolate import interp1d
 
-from . import plotting
+from . import plotting, ludwig
 from . import cfg
 from . import misc
 from . import useries
-
-from .uxpb import ludwig
 
 
 exp = np.exp
@@ -28,15 +26,23 @@ def plot_concordia(ax, diagram, plot_markers=True, env=False,
                    age_ellipses=False, marker_max=None, marker_ages=(),
                    auto_markers=True, remove_overlaps=True, age_prefix='Ma'):
     """
-    Add U-Pb concordia curve to concordia diagram. Raises a warning if
-    concordia curve is outside axis limits and returns.
+    Plot equilibrium U-Pb concordia curve on concordia diagram.
     
     Parameters
     ----------
+    ax : matplotlib.pyplot.Axes
+        Axes object to plot concordia curve in.
+    diagram : {'tw', 'wc'}
+        Concordia diagram type.
     marker_max: float, optional
         User specified age marker max (Ma).
+
+    Raises
+    -------
+    UserWarning: if concordia lies entirely outside the axis limits.
     
     """
+
     assert diagram in ('wc', 'tw')
     # get hard age bounds
     t_bounds = cfg.conc_age_bounds
@@ -83,18 +89,35 @@ def plot_concordia(ax, diagram, plot_markers=True, env=False,
 def plot_diseq_concordia(ax, A, init, diagram, sA=None, age_ellipses=False,
                          plot_markers=True, marker_max=None, env=False, env_method='mc',
                          marker_ages=(), auto_markers=True, spaghetti=False, pA=None,
-                         remove_overlaps=True, env_trials=1_000, negative_ar=True,
+                         remove_overlaps=True, env_trials=1_000, negative_ratios=True,
                          age_prefix='Ma', ):
     """
-    Add disequilibrium U-Pb concordia curve to concordia plot. Raises a warning if
-    concordia curve is outside axis limits and returns.
-    
+    Plot disequilibrium U-Pb concordia curve on concordia diagram.
+
     Parameters
     ----------
-    spaghetti : bool 
+    ax : matplotlib.pyplot.Axes
+        Axes object to plot concordia curve in.
+    A : array-like
+        one-dimensional array of activity ratio values arranged as follows
+        - [234U/238U], [230Th/238U], [226Ra/238U], [231Pa/235U]
+    init : array-like
+        two-element list of boolean values, the first is True if [234U/238U]
+        is an initial value and False if a present-day value, the second is True
+        if [230Th/238U] is an initial value and False if a present-day value
+    sA : array-like, optional
+        one-dimensional array of activity ratio value uncertainties given
+        as 1 sigma absolute and arranged in the same order as A
+    diagram : {'tw', 'wc'}
+        Concordia diagram type.
+    marker_max: float, optional
+        User specified age marker max (Ma).
+    spaghetti : bool
         plot each simulated line using arbitrary colours
-    negative_ar : bool
-        if true, allow simulated negative activity ratio values (not yet implemented)
+
+    Raises
+    -------
+    UserWarning: if concordia lies entirely outside the axis limits.
 
     """
     # get hard age limits depending on which (if any) activity ratios are
@@ -134,10 +157,10 @@ def plot_diseq_concordia(ax, A, init, diagram, sA=None, age_ellipses=False,
                         # only plot envelope for first segment for now
                         mc_diseq_envelope(ax, t_limits[s], t_bounds, A, sA,
                                   diagram='tw', init=init, trials=env_trials,
-                                  spaghetti=spaghetti, negative_ar=negative_ar,
+                                  spaghetti=spaghetti, negative_ratios=negative_ratios,
                                   pA=pA)
-                    else:
-                        analytical_diseq_envelope(ax, t, A, sA, 'tw', init=init)
+                    # else:
+                        # analytical_diseq_envelope(ax, t, A, sA, 'tw', init=init)
 
     # plot markers
     if plot_markers:
@@ -153,7 +176,7 @@ def plot_diseq_concordia(ax, A, init, diagram, sA=None, age_ellipses=False,
         # plot markers for first segment...
         markers = get_age_markers(ax, *t_limits[0], t_bounds, diagram, A=A, sA=sA,
                                   init=init, eq=False, ell=age_ellipses, auto=auto_markers,
-                                  marker_ages=marker_ages, negative_ar=negative_ar,
+                                  marker_ages=marker_ages, negative_ratios=negative_ratios,
                                   age_prefix=age_prefix)
         markers = plot_age_markers(ax, markers)
         # plot markers for second segment...
@@ -191,9 +214,9 @@ def segment_2_markers(t_bounds, markers):
     return markers
 
 
-#=================================
+#==============================================================================
 # Eq concordia functions
-#=================================
+#==============================================================================
 
 def conc_xy(t, diagram):
     """
@@ -279,7 +302,7 @@ def conc_envelope(x, diagram):
 
 def velocity(t, xlim, ylim, diagram):
     """
-    Estimate dr/dt, which is "velocity" along a diseq concordia curve in
+    Estimate dr/dt, which is "velocity" along an equilibrium concordia curve in
     x-y space. Uses axis coordinates to circumvent scaling issues.
     """
     # TODO: this could be calculated analytically for eq case ??
@@ -295,7 +318,7 @@ def velocity(t, xlim, ylim, diagram):
 def equi_points(t1, t2, xlim, ylim, diagram, ngp=500_000, n=500):
     """
     Uses numerical method to obtain age points that are approximately evenly
-    spaced in x, y along U-Pb concordia between age limits t1 and t2.
+    spaced in x, y along equilibrium U-Pb concordia between age limits t1 and t2.
     """
     # TODO: could this be done analytically too?
     assert t2 > t1
@@ -324,16 +347,16 @@ def diseq_xy(t, A, init, diagram):
     """Return x, y for given t along disequilibrium concordia curve.
     """
     assert diagram in ('tw', 'wc')
-    DC8 = np.array((cfg.lam238, cfg.lam234, cfg.lam230, cfg.lam226))
-    DC5 = np.array((cfg.lam235, cfg.lam231))
-    BC8 = ludwig.bateman(DC8)
-    BC5 = ludwig.bateman(DC5, series='235U')
+    Lam238 = np.array((cfg.lam238, cfg.lam234, cfg.lam230, cfg.lam226))
+    Lam235 = np.array((cfg.lam235, cfg.lam231))
+    coef238 = ludwig.bateman(Lam238)
+    coef235 = ludwig.bateman(Lam235, series='235U')
     if diagram == 'tw':
-        x = 1. / ludwig.f(t, A[:-1], DC8, BC8, init=init)
-        y = ludwig.g(t, A[-1], DC5, BC5) * x / cfg.U
+        x = 1. / ludwig.f(t, A[:-1], Lam238, coef238, init=init)
+        y = ludwig.g(t, A[-1], Lam235, coef235) * x / cfg.U
     elif diagram == 'wc':
-        y = ludwig.f(t, A[:-1], DC8, BC8, init=init)
-        x = ludwig.g(t, A[-1], DC5, BC5)
+        y = ludwig.f(t, A[:-1], Lam238, coef238, init=init)
+        x = ludwig.g(t, A[-1], Lam235, coef235)
     return x, y
 
 
@@ -362,7 +385,7 @@ def diseq_slope(t, A, init, diagram):
 
 
 def diseq_age_ellipse(t, A, sA, init, diagram, pA=None, trials=1_000,
-                     negative_ar=True):
+                     negative_ratios=True):
     """
     Plot disequilibrium concordia marker as an "age ellipse" which provides
     a visual representation of uncertainty in x-y for given t value arising from
@@ -370,7 +393,7 @@ def diseq_age_ellipse(t, A, sA, init, diagram, pA=None, trials=1_000,
     """
     if pA is None:
         pA = cfg.rng.normal(A, sA, (trials, 4))
-        if not negative_ar:
+        if not negative_ratios:
             warnings.warn('concordia age ellipse plotting routine does not yet account '
                           'for rejected negative activity ratios')
     else:
@@ -401,7 +424,7 @@ def diseq_age_ellipse(t, A, sA, init, diagram, pA=None, trials=1_000,
     x, y = np.nanmean(xy, axis=1)
     sx, sy = np.sqrt(V.diagonal())
     cov_xy = V[0, 1]
-    r_xy = cov_xy / (sx * sy)
+    # r_xy = cov_xy / (sx * sy)
 
     # reset r_xy for special cases:
     if sA[-1] == 0:
@@ -428,7 +451,7 @@ def diseq_equi_points(t1, t2, xlim, ylim, A, init, diagram, ngp=500_000, n=500):
 
     """
     # TODO: this needs further debugging, sometimes returns t of length n + 1,
-    #        also occasionally returns duplicate t values !!!
+    #        also occasionally returns duplicate t values.
     assert t2 > t1
     t = np.linspace(t1, t2, ngp)
     # suppress numpy warnings
@@ -694,7 +717,7 @@ def walk_ellipse_outward(t0, dt, t_bounds, xlim, ylim, diagram, xtol,
         xpts, ypts = diseq_xy(t1, pA, init, 'tw')   # simulated x-y
         # print(f'ell step {"+" if dt > 0 else "-"}: {step}')
 
-        # TODO: deal with negative_ar?
+        # TODO: deal with negative_ratios?
 
         if dt > 0 and t1 > t_bounds[1]: # if bounds exceeded while still in box..
             return t_bounds[1], 0
@@ -772,7 +795,7 @@ def estimate_marker_spacing(tspan):
 
 def get_age_markers(ax, t1, t2, t_bounds, diagram, eq=True, ell=False, A=None,
                     sA=None, init=None, marker_ages=(), age_prefix='Ma',
-                    auto=True, n_segments=1, negative_ar=True):
+                    auto=True, n_segments=1, negative_ratios=True):
     """
     Add concordia markers to concordia line and generate label text (but
     does not actually add marker labels).
@@ -887,14 +910,14 @@ def get_age_markers(ax, t1, t2, t_bounds, diagram, eq=True, ell=False, A=None,
 
     age_markers = {'diagram': diagram, 'eq': eq, 'A': A, 'sA': sA,
                    'init': init, 'ell': ell, 't': t, 'dt': dt,
-                   'add_label': add_label, 'negative_ar': negative_ar,
+                   'add_label': add_label, 'negative_ratios': negative_ratios,
                    'age_prefix': age_prefix}
 
     return age_markers
 
 
 def age_ellipse_limits(ax, t0, dt, t_bounds, A, sA, init, p=0.998,
-            trials=1_000, diagram='tw', maxiter=40, negative_ar=True):
+            trials=1_000, diagram='tw', maxiter=40, negative_ratios=True):
     """
     Find concordia age ellipse limits near axis window boundaries. Will return
     age bound if it is inside the axis window.
@@ -1044,7 +1067,7 @@ def plot_age_markers(ax, markers, p=0.95):
     A = markers['A']
     sA = markers['sA']
     init = markers['init']
-    negative_ar = markers['negative_ar']
+    negative_ratios = markers['negative_ratios']
 
     t = markers['t']
     ell = markers['ell']
@@ -1061,7 +1084,7 @@ def plot_age_markers(ax, markers, p=0.95):
     if ell:    # plot age markers as ellipses
         ell_obj = []
         bbox = []
-        xm = np.empty(n)    # use mean simulated x, y in case rejecting negative_ar
+        xm = np.empty(n)    # use mean simulated x, y in case rejecting negative_ratios
         ym = np.empty(n)
         sx = np.empty(n)
         sy = np.empty(n)
@@ -1073,7 +1096,7 @@ def plot_age_markers(ax, markers, p=0.95):
                 sx[i], sy[i], cov_xy[i] = conc_age_ellipse(age, diagram)
             else:
                 xm[i], ym[i], sx[i], sy[i], cov_xy[i] = diseq_age_ellipse(
-                    age, A, sA, init, diagram, negative_ar=negative_ar
+                    age, A, sA, init, diagram, negative_ratios=negative_ratios
                 )
 
         for i in range(n):
@@ -1145,11 +1168,13 @@ def plot_envelope(ax, diagram, npts=100):
     dy = 1.96 * conc_envelope(xx, diagram)
     ax.fill_between(xx, y + dy, y - dy, label='concordia envelope',
                     **cfg.conc_env_kw)
+    ax.plot(xx, y - dy, **cfg.conc_env_line_kw, label='concordia envelope line')
+    ax.plot(xx, y + dy, **cfg.conc_env_line_kw, label='concordia envelope line')
 
 
 def mc_diseq_envelope(ax, t_limits, t_bounds, A, sA, diagram='tw',
                 init=(True, True), trials=1_000, limit_trials = 1_000,
-                spaghetti=False, maxiter=50, negative_ar=True, pA=None):
+                spaghetti=False, maxiter=50, negative_ratios=True, pA=None):
     """
     Plot uncertainty envelope about disequilibrium concordia based on Monte
     Carlo simulation. This displays uncertainty in trajectory of concordia
@@ -1228,7 +1253,7 @@ def mc_diseq_envelope(ax, t_limits, t_bounds, A, sA, diagram='tw',
     # Perturb activity ratios
     if pA is None:
         pA = cfg.rng.normal(A, sA, (trials, 4))
-        if not negative_ar:
+        if not negative_ratios:
             warnings.warn('concordia envelope plotting does not yet account for '
                           'rejected negative activity ratio trials')
     else:
@@ -1250,7 +1275,7 @@ def mc_diseq_envelope(ax, t_limits, t_bounds, A, sA, diagram='tw',
             # refine change of sign x-limit....
             markers_dict = dict(
                 diagram='tw', eq=False, A=A, sA=sA, init=init,
-                negative_ar=True, t=np.array([t[-1]]), ell=True,
+                negative_ratios=True, t=np.array([t[-1]]), ell=True,
                 add_label=np.array([False]), age_prefix='Ma')
             plot_age_markers(ax, markers_dict, p=0.99)
             # get ellipse bounds...
@@ -1318,172 +1343,9 @@ def mc_diseq_envelope(ax, t_limits, t_bounds, A, sA, diagram='tw',
                     label='concordia envelope')
 
 
-def analytical_diseq_envelope(ax, t, A, sA, diagram, init=(True, True)):
-    """
-    !!! Experimental function !!!
-
-    Plot uncertainty envelope about disequilibrium concordia based on analytical
-    error propagation. This displays uncertainty in trajectory of concordia
-    arising from uncertainty in activity ratio(s).
-
-    Does not yet permit present [230Th/238U] values and requires further
-    overall testing.
-
-    Needs further checking / testing / debugging.
-    """
-    assert diagram == 'tw'
-    if not init[1]:
-        # issues to resolve when using present [230Th/238U] values.
-        raise ValueError('analytical errors not yet implemented for present '
-                         '[230Th/238U] values')
-
-    l8, l4, l0, l6 = cfg.lam238, cfg.lam234, cfg.lam230, cfg.lam226
-    l5, l1 = cfg.lam235, cfg.lam231
-    DC8 = (l8, l4, l0, l6)
-    DC5 = (l5, l1)
-    BC8 = ludwig.bateman(DC8)
-    BC5 = ludwig.bateman(DC5, series='235U')
-
-    F = ludwig.f(t, [A[0], A[1], A[2]], DC8, BC8, init=init)
-    dF = ludwig.dfdt(t, A[:-1], init=init, comp=False)
-
-    G = ludwig.g(t, A[-1], DC5, BC5)
-    dG = ludwig.dgdt(t, A[-1], comp=False)
-
-    dydt = dydt_func(t, A, F, G, dF, dG, init)
-    dtdA = dtdA_func(t, A, init)
-    pypA = dydA_func(t, A, F, G, init)  # partial derivative
-
-    # Full derivatives.
-    dydA48 = dydt * dtdA[0] + pypA[0]
-    dydA08 = dydt * dtdA[1] + pypA[1]
-    dydA68 = dydt * dtdA[2] + pypA[2]
-    dydA15 = dydt * dtdA[3] + pypA[3]
-
-    # Uncertainty in y at given t values.
-    dy = np.sqrt( (sA[0] * dydA48) **2 + (sA[1] * dydA08) **2
-                  + (sA[2] * dydA68) **2 + (sA[3] * dydA15) **2)
-
-    # Estimate confidence interval from quantiles:
-    x, y = diseq_xy(t, A, init, diagram)
-    y_low = y - 2. * dy
-    y_hi = y + 2. * dy
-
-    ax.plot(x, y_low, **cfg.conc_line_kw)
-    ax.plot(x, y_hi, **cfg.conc_line_kw)
-    ax.fill_between(x, y_low, y2=y_hi, **cfg.conc_env_kw)
-
-
-def dydt_func(t, A, F, G, dF, dG, init):
-    """
-    Partial derivative of y wrt t for Tera-Wasserburg concordia curve.
-    """
-    dydt = (dG * F - G * dF) / (cfg.U * F ** 2)
-    return dydt
-
-
-def dtdA_func(t, A, init):
-    """
-    Partial derivative of t wrt A for U-Pb equations.
-    """
-    l8, l4, l0, l6 = cfg.lam238, cfg.lam234, cfg.lam230, cfg.lam226
-    l5, l1 = cfg.lam235, cfg.lam231
-    c1, c2, c3, c4, h1, h2, h3, p1, p2 = ludwig.bateman((l8, l4, l0, l6))
-    d1, d2 = ludwig.bateman((l5, l1), series='235U')
-
-    DC8 = (l8, l4, l0, l6)
-    DC5 = (l5, l1)
-    BC8 = (c1, c2, c3, c4, h1, h2, h3, p1, p2)
-    BC5 = (d1, d2)
-
-    F1, F2, F3, F4 = ludwig.f_comp(t, A[:-1], DC8, BC8, init=init)
-    F = np.sum((F1, F2, F3, F4))
-    dF1, dF2, dF3, dF4 = ludwig.dfdt(t, A[:-1], init=init, comp=True)
-
-    G1, G2 = ludwig.g_comp(t, A[-1], DC5, BC5)
-    G = np.sum((G1, G2))
-    dG1, dG2 = ludwig.dgdt(t, A[-1], comp=True)
-
-    if init[0]:
-        f2 = l8/l4 * (h1*exp((l8-l4)*t) + h2*exp((l8-l0)*t) + h3*exp((l8-l6)*t)
-                      + exp(l8*t))
-        df2 = l8/l4 * (h1*(l8-l4)*exp((l8-l4)*t) + h2*(l8-l0)*exp((l8-l0)*t)
-                        + h3*(l8-l6)*exp((l8-l6)*t) + l8*exp(l8*t))
-        dw2 = 0.
-    else:
-        f2 = l8/l4 * (h1*exp(l8*t) + h2*exp((l8-l0+l4)*t)
-                      + h3*exp((l8-l6+l4)*t) + exp((l8+l4)*t))
-        df2 = l8/l4 * (h1*l8*exp(l8*t) + h2*(l8-l0+l4)*exp((l8-l0+l4)*t)
-                + h3*(l8-l6+l4)*exp((l8-l6+l4)*t) + (l8+l4)*exp((l8+l4)*t))
-        dw2 = l4 * exp(-l4*t)
-
-    if init[1]:
-        f3 = l8/l0 * (p1*exp((l8-l0)*t) + p2*exp((l8-l6)*t) + exp(l8*t))
-        df3 = l8/l0 * (p1*(l8-l0)*exp((l8-l0)*t) + p2*(l8-l6)*exp((l8-l6)*t)
-                       + l8*exp(l8*t))
-        dw3 = 0.
-    else:
-        if init[0]: # present A08, init ar48
-            f3 = l8/l0 * (p1*exp(l8*t) + p2*exp((l8-l6+l0)*t) + exp((l8+l0)*t))
-            df3 = l8/l0 * (p1*l8*exp(l8*t) + p2*(l8-l6+l0)*exp((l8-l6+l0)*t)
-                           + (l8+l0)*exp((l8+l0)*t))
-            dw3 = (A[0]-1)*(l0/(l0-l4))*(-l4*exp(-l4*t) + l0*exp(-l0*t)) \
-                    + l0*exp(-l0*t)
-        else:       # present A08, init ar48
-            msg = 'present [230Th/238U] values not yet permitted'
-            raise ValueError(msg)
-
-    f4 = l8/l6 * (exp(l8*t) - exp((l8-l6)*t))
-    df4 = l8/l6 * (l8*exp(l8*t) - (l8-l6)*exp((l8-l6)*t))
-    g2 = l5/l1 * (exp(l5*t) - exp((l5-l1)*t))
-    dg2 = l5/l1 * (l5*exp(l5*t) - (l5-l1)*exp((l5-l1)*t))
-
-    # Compute derivatives
-    dA48dt = (-(dF1+dF3+dF4) *f2 - (F-F1-F3-F4) *df2) / f2**2 + dw2
-    dA08dt = (-(dF1+dF2+dF4) *f3 - (F-F1-F2-F4) *df3) / f3**2 + dw3
-    dA68dt = (-(dF1+dF2+dF3) *f4 - (F-F1-F2-F3) *df4) / f4**2
-    dA15dt = (-dG1*g2 - (G-G1)*dg2) / g2**2
-
-    dtdA = [1./dA48dt, 1./dA08dt, 1./dA68dt, 1./dA15dt]
-
-    return dtdA
-
-
-def dydA_func(t, A, F, G, init):
-    """
-    Partial derivative of y wrt A for Tera-Wasserburg concordia curve.
-    """
-    l8, l4, l0, l6 = cfg.lam238, cfg.lam234, cfg.lam230, cfg.lam226
-    l5, l1 = cfg.lam235, cfg.lam231
-    c1, c2, c3, c4, h1, h2, h3, p1, p2 = ludwig.bateman((l8, l4, l0, l6))
-
-    if init[0]:
-        f2 = l8/l4 * (h1 * exp((l8-l4)*t) + h2 * exp((l8-l0)*t)
-                + h3 * exp((l8-l6)*t) + exp(l8*t))
-    else:
-        f2 = l8/l4 * exp(l4*t) * (h1 * exp((l8-l4)*t) + h2 * exp((l8-l0)*t)
-                + h3 * exp((l8-l6)*t) + exp(l8*t))
-    if init[1]:
-        f3 = l8/l0 * (p1*exp((l8-l0)*t) + p2*exp((l8-l6)*t) + exp(l8*t))
-    else:
-        msg = 'present [230Th/238U] values not yet permitted'
-        raise ValueError(msg)
-
-    f4 = l8/l6 * (exp(l8*t) - exp((l8-l6)*t))
-    g2 = l5/l1 * (exp(l5*t) - exp((l5-l1)*t))
-
-    denom = cfg.U * F ** 2
-    dydA48 = -G * f2 / denom
-    dydA08 = -G * f3 / denom
-    dydA68 = -G * f4 / denom
-    dydA15 = g2 / (cfg.U*F)
-
-    return [dydA48, dydA08, dydA68, dydA15]
-
-
-#====================
+#==============================================================================
 # Concordia labels
-#====================
+#==============================================================================
 
 def labels(ax, markers):
     """
@@ -1675,8 +1537,6 @@ def individualised_labels(ax, markers_dict, diagram, eq=True, A=None,
         if diagram == 'tw' and b_disp < 0:
             dx_disp *= -1.
         dy_disp = b_disp * dx_disp
-
-
 
         # If age ellipses, add extra offset label along ellipse axis:
         if ell:
