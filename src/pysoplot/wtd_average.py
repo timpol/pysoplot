@@ -84,8 +84,8 @@ def classical_wav(x, sx=None, V=None, method='ca'):
     Notes
     -----
     Does not yet include external error component if MSWD confidence limit is
-    above an upper threshold (as in the Isoplot MLE approach), although this
-    feature may be added in future.
+    above an upper threshold (as in the Isoplot MLE approach - e.g., Squid 2
+    manual), although this feature may be added in future.
 
     References
     ..........
