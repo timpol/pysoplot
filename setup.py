@@ -5,10 +5,10 @@ with open("README.md", "r") as fh:
 
 setup(
 	name='pysoplot',
-	version='0.0.2',
+	version='0.0.3a',
 	description='a Python geochronology library',
 	license='MIT',
-	packages=['pysoplot', 'pysoplot.uxpb'],
+	packages=['pysoplot'],
 	package_dir={'': 'src'},
 	url="https://github.com/timpol/pysoplot",
 	author="Timothy Pollard",
