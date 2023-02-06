@@ -6,6 +6,11 @@ article_figures/
 dev/
 notes/
 my_tests/
+sphinx/
+my_tests/
+build/
+notes/
+venv/
 
 
 # Created by https://www.toptal.com/developers/gitignore/api/python
