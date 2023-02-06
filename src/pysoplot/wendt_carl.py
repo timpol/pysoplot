@@ -1,24 +1,24 @@
 """
-Disequlibrium Pb/U functions based on Wendt and Carl (1985)
-
-References
-----------
-.. [Wendt1985]
-    Wendt, I., Carl, C., 1985. U/Pb dating of discordant 0.1 Ma old secondary U
-    minerals. Earth and Planetary Science Letters 73, 278–284.
+Disequlibrium Pb/U functions based on Wendt and Carl (1985).
 
 """
 
 import numpy as np
 
-from .. import cfg
-from .. import useries
+from pysoplot import cfg
+from pysoplot import useries
 
 
 def f(t, A, DC, init=(True, True)):
     """
     206Pb/236U atomic ratio as a function of time and actvitiy
-    ratios using equation from Wendt and Carl (1985)
+    ratios using equation from [Wendt1985]_.
+
+    References
+    ----------
+    .. [Wendt1985] Wendt, I., Carl, C., 1985. U/Pb dating of discordant 0.1
+       Ma old secondary U minerals. Earth and Planetary Science Letters 73, 278–284.
+
     """
     assert cfg.secular_eq
 
@@ -44,7 +44,12 @@ def f(t, A, DC, init=(True, True)):
 def g(t, A15i, DC):
     """
     207Pb/235U atomic ratio as a function of time and actvitiy
-    ratios using equation from Wendt and Carl (1985).
+    ratios using equation from [Wendt1985]_.
+
+    References
+    ----------
+    .. [Wendt1985] Wendt, I., Carl, C., 1985. U/Pb dating of discordant 0.1
+       Ma old secondary U minerals. Earth and Planetary Science Letters 73, 278–284.
     """
     D0 = A15i - 1.
     f1 = np.exp(DC[0] * t) - 1 + D0 * (DC[0] / DC[1]) * np.exp(DC[0] * t) \
