@@ -1,36 +1,6 @@
 """
 Weighted average algorithms for 1- and 2-dimensional data
 
-References
-----------
-.. [Hayes2014]
-    Hayes, K., 2014. "Finite-Sample Bias-Correction Factors for the Median
-    Absolute Deviation." Communications in Statistics - Simulation and
-    Computation 43, 2205–2212. https://doi.org/10.1080/03610918.2012.748913
-.. [Lyons1988]
-    Lyons, L., Gibaut, D., Clifford, P., 1988. How to combine correlated
-    estimates of a single physical quantity. Nuclear Instruments and Methods in
-    Physics Research Section A: Accelerators, Spectrometers, Detectors and
-    Associated Equipment 270, 110–117.
-    https://doi.org/10.1016/0168-9002(88)90018-6
-.. [Maronna2019]
-    Maronna, R.A., Martin, D., Yohai, V.J., Salibián-Barrera, M., 2019. Robust
-    statistics. John Wiley and Sons, Chichester.
-.. [McLean2011]
-    McLean, N M, J F Bowring, and S A Bowring, 2011, An Algorithm for U-Pb Isotope
-    Dilution Data Reduction and Uncertainty Propagation Geochemistry,
-    Geophysics, Geosystems 12, no. 6.
-    https://doi.org/10.1029/2010GC003478.
-.. [Powell2020]
-    Powell, R., Green, E.C.R., Marillo Sialer, E., Woodhead, J., 2020. Robust
-    isochron calculation. Geochronology 2, 325–342.
-    https://doi.org/10.5194/gchron-2-325-2020
-.. [Powell1988]
-    Powell, R., Holland, T.J.B., 1988. An internally consistent dataset with
-    uncertainties and correlations: 3. Applications to geobarometry, worked
-    examples and a computer program. J Metamorph Geol 6, 173–204.
-    https://doi.org/10.1111/j.1525-1314.1988.tb00415.x
-
 """
 
 import warnings
@@ -44,10 +14,15 @@ from . import exceptions
 from . import stats
 from . import misc
 
+"""
+Simulated upper 95% confidence limit values on spine width for robust
+spine weighted average. Note, MAD has an odd/even number bias for small n
+(e.g. Hayes, 2014). Values greater than 30 are estimated based on curve fitting.
 
-# Simulated upper 95% confidence limit values on spine width for robust
-# spine weighted average. Note, MAD has an odd/even number bias for small n
-# (e.g. Hayes, 2014). Values greater than 30 are estimated based on curve fitting.
+Hayes, K., 2014. "Finite-Sample Bias-Correction Factors for the Median
+Absolute Deviation." Communications in Statistics - Simulation and
+Computation 43, 2205–2212. https://doi.org/10.1080/03610918.2012.748913
+"""
 slim_even = {
     '4': 1.520,
     '6': 1.572,
@@ -87,43 +62,50 @@ slim_odd = {
 # 1-D weighted average routines
 #===========================================
 
-def classical_wav(x, sx=None, cov=None, method='ca'):
+def classical_wav(x, sx=None, V=None, method='ca'):
     """
-    Compute a classical weighted average accounting for assigned errors (and
-    optionally error correlations).
+    
+    Compute a classical 1-dimensional weighted average accounting for assigned
+    uncertainties (and optionally uncertainty correlations).
 
-    Partly emulates the behaviour of Isoplot (Ludwig, 2012). If one-sided MSWD
-    confidence limit is above lower threshold (equivalent to a probability of
-    fit below some upper threshold), uncertainty on weighted average is expanded
+    Partly emulates the behaviour of Isoplot Ludwig (2012). If one-sided MSWD
+    confidence limit is above lower threshold, uncertainty on weighted average is expanded
     according to data scatter (i.e., by sqrt(mswd)).
 
     Parameters
-    ----------
+    -----------
     sx : np.ndarray, optional
-        Analytical errors at the 1 sigma level.
-    cov : np.ndarray, optional
-        Error covariance matrix.
+        Analytical uncertainties at the 1 sigma level.
+    V : np.ndarray, optional
+        Uncertainty covariance matrix.
+    method: {'ca'}
+        Weighted average method to use (only one available currently)
 
     Notes
     -----
     Does not yet include external error component if MSWD confidence limit is
-    above an upper threshold (as in Isoplot MLE approach), although this
+    above an upper threshold (as in the Isoplot MLE approach), although this
     feature may be added in future.
+
+    References
+    ..........
+    Ludwig, K.R., 2012. Isoplot/Ex Version 3.75: A Geochronological Toolkit for
+    Microsoft Excel, Special Publication 4. Berkeley Geochronology Center.
 
     """
     assert method in ('ca')                  # only one method at present
-    assert (sx is not None) ^ (cov is not None)
+    assert (sx is not None) ^ (V is not None)
 
     n = x.shape[0]
     assert n > 1
-    if cov is None:
+    if V is None:
         if x.shape[0] != sx.shape[0]:
             raise ValueError('shape mismatch between inputs sx and x')
         xbar, sxbar, mswd, r = wav(x, sx)
     else:
-        if cov.shape != (n, n):
-            raise ValueError('shape mismatch between inputs cov and x')
-        xbar, sxbar, mswd, r = wav_cor(x, cov)
+        if V.shape != (n, n):
+            raise ValueError('shape mismatch between inputs V and x')
+        xbar, sxbar, mswd, r = wav_cor(x, V)
 
     # get pr fit:
     df = n - 1
@@ -145,7 +127,7 @@ def classical_wav(x, sx=None, cov=None, method='ca'):
     results = {
         'type': 'classical',
         'n': n,
-        'cov': True if cov is not None else False,
+        'cov': True if V is not None else False,
         'ave': xbar,
         'ave_1s': sxbar,
         'ave_95pm': t_crit * scatter_mult * sxbar,
@@ -160,12 +142,30 @@ def classical_wav(x, sx=None, cov=None, method='ca'):
     return results
 
 
-def robust_wav(x, sx=None, cov=None, method='ra'):
+def robust_wav(x, sx=None, V=None, method='ra'):
     """
-    Compute robust weighted average using the spine algorithm.
+
+    Compute a robust 1-dimensional weighted average accounting for
+    assigned uncertainties (and optionally uncertainty correlations).
+
+    Parameters
+    -----------
+    x : np.ndarray
+        Data points to average (as 1-d array).
+    sx : np.ndarray, optional
+        Analytical uncertainties at the 1 sigma level (as 1-d array).
+    V : np.ndarray, optional
+        Uncertainty covariance matrix.
+    method: {'ra'}
+        Weighted average method to use (only one available currently)
+
+    Notes
+    -----
+    Only implements spine robust weighted average at present.
+
     """
     assert method in ('rs', 'ra')
-    assert (sx is not None) ^ (cov is not None)
+    assert (sx is not None) ^ (V is not None)
 
     n = x.size
     assert n > 1
@@ -174,15 +174,15 @@ def robust_wav(x, sx=None, cov=None, method='ra'):
 
     model = 'spine'
 
-    if cov is None:
+    if V is None:
         if x.shape[0] != sx.shape[0]:
-            raise ValueError('shape mismatch between inputs cov and x')
+            raise ValueError('shape mismatch between inputs V and x')
         xbar, sxbar, s, r = spine_wav(x, sx, h=cfg.h)
     else:
-        if cov.shape != (n, n):
-            raise ValueError('shape mismatch between inputs cov and x')
-        xbar, sxbar, s, r = spine_wav_cor(x, cov, h=cfg.h)
-    slim = s95lim(n)
+        if V.shape != (n, n):
+            raise ValueError('shape mismatch between inputs V and x')
+        xbar, sxbar, s, r = spine_wav_cor(x, V, h=cfg.h)
+    slim = slim_wav(n)
 
     # Check for excess scatter (note definition of excess scatter here
     # different from classical stats weighted average):
@@ -195,12 +195,12 @@ def robust_wav(x, sx=None, cov=None, method='ra'):
         'type': 'robust',
         'model': model,
         'n': n,
-        'cov': True if cov is not None else False,
+        'cov': True if V is not None else False,
         'ave': xbar,
         'ave_1s': sxbar,
         'ave_95pm': 1.96 * sxbar,
         's': s,
-        's_upper_95ci': slim,
+        'slim': slim,
         'excess_scatter': excess_scatter,
         'wtd_residuals': r,
     }
@@ -213,8 +213,9 @@ def robust_wav(x, sx=None, cov=None, method='ra'):
 
 def wav(x, sx):
     """
-    Basic clossical stats weighted average without accounting for error
-    correlations.
+    Compute a 1-dimensional uncertainty weighted mean **without** accounting for
+    uncertainty covariances.
+
     """
     w = 1. / sx ** 2
     xb = np.sum(w * x) / np.sum(w)                # weighted average x
@@ -239,11 +240,18 @@ def wavx():
 
 def wav_cor(x, V):
     """
-    Compute classical stats weighted mean accounting for error correlations
-    amongst individual measurements.
+    Compute a 1-dimensional uncertainty weighted mean, accounting for uncertainty
+    correlations amongst individual data points.
 
-    Based on equations in, e.g., Powell and Holland (1988), Lyons et al
-    (1988), and McLean (2011).
+    Based on equations given in, e.g., Powell1 and Holland (1988],
+    Lyons et al. (1988), and McLean et al. (2011).
+
+    Parameters
+    ----------
+    x : np.ndarray
+        Data points to be averaged (should be a 1-dimensional array).
+    V : np.ndarray
+        covariance matrix (should be a 2-dimensional array).
 
     Notes
     ------
@@ -257,12 +265,23 @@ def wav_cor(x, V):
         of the large weights with different signs can be to drive our solution
         far away from the correct value."
 
-    Parameters
-    --------
-    x : np.ndarray
-        Data points to be averaged (should be a 1-dimensional array)
-    V : np.ndarray
-        covariance matrix (should be a 2-dimensional array)
+    References
+    ----------
+    Lyons, L., Gibaut, D., Clifford, P., 1988. How to combine correlated
+    estimates of a single physical quantity. Nuclear Instruments and Methods in
+    Physics Research Section A: Accelerators, Spectrometers, Detectors and
+    Associated Equipment 270, 110–117.
+
+    McLean, N M, J F Bowring, and S A Bowring, 2011, An Algorithm for U-Pb Isotope
+    Dilution Data Reduction and Uncertainty Propagation Geochemistry,
+    Geophysics, Geosystems 12, no. 6.
+    https://doi.org/10.1029/2010GC003478.
+
+    Powell, R., Holland, T.J.B., 1988. An internally consistent dataset with
+    uncertainties and correlations: 3. Applications to geobarometry, worked
+    examples and a computer program. J Metamorph Geol 6, 173–204.
+    https://doi.org/10.1111/j.1525-1314.1988.tb00415.x
+
     """
     if not misc.pos_def(V):
         raise ValueError('V must be a positive definite matrix')
@@ -303,9 +322,9 @@ def wav_cor(x, V):
 # 1-D robust weighted average
 #==============================
 
-def s95lim(n):
+def slim_wav(n):
     """
-    Upper 95% confidence limit on spine width (s) for weighted averages.
+    Returns Upper 95% confidence limit on spine width (s) for weighted averages.
     Values are derived via simulation of Gaussian distributed datasets.
     """
     if n < 4:
@@ -328,7 +347,9 @@ def s95lim(n):
 
 def spine_wav(x, sx, xb0=None, maxiter=50, h=1.4):
     """
-    Spine robust weighted average **without** accounting for error covariance.
+    Compute a 1-dimensional robust uncertainty weighted average using the spine
+    algorithm, **without** accounting for error covariance.
+
     """
     avx = np.mean(x)
     x = x / avx
@@ -367,10 +388,26 @@ def spine_wav(x, sx, xb0=None, maxiter=50, h=1.4):
 
 def spine_wav_cor(x, V, xb0=None, maxiter=50, h=1.4, atol=1e-08, rtol=1e-08):
     """
-    Spine robust weighted avareage. Equivalent to a 1-dimensional version
-    of the spine linear regression algorithm of Powell et al., (2020), accounting
-    for error covariances. Reduces to classical stats solution for "well-behaved"
+    Compute a spine robust uncertainty weighted average accounting for
+    uncertainty correlations amongst data points. Equivalent to a 1-dimensional
+    version of the spine linear regression algorithm of Powell et al. (2020).
+    Note, this reduces to classical statistics uncertainty weighted average for "well-behaved"
     datasets.
+
+    Parameters
+    ----------
+    x : np.ndarray
+        Data points to be averaged (1-dimensional array).
+    V : np.ndarray
+        covariance matrix (2-dimensional array).
+
+
+    References
+    ----------
+    Powell, R., Green, E.C.R., Marillo Sialer, E., Woodhead, J., 2020. Robust
+    isochron calculation. Geochronology 2, 325–342.
+    https://doi.org/10.5194/gchron-2-325-2020
+
     """
     n = x.shape[0]
 
