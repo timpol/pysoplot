@@ -1,0 +1,18 @@
+Weighted average algorithms
+===========================
+
+The following weighted average algorithms may be selected when computing Pb/U ages, modified |207Pb| ages, or calculating a weighted average for arbitrary data.
+
+.. _classical-wav:
+
+Classical
+----------
+
+This routine computes a weighted average using standard classical statistics equations (i.e., those given in [POWELL1988]_; [LYONS1988]_; [MCLEAN2011]_ etc.). Where uncertainty covariances are negligible, these equations reduce to the standard error weighted mean [TAYLOR1997]_. If the MSWD exceeds a lower one-sided confidence interval threshold value (85% by default, equivalent to a ‘probability of fit’ value of 0.15) then analytical errors are expanded by :math:`\sqrt{\mathrm{MSWD}}` in an effort to account for excess scatter, and further multiplied by the 95th percentile of a Student’s t distribution (with n – 1 degrees of freedom) to obtain 95% confidence limits following the approach of Isoplot [LUDWIG2012]_. Where the probability of fit is below a reasonable lower limit (say, 0.05), use of this approach is questionable and a robust approach should be considered instead.
+
+.. _spine-wav:
+
+Spine
+-------
+
+A robust version of the spine linear regression algorithm that is capable of accounting for uncertainty correlations (details provided in Appendix A of the |manuscript|_).

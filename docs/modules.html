@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pysoplot &mdash; pysoplot 0.1.1 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> pysoplot
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting getting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="age_calcs.html">Age calculation routines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="regression.html">Linear regression algorithms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wtd_average.html">Weighted average algorithms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pysoplot</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a></li>
+      <li class="breadcrumb-item active">pysoplot</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/modules.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="pysoplot">
+<h1>pysoplot<a class="headerlink" href="#pysoplot" title="Permalink to this heading"></a></h1>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="pysoplot.html">pysoplot package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pysoplot.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pysoplot.html#module-pysoplot.cfg">pysoplot.cfg module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.cfg.U"><code class="docutils literal notranslate"><span class="pre">U</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.cfg.axis_labels_kw"><code class="docutils literal notranslate"><span class="pre">axis_labels_kw</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.cfg.conc_age_ellipse_kw"><code class="docutils literal notranslate"><span class="pre">conc_age_ellipse_kw</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.cfg.conc_env_kw"><code class="docutils literal notranslate"><span class="pre">conc_env_kw</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.cfg.conc_env_line_kw"><code class="docutils literal notranslate"><span class="pre">conc_env_line_kw</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.cfg.conc_intercept_ellipse_kw"><code class="docutils literal notranslate"><span class="pre">conc_intercept_ellipse_kw</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.cfg.conc_intercept_markers_kw"><code class="docutils literal notranslate"><span class="pre">conc_intercept_markers_kw</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.cfg.conc_line_kw"><code class="docutils literal notranslate"><span class="pre">conc_line_kw</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.cfg.conc_markers_kw"><code class="docutils literal notranslate"><span class="pre">conc_markers_kw</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.cfg.conc_text_kw"><code class="docutils literal notranslate"><span class="pre">conc_text_kw</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.cfg.dp_ellipse_kw"><code class="docutils literal notranslate"><span class="pre">dp_ellipse_kw</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.cfg.dp_label_kw"><code class="docutils literal notranslate"><span class="pre">dp_label_kw</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.cfg.fig_kw"><code class="docutils literal notranslate"><span class="pre">fig_kw</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.cfg.gridlines_kw"><code class="docutils literal notranslate"><span class="pre">gridlines_kw</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.cfg.h"><code class="docutils literal notranslate"><span class="pre">h</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.cfg.hist_bars_kw"><code class="docutils literal notranslate"><span class="pre">hist_bars_kw</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.cfg.hist_fig_kw"><code class="docutils literal notranslate"><span class="pre">hist_fig_kw</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.cfg.lam226"><code class="docutils literal notranslate"><span class="pre">lam226</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.cfg.lam230"><code class="docutils literal notranslate"><span class="pre">lam230</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.cfg.lam231"><code class="docutils literal notranslate"><span class="pre">lam231</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.cfg.lam232"><code class="docutils literal notranslate"><span class="pre">lam232</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.cfg.lam234"><code class="docutils literal notranslate"><span class="pre">lam234</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.cfg.lam235"><code class="docutils literal notranslate"><span class="pre">lam235</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.cfg.lam238"><code class="docutils literal notranslate"><span class="pre">lam238</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.cfg.major_ticks_kw"><code class="docutils literal notranslate"><span class="pre">major_ticks_kw</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.cfg.minor_ticks_kw"><code class="docutils literal notranslate"><span class="pre">minor_ticks_kw</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.cfg.mswd_ci_thresholds"><code class="docutils literal notranslate"><span class="pre">mswd_ci_thresholds</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.cfg.mswd_wav_ci_thresholds"><code class="docutils literal notranslate"><span class="pre">mswd_wav_ci_thresholds</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.cfg.pb76_line_kw"><code class="docutils literal notranslate"><span class="pre">pb76_line_kw</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.cfg.renv_kw"><code class="docutils literal notranslate"><span class="pre">renv_kw</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.cfg.renv_line_kw"><code class="docutils literal notranslate"><span class="pre">renv_line_kw</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.cfg.rline_kw"><code class="docutils literal notranslate"><span class="pre">rline_kw</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.cfg.rng"><code class="docutils literal notranslate"><span class="pre">rng</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.cfg.s226"><code class="docutils literal notranslate"><span class="pre">s226</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.cfg.s230"><code class="docutils literal notranslate"><span class="pre">s230</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.cfg.s231"><code class="docutils literal notranslate"><span class="pre">s231</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.cfg.s232"><code class="docutils literal notranslate"><span class="pre">s232</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.cfg.s234"><code class="docutils literal notranslate"><span class="pre">s234</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.cfg.s235"><code class="docutils literal notranslate"><span class="pre">s235</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.cfg.s238"><code class="docutils literal notranslate"><span class="pre">s238</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.cfg.sU"><code class="docutils literal notranslate"><span class="pre">sU</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.cfg.scatter_markers_kw"><code class="docutils literal notranslate"><span class="pre">scatter_markers_kw</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.cfg.spine_kw"><code class="docutils literal notranslate"><span class="pre">spine_kw</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.cfg.subplot_kw"><code class="docutils literal notranslate"><span class="pre">subplot_kw</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.cfg.wav_env_kw"><code class="docutils literal notranslate"><span class="pre">wav_env_kw</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.cfg.wav_fig_kw"><code class="docutils literal notranslate"><span class="pre">wav_fig_kw</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.cfg.wav_line_kw"><code class="docutils literal notranslate"><span class="pre">wav_line_kw</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.cfg.wav_markers_kw"><code class="docutils literal notranslate"><span class="pre">wav_markers_kw</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.cfg.wav_markers_rand_kw"><code class="docutils literal notranslate"><span class="pre">wav_markers_rand_kw</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pysoplot.html#module-pysoplot.concordia">pysoplot.concordia module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.concordia.age_ellipse_limits"><code class="docutils literal notranslate"><span class="pre">age_ellipse_limits()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.concordia.age_ellipse_marker_spacing"><code class="docutils literal notranslate"><span class="pre">age_ellipse_marker_spacing()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.concordia.age_limits"><code class="docutils literal notranslate"><span class="pre">age_limits()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.concordia.age_marker_spacing"><code class="docutils literal notranslate"><span class="pre">age_marker_spacing()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.concordia.conc_age_ellipse"><code class="docutils literal notranslate"><span class="pre">conc_age_ellipse()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.concordia.conc_age_x"><code class="docutils literal notranslate"><span class="pre">conc_age_x()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.concordia.conc_envelope"><code class="docutils literal notranslate"><span class="pre">conc_envelope()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.concordia.conc_slope"><code class="docutils literal notranslate"><span class="pre">conc_slope()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.concordia.conc_xy"><code class="docutils literal notranslate"><span class="pre">conc_xy()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.concordia.diseq_age_ellipse"><code class="docutils literal notranslate"><span class="pre">diseq_age_ellipse()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.concordia.diseq_dxdt"><code class="docutils literal notranslate"><span class="pre">diseq_dxdt()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.concordia.diseq_equi_points"><code class="docutils literal notranslate"><span class="pre">diseq_equi_points()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.concordia.diseq_slope"><code class="docutils literal notranslate"><span class="pre">diseq_slope()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.concordia.diseq_velocity"><code class="docutils literal notranslate"><span class="pre">diseq_velocity()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.concordia.diseq_xy"><code class="docutils literal notranslate"><span class="pre">diseq_xy()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.concordia.equi_points"><code class="docutils literal notranslate"><span class="pre">equi_points()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.concordia.estimate_marker_spacing"><code class="docutils literal notranslate"><span class="pre">estimate_marker_spacing()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.concordia.get_age_markers"><code class="docutils literal notranslate"><span class="pre">get_age_markers()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.concordia.individualised_labels"><code class="docutils literal notranslate"><span class="pre">individualised_labels()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.concordia.labels"><code class="docutils literal notranslate"><span class="pre">labels()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.concordia.mc_diseq_envelope"><code class="docutils literal notranslate"><span class="pre">mc_diseq_envelope()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.concordia.plot_age_markers"><code class="docutils literal notranslate"><span class="pre">plot_age_markers()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.concordia.plot_concordia"><code class="docutils literal notranslate"><span class="pre">plot_concordia()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.concordia.plot_diseq_concordia"><code class="docutils literal notranslate"><span class="pre">plot_diseq_concordia()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.concordia.plot_envelope"><code class="docutils literal notranslate"><span class="pre">plot_envelope()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.concordia.refine_t_limit"><code class="docutils literal notranslate"><span class="pre">refine_t_limit()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.concordia.remove_overlapping_labels"><code class="docutils literal notranslate"><span class="pre">remove_overlapping_labels()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.concordia.segment_2_markers"><code class="docutils literal notranslate"><span class="pre">segment_2_markers()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.concordia.t_limits_from_cp"><code class="docutils literal notranslate"><span class="pre">t_limits_from_cp()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.concordia.velocity"><code class="docutils literal notranslate"><span class="pre">velocity()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.concordia.walk_ellipse_outward"><code class="docutils literal notranslate"><span class="pre">walk_ellipse_outward()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.concordia.walk_outward"><code class="docutils literal notranslate"><span class="pre">walk_outward()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pysoplot.html#pysoplot-corrected-module">pysoplot.corrected module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pysoplot.html#module-pysoplot.data">pysoplot.data module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.data.KAMO1996"><code class="docutils literal notranslate"><span class="pre">KAMO1996</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.data.LA0708"><code class="docutils literal notranslate"><span class="pre">LA0708</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.data.WHC1"><code class="docutils literal notranslate"><span class="pre">WHC1</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pysoplot.html#pysoplot-dqmc-module">pysoplot.dqmc module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pysoplot.html#module-pysoplot.dqpb">pysoplot.dqpb module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.dqpb.concint"><code class="docutils literal notranslate"><span class="pre">concint()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.dqpb.concint_age"><code class="docutils literal notranslate"><span class="pre">concint_age()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.dqpb.concint_multiple"><code class="docutils literal notranslate"><span class="pre">concint_multiple()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.dqpb.concordant_A48i"><code class="docutils literal notranslate"><span class="pre">concordant_A48i()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.dqpb.cor207"><code class="docutils literal notranslate"><span class="pre">cor207()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.dqpb.find_roots"><code class="docutils literal notranslate"><span class="pre">find_roots()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.dqpb.forced_concordance"><code class="docutils literal notranslate"><span class="pre">forced_concordance()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.dqpb.isochron"><code class="docutils literal notranslate"><span class="pre">isochron()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.dqpb.isochron_age"><code class="docutils literal notranslate"><span class="pre">isochron_age()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.dqpb.pbu"><code class="docutils literal notranslate"><span class="pre">pbu()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.dqpb.pbu_age"><code class="docutils literal notranslate"><span class="pre">pbu_age()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.dqpb.pbu_iterative"><code class="docutils literal notranslate"><span class="pre">pbu_iterative()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.dqpb.pbu_iterative_age"><code class="docutils literal notranslate"><span class="pre">pbu_iterative_age()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.dqpb.pbu_iterative_uncert"><code class="docutils literal notranslate"><span class="pre">pbu_iterative_uncert()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.dqpb.pbu_uncert"><code class="docutils literal notranslate"><span class="pre">pbu_uncert()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pysoplot.html#module-pysoplot.exceptions">pysoplot.exceptions module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.exceptions.ConvergenceError"><code class="docutils literal notranslate"><span class="pre">ConvergenceError</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pysoplot.html#module-pysoplot.guillong">pysoplot.guillong module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.guillong.f"><code class="docutils literal notranslate"><span class="pre">f()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.guillong.g"><code class="docutils literal notranslate"><span class="pre">g()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pysoplot.html#module-pysoplot.isochron">pysoplot.isochron module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.isochron.age"><code class="docutils literal notranslate"><span class="pre">age()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.isochron.mc_uncert"><code class="docutils literal notranslate"><span class="pre">mc_uncert()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pysoplot.html#module-pysoplot.ludwig">pysoplot.ludwig module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.ludwig.bateman"><code class="docutils literal notranslate"><span class="pre">bateman()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.ludwig.dfdt"><code class="docutils literal notranslate"><span class="pre">dfdt()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.ludwig.dfdt_comp"><code class="docutils literal notranslate"><span class="pre">dfdt_comp()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.ludwig.dgdt"><code class="docutils literal notranslate"><span class="pre">dgdt()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.ludwig.dgdt_comp"><code class="docutils literal notranslate"><span class="pre">dgdt_comp()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.ludwig.f"><code class="docutils literal notranslate"><span class="pre">f()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.ludwig.f_comp"><code class="docutils literal notranslate"><span class="pre">f_comp()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.ludwig.g"><code class="docutils literal notranslate"><span class="pre">g()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.ludwig.g_comp"><code class="docutils literal notranslate"><span class="pre">g_comp()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pysoplot.html#module-pysoplot.minimise">pysoplot.minimise module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.minimise.concage_x"><code class="docutils literal notranslate"><span class="pre">concage_x()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.minimise.concint"><code class="docutils literal notranslate"><span class="pre">concint()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.minimise.concordant_A48"><code class="docutils literal notranslate"><span class="pre">concordant_A48()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.minimise.guillong"><code class="docutils literal notranslate"><span class="pre">guillong()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.minimise.isochron"><code class="docutils literal notranslate"><span class="pre">isochron()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.minimise.pbu"><code class="docutils literal notranslate"><span class="pre">pbu()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.minimise.pbu_iterative"><code class="docutils literal notranslate"><span class="pre">pbu_iterative()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.minimise.sakata"><code class="docutils literal notranslate"><span class="pre">sakata()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pysoplot.html#module-pysoplot.misc">pysoplot.misc module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.misc.cdiff"><code class="docutils literal notranslate"><span class="pre">cdiff()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.misc.compile_vxy"><code class="docutils literal notranslate"><span class="pre">compile_vxy()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.misc.covmat_to_cormat"><code class="docutils literal notranslate"><span class="pre">covmat_to_cormat()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.misc.eigsorted"><code class="docutils literal notranslate"><span class="pre">eigsorted()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.misc.get_exponent"><code class="docutils literal notranslate"><span class="pre">get_exponent()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.misc.num_dec_places"><code class="docutils literal notranslate"><span class="pre">num_dec_places()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.misc.pos_def"><code class="docutils literal notranslate"><span class="pre">pos_def()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.misc.print_result"><code class="docutils literal notranslate"><span class="pre">print_result()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.misc.print_table"><code class="docutils literal notranslate"><span class="pre">print_table()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.misc.round_down"><code class="docutils literal notranslate"><span class="pre">round_down()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pysoplot.html#pysoplot-monte-carlo-module">pysoplot.monte_carlo module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pysoplot.html#module-pysoplot.plotting">pysoplot.plotting module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.plotting.apply_plot_settings"><code class="docutils literal notranslate"><span class="pre">apply_plot_settings()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.plotting.box_line_intersection"><code class="docutils literal notranslate"><span class="pre">box_line_intersection()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.plotting.confidence_ellipse"><code class="docutils literal notranslate"><span class="pre">confidence_ellipse()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.plotting.in_box"><code class="docutils literal notranslate"><span class="pre">in_box()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.plotting.line_intersection"><code class="docutils literal notranslate"><span class="pre">line_intersection()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.plotting.oned_dp"><code class="docutils literal notranslate"><span class="pre">oned_dp()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.plotting.plot_cor207_projection"><code class="docutils literal notranslate"><span class="pre">plot_cor207_projection()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.plotting.plot_dp"><code class="docutils literal notranslate"><span class="pre">plot_dp()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.plotting.plot_rfit"><code class="docutils literal notranslate"><span class="pre">plot_rfit()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.plotting.renv"><code class="docutils literal notranslate"><span class="pre">renv()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.plotting.renv_mc"><code class="docutils literal notranslate"><span class="pre">renv_mc()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.plotting.rline"><code class="docutils literal notranslate"><span class="pre">rline()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.plotting.set_axis_labels"><code class="docutils literal notranslate"><span class="pre">set_axis_labels()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.plotting.set_axis_limits"><code class="docutils literal notranslate"><span class="pre">set_axis_limits()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.plotting.tick_label_format"><code class="docutils literal notranslate"><span class="pre">tick_label_format()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.plotting.wav_line"><code class="docutils literal notranslate"><span class="pre">wav_line()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.plotting.wav_plot"><code class="docutils literal notranslate"><span class="pre">wav_plot()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pysoplot.html#module-pysoplot.regression">pysoplot.regression module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.regression.classical_fit"><code class="docutils literal notranslate"><span class="pre">classical_fit()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.regression.huberu"><code class="docutils literal notranslate"><span class="pre">huberu()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.regression.lad"><code class="docutils literal notranslate"><span class="pre">lad()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.regression.lsq"><code class="docutils literal notranslate"><span class="pre">lsq()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.regression.model_2"><code class="docutils literal notranslate"><span class="pre">model_2()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.regression.model_3"><code class="docutils literal notranslate"><span class="pre">model_3()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.regression.robust_fit"><code class="docutils literal notranslate"><span class="pre">robust_fit()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.regression.robust_model_2"><code class="docutils literal notranslate"><span class="pre">robust_model_2()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.regression.siegel"><code class="docutils literal notranslate"><span class="pre">siegel()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.regression.slim"><code class="docutils literal notranslate"><span class="pre">slim()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.regression.spine"><code class="docutils literal notranslate"><span class="pre">spine()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.regression.york"><code class="docutils literal notranslate"><span class="pre">york()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pysoplot.html#module-pysoplot.stats">pysoplot.stats module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.stats.mswd_conf_limits"><code class="docutils literal notranslate"><span class="pre">mswd_conf_limits()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.stats.nmad"><code class="docutils literal notranslate"><span class="pre">nmad()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.stats.pr_fit"><code class="docutils literal notranslate"><span class="pre">pr_fit()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.stats.t_critical"><code class="docutils literal notranslate"><span class="pre">t_critical()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.stats.two_sample_p"><code class="docutils literal notranslate"><span class="pre">two_sample_p()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pysoplot.html#module-pysoplot.transform">pysoplot.transform module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.transform.dp_errors"><code class="docutils literal notranslate"><span class="pre">dp_errors()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.transform.transform_centroid"><code class="docutils literal notranslate"><span class="pre">transform_centroid()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.transform.transform_covtheta"><code class="docutils literal notranslate"><span class="pre">transform_covtheta()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.transform.transform_dp"><code class="docutils literal notranslate"><span class="pre">transform_dp()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.transform.transform_fit"><code class="docutils literal notranslate"><span class="pre">transform_fit()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.transform.transform_theta"><code class="docutils literal notranslate"><span class="pre">transform_theta()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pysoplot.html#module-pysoplot.upb">pysoplot.upb module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.upb.concint_age"><code class="docutils literal notranslate"><span class="pre">concint_age()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.upb.concint_age_min"><code class="docutils literal notranslate"><span class="pre">concint_age_min()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.upb.concint_ludwig"><code class="docutils literal notranslate"><span class="pre">concint_ludwig()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.upb.concint_powell"><code class="docutils literal notranslate"><span class="pre">concint_powell()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.upb.concint_uncert_ludwig1980"><code class="docutils literal notranslate"><span class="pre">concint_uncert_ludwig1980()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.upb.concint_uncert_ludwig2000"><code class="docutils literal notranslate"><span class="pre">concint_uncert_ludwig2000()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.upb.isochron_age"><code class="docutils literal notranslate"><span class="pre">isochron_age()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.upb.mc_concint"><code class="docutils literal notranslate"><span class="pre">mc_concint()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.upb.mc_pbu"><code class="docutils literal notranslate"><span class="pre">mc_pbu()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.upb.pbu_age"><code class="docutils literal notranslate"><span class="pre">pbu_age()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.upb.pbu_ages"><code class="docutils literal notranslate"><span class="pre">pbu_ages()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pysoplot.html#module-pysoplot.useries">pysoplot.useries module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.useries.Th230_age"><code class="docutils literal notranslate"><span class="pre">Th230_age()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.useries.Th230_age_uncert"><code class="docutils literal notranslate"><span class="pre">Th230_age_uncert()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.useries.Th230_isochron"><code class="docutils literal notranslate"><span class="pre">Th230_isochron()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.useries.ar08"><code class="docutils literal notranslate"><span class="pre">ar08()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.useries.ar08i"><code class="docutils literal notranslate"><span class="pre">ar08i()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.useries.ar48"><code class="docutils literal notranslate"><span class="pre">ar48()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.useries.ar48i"><code class="docutils literal notranslate"><span class="pre">ar48i()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.useries.init_ratio_solutions"><code class="docutils literal notranslate"><span class="pre">init_ratio_solutions()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pysoplot.html#module-pysoplot.wendt_carl">pysoplot.wendt_carl module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.wendt_carl.f"><code class="docutils literal notranslate"><span class="pre">f()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.wendt_carl.g"><code class="docutils literal notranslate"><span class="pre">g()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pysoplot.html#module-pysoplot.wtd_average">pysoplot.wtd_average module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.wtd_average.classical_wav"><code class="docutils literal notranslate"><span class="pre">classical_wav()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.wtd_average.robust_wav"><code class="docutils literal notranslate"><span class="pre">robust_wav()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.wtd_average.slim_wav"><code class="docutils literal notranslate"><span class="pre">slim_wav()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.wtd_average.spine_wav"><code class="docutils literal notranslate"><span class="pre">spine_wav()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.wtd_average.spine_wav_cor"><code class="docutils literal notranslate"><span class="pre">spine_wav_cor()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.wtd_average.wav"><code class="docutils literal notranslate"><span class="pre">wav()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.wtd_average.wav_cor"><code class="docutils literal notranslate"><span class="pre">wav_cor()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pysoplot.html#pysoplot.wtd_average.wavx"><code class="docutils literal notranslate"><span class="pre">wavx()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pysoplot.html#module-pysoplot">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Timothy Pollard.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,12 @@
+Installation
+-------------
+
+pysoplot may be installed via pip (the package installer for Python). It is recommended to install pysoplot into a `virtual environment <https://packaging.python.org/en/latest/guides/installing-using-pip-and-virtual-environments/>`_. 
+
+After activating your virtual environment, run the following to install:
+
+.. code-block:: console
+
+   pip install python
+
+Instructions for other installation methods coming soon...

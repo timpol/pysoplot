@@ -1,0 +1,181 @@
+pysoplot package
+================
+
+Submodules
+----------
+
+pysoplot.cfg module
+-------------------
+
+.. automodule:: pysoplot.cfg
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pysoplot.concordia module
+-------------------------
+
+.. automodule:: pysoplot.concordia
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pysoplot.corrected module
+-------------------------
+
+.. automodule:: pysoplot.corrected
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pysoplot.data module
+--------------------
+
+.. automodule:: pysoplot.data
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pysoplot.dqmc module
+--------------------
+
+.. automodule:: pysoplot.dqmc
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pysoplot.dqpb module
+--------------------
+
+.. automodule:: pysoplot.dqpb
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pysoplot.exceptions module
+--------------------------
+
+.. automodule:: pysoplot.exceptions
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pysoplot.guillong module
+------------------------
+
+.. automodule:: pysoplot.guillong
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pysoplot.isochron module
+------------------------
+
+.. automodule:: pysoplot.isochron
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pysoplot.ludwig module
+----------------------
+
+.. automodule:: pysoplot.ludwig
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pysoplot.minimise module
+------------------------
+
+.. automodule:: pysoplot.minimise
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pysoplot.misc module
+--------------------
+
+.. automodule:: pysoplot.misc
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pysoplot.monte\_carlo module
+----------------------------
+
+.. automodule:: pysoplot.monte_carlo
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pysoplot.plotting module
+------------------------
+
+.. automodule:: pysoplot.plotting
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pysoplot.regression module
+--------------------------
+
+.. automodule:: pysoplot.regression
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pysoplot.stats module
+---------------------
+
+.. automodule:: pysoplot.stats
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pysoplot.transform module
+-------------------------
+
+.. automodule:: pysoplot.transform
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pysoplot.upb module
+-------------------
+
+.. automodule:: pysoplot.upb
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pysoplot.useries module
+-----------------------
+
+.. automodule:: pysoplot.useries
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pysoplot.wendt\_carl module
+---------------------------
+
+.. automodule:: pysoplot.wendt_carl
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pysoplot.wtd\_average module
+----------------------------
+
+.. automodule:: pysoplot.wtd_average
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: pysoplot
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -1,0 +1,139 @@
+API
+====
+
+cfg
+----
+.. automodule:: pysoplot.cfg
+.. autodata:: lam238
+.. autodata:: lam235
+.. autodata:: lam234
+.. autodata:: lam231
+.. autodata:: lam230
+.. autodata:: lam226
+.. autodata:: lam232
+.. autodata:: s238
+.. autodata:: s235
+.. autodata:: s234
+.. autodata:: s231
+.. autodata:: s230
+.. autodata:: s226
+.. autodata:: s232
+.. autodata:: U
+.. autodata:: sU
+.. autodata:: rng
+    :no-value:
+.. autodata:: h
+.. autodata:: mswd_ci_thresholds
+.. autodata:: mswd_wav_ci_thresholds
+
+.. autodata:: axis_labels_kw
+    :no-value:
+.. autodata:: conc_age_ellipse_kw
+    :no-value:
+.. autodata:: conc_env_kw
+    :no-value:
+.. autodata:: conc_env_line_kw
+    :no-value:
+.. autodata:: conc_intercept_ellipse
+    :no-value:
+.. autodata:: conc_intercept_markers_kw 
+    :no-value:
+.. autodata:: conc_line_kw
+    :no-value:
+.. autodata:: conc_markers_kw 
+    :no-value:
+.. autodata:: conc_text_kw
+    :no-value:
+.. autodata:: dp_ellipse_kw
+    :no-value:
+.. autodata:: dp_label_kw
+    :no-value:
+.. autodata:: fig_kw
+    :no-value:
+.. autodata:: gridlines_kw
+    :no-value:
+.. autodata:: hist_bars_kw
+    :no-value:
+.. autodata:: hist_fig_kw
+    :no-value:
+.. autodata:: major_ticks_kw
+    :no-value:
+.. autodata:: minor_ticks_kw
+    :no-value:
+.. autodata:: pb76_line_kw
+    :no-value:
+.. autodata:: renv_kw
+    :no-value:
+.. autodata:: renv_line_kw
+    :no-value:
+.. autodata:: rline_kw
+    :no-value:
+.. autodata:: scatter_markers_kw
+    :no-value:
+.. autodata:: spine_kw
+    :no-value:
+.. autodata:: subplot_kw
+    :no-value:
+.. autodata:: wav_env_kw
+    :no-value:
+.. autodata:: wav_fig_kw
+    :no-value:
+.. autodata:: wav_line_kw
+    :no-value:
+.. autodata:: wav_markers_kw
+    :no-value:
+.. autodata:: wave_markers_rand_kw
+    :no-value:
+
+
+concordia
+----------
+.. automodule:: pysoplot.concordia
+    :members: plot_concordia, plot_diseq_concordia
+
+dqpb
+----------
+.. automodule:: pysoplot.dqpb
+    :members: concint_age, isochron_age, pbu_age, pbu_iterative_age, cor207_age, forced_concordance
+
+exceptions
+----------
+.. automodule:: pysoplot.exceptions
+    :members: ConvergenceError
+
+isochron
+--------
+.. automodule:: pysoplot.isochron
+    :members: age, mc_uncert
+
+
+plotting
+--------
+.. automodule:: pysoplot.plotting
+    :members: rline, renv, plot_rfit, plot_dp, wav_plot, apply_plot_settings
+
+regression
+----------
+.. automodule:: pysoplot.regression
+    :members: classical_fit, robust_fit, york, siegel, spine, robust_model_2, model_3, lsq, lad, slim 
+
+transform
+--------
+.. automodule:: pysoplot.transform
+    :members: dp_errors
+
+upb
+----------
+.. automodule:: pysoplot.upb
+    :members: concint_age, isochron_age, mc_concint
+
+wtd_average
+----------
+.. automodule:: pysoplot.wtd_average
+    :members: classical_wav, robust_wav, wav, wav_cor, spine_wav_cor
+
+ludwig
+----------
+.. automodule:: pysoplot.ludwig
+    :members: f, g, bateman
+

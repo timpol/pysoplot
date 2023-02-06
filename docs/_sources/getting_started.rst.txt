@@ -1,0 +1,42 @@
+Getting getting
+----------------
+
+Begin by importing the pysoplot module.
+
+.. code-block:: python
+
+   import pysoplot
+
+A test data set can be accessed from the ``pysoplot.data`` module.
+
+.. code-block:: python
+
+   dp = pysoplot.data.LA0708
+
+The analytical uncertainties on this data set are given at the :math:`2\sigma` level. As a general rule, functions in pysoplot expect uncertainties to be given as :math:`1\sigma` absolute, so we will need to transform these before continuing. 
+
+.. code-block:: python
+
+   dp = pysoplot.transform.dp_errors(dp, 'abs2s')
+
+Now that these data point uncertainties are in the correct form, we can fit a linear regression. by setting the ``plot`` argument to ``True``, we have told the function to also compile a plot of the data points and regression fit. 
+
+.. code-block:: python
+
+   fit = pysoplot.regression.robust_fit(*dp, plot=True, diagram='tw')
+
+This function returns a dictionary containing the regression fitting results and the plot. We can print the regression results and show the plot
+
+.. code-block:: python
+
+   pysoplot.misc.print_result(fit, 'Regression results')
+   fit['fig'].show()
+
+Now that we have fitted a regression line, we can compute a concordia intercept age
+
+.. code-block:: python
+
+   tw = pysoplot.upb.concint_age(fit, method='Powell')
+
+
+More coming soon...

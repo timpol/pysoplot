@@ -1,0 +1,42 @@
+pysoplot
+=========
+
+**pysoplot** is a Python library that provides basic functions and routines for geochronology. It implements some of the core functionality of the popular (and now defunct) Isoplot software, but also includes new algorithms and routines. pysoplot is intended to be used by geochronologists to build custom scripts and data processing routines in order to meet individual requirements.
+
+It includes functions and routines for:
+
+* performing linear regression on 2-D data using the model 1, 2 and 3 algorithms popularised by Isoplot/Ex.
+* performing linear regression on 2-D data using the robust spine algorithm of Powell et al. (2020) and a new "robust model 2" algorithm
+* computing weighted averages using algorithms based on classical and robust statistics
+* computing classical U-Pb isochron and U-Pb concordia-intercept ages
+* plottin isochron diagrams
+* computing disequilibrium U-Pb ages
+* plotting equilibrium and disequilibriam concordia curves, age ellipses, and uncertainty envelopes
+* computing age uncertainties using Monte Carlo methods
+
+For a description of the main functions and routines available in pysoplot, see the API documentation. 
+
+For a stand-alone GUI application that implements many of the calculations available in pysoplot, see `DQPB`_ .
+
+.. _DQPB: https://www.github.com/timpol/DQPB
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Contents:
+
+   installation
+   getting_started
+   age_calcs
+   regression
+   wtd_average
+   tutorials
+   api
+   references
+
+
+Indices and tables
+==================
+
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`

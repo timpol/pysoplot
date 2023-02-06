@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Weighted average algorithms &mdash; pysoplot 0.1.1 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Tutorials" href="tutorials.html" />
+    <link rel="prev" title="Linear regression algorithms" href="regression.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> pysoplot
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting getting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="age_calcs.html">Age calculation routines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="regression.html">Linear regression algorithms</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Weighted average algorithms</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#classical">Classical</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#spine">Spine</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pysoplot</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a></li>
+      <li class="breadcrumb-item active">Weighted average algorithms</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/wtd_average.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="weighted-average-algorithms">
+<h1>Weighted average algorithms<a class="headerlink" href="#weighted-average-algorithms" title="Permalink to this heading"></a></h1>
+<p>The following weighted average algorithms may be selected when computing Pb/U ages, modified <span class="math notranslate nohighlight">\(^{207}\mathrm{Pb}\)</span> ages, or calculating a weighted average for arbitrary data.</p>
+<section id="classical">
+<span id="classical-wav"></span><h2>Classical<a class="headerlink" href="#classical" title="Permalink to this heading"></a></h2>
+<p>This routine computes a weighted average using standard classical statistics equations (i.e., those given in <a class="reference internal" href="references.html#powell1988" id="id1"><span>[POWELL1988]</span></a>; <a class="reference internal" href="references.html#lyons1988" id="id2"><span>[LYONS1988]</span></a>; <a class="reference internal" href="references.html#mclean2011" id="id3"><span>[MCLEAN2011]</span></a> etc.). Where uncertainty covariances are negligible, these equations reduce to the standard error weighted mean <a class="reference internal" href="references.html#taylor1997" id="id4"><span>[TAYLOR1997]</span></a>. If the MSWD exceeds a lower one-sided confidence interval threshold value (85% by default, equivalent to a ‘probability of fit’ value of 0.15) then analytical errors are expanded by <span class="math notranslate nohighlight">\(\sqrt{\mathrm{MSWD}}\)</span> in an effort to account for excess scatter, and further multiplied by the 95th percentile of a Student’s t distribution (with n – 1 degrees of freedom) to obtain 95% confidence limits following the approach of Isoplot <a class="reference internal" href="references.html#ludwig2012" id="id5"><span>[LUDWIG2012]</span></a>. Where the probability of fit is below a reasonable lower limit (say, 0.05), use of this approach is questionable and a robust approach should be considered instead.</p>
+</section>
+<section id="spine">
+<span id="spine-wav"></span><h2>Spine<a class="headerlink" href="#spine" title="Permalink to this heading"></a></h2>
+<p>A robust version of the spine linear regression algorithm that is capable of accounting for uncertainty correlations (details provided in Appendix A of the <a class="reference external" href="https://gchron.copernicus.org/preprints/gchron-2022-24/gchron-2022-24.pdf">manuscript</a>).</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="regression.html" class="btn btn-neutral float-left" title="Linear regression algorithms" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="tutorials.html" class="btn btn-neutral float-right" title="Tutorials" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Timothy Pollard.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

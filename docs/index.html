@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pysoplot &mdash; pysoplot 0.1.1 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Installation" href="installation.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="#" class="icon icon-home"> pysoplot
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting getting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="age_calcs.html">Age calculation routines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="regression.html">Linear regression algorithms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wtd_average.html">Weighted average algorithms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="#">pysoplot</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="#" class="icon icon-home"></a></li>
+      <li class="breadcrumb-item active">pysoplot</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="pysoplot">
+<h1>pysoplot<a class="headerlink" href="#pysoplot" title="Permalink to this heading"></a></h1>
+<p><strong>pysoplot</strong> is a Python library that provides basic functions and routines for geochronology. It implements some of the core functionality of the popular (and now defunct) Isoplot software, but also includes new algorithms and routines. pysoplot is intended to be used by geochronologists to build custom scripts and data processing routines in order to meet individual requirements.</p>
+<p>It includes functions and routines for:</p>
+<ul class="simple">
+<li><p>performing linear regression on 2-D data using the model 1, 2 and 3 algorithms popularised by Isoplot/Ex.</p></li>
+<li><p>performing linear regression on 2-D data using the robust spine algorithm of Powell et al. (2020) and a new “robust model 2” algorithm</p></li>
+<li><p>computing weighted averages using algorithms based on classical and robust statistics</p></li>
+<li><p>computing classical U-Pb isochron and U-Pb concordia-intercept ages</p></li>
+<li><p>plottin isochron diagrams</p></li>
+<li><p>computing disequilibrium U-Pb ages</p></li>
+<li><p>plotting equilibrium and disequilibriam concordia curves, age ellipses, and uncertainty envelopes</p></li>
+<li><p>computing age uncertainties using Monte Carlo methods</p></li>
+</ul>
+<p>For a description of the main functions and routines available in pysoplot, see the API documentation.</p>
+<p>For a stand-alone GUI application that implements many of the calculations available in pysoplot, see <a class="reference external" href="https://www.github.com/timpol/DQPB">DQPB</a> .</p>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting getting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="age_calcs.html">Age calculation routines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="regression.html">Linear regression algorithms</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="regression.html#classical">Classical</a></li>
+<li class="toctree-l2"><a class="reference internal" href="regression.html#spine">Spine</a></li>
+<li class="toctree-l2"><a class="reference internal" href="regression.html#robust-model-2">Robust model 2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="regression.html#model-1">Model 1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="regression.html#model-1x">Model 1x</a></li>
+<li class="toctree-l2"><a class="reference internal" href="regression.html#model-2">Model 2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="regression.html#model-3">Model 3</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="wtd_average.html">Weighted average algorithms</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="wtd_average.html#classical">Classical</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wtd_average.html#spine">Spine</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api.html#module-pysoplot.cfg">cfg</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#module-pysoplot.concordia">concordia</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#module-pysoplot.dqpb">dqpb</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#module-pysoplot.exceptions">exceptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#module-pysoplot.isochron">isochron</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#module-pysoplot.plotting">plotting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#module-pysoplot.regression">regression</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#transform">transform</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#module-pysoplot.upb">upb</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#wtd-average">wtd_average</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#module-pysoplot.ludwig">ludwig</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
+</ul>
+</div>
+</section>
+<section id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this heading"></a></h1>
+<ul class="simple">
+<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
+<li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
+<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
+</ul>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="installation.html" class="btn btn-neutral float-right" title="Installation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Timothy Pollard.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

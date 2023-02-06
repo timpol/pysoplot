@@ -1,0 +1,50 @@
+Linear regression algorithms
+==============================
+
+The following linear regression algorithms may be selected when computing U-Pb ages or fitting a regression line to arbitrary x-y data.
+
+.. _classical-regression:
+
+Classical
+-----------
+This routine emulates the default Isoplot line fitting routine [LUDWIG2012]_. Firstly, a linear regression is performed using the :ref:`model 1 <model-1>` algorithm. If MSWD is within its one-sided 85% confidence limit (by default) for the given degrees of freedom, (equivalent to a ‘probability of fit’ value above 0.15), then the fit is accepted as is. If the MSWD is between the 85% and 95% one-sided confidence limits (equivalent to a ‘probability of fit’ value between 0.15 - 0.05), then the slope and y-intercept values are retained, but uncertainties are expanded as per the :ref:`model 1x fit <model-1x>`. If the MSWD exceeds the one-sided 95% confidence limit then a linear regression is instead performed using the :ref:`model 2 <model-2>` algorithm for concordia intercept datasets, or the :ref:`model 3 <model-3>` for "classical" isochron datasets. Note that the model 3 algorithm parametrises ‘excess scatter’ as a Gaussian distributed component of scatter in the initial Pb isotope ratio. This assumption may not be applicable to all datasets and should be carefully considered.
+
+
+Spine
+------
+
+The robust line fitting algorithm described in [POWELL2020]_. This algorithm converges to the classical model 1 for ‘well-behaved’ datasets, but for more scattered data sets, down-weights data points lying away from the central ‘spine’ of data according to the Huber loss function. The spine-width parameter, *s*,  gives an indication of how well resolved the central linear “spine” of data is, while accounting for assigned uncertainties. Comparing *s* with the upper one-sided 95% confidence interval, derived via simulation of Gaussian distributed data sets, provides a means of assessing whether the ‘spine’ of data is sufficiently well-defined to obtain accurate results with this algorithm. The spine algorithm may yield unreliable results for datasets where *s* clearly exceeds this upper limit.
+
+
+Robust model 2
+---------------
+A robust version of the Isoplot model 2 (details provided in Appendix C of the |manuscript|_).
+
+
+.. _model-1:
+
+Model 1
+---------
+
+Equivalent to the Isoplot model 1. Regression parameters and analytical errors are calculated via the algorithm of [YORK2004]_, which yields equivalent results to the original algorithm of [YORK1969]_ with errors calculated according to [TITT1979]_. Confidence intervals on the slope and y-intercept are computed based on assigned analytical errors alone and are not inflated according observed scatter, since any apparent excess scatter is not deemed statistically significant.
+
+.. _model-1x:
+
+Model 1x
+----------
+
+Equivalent to the Isoplot model 1 with "excess scatter". Regression parameters and analytical errors are calculated via the York algorithm as above for the model 1. These analytical errors are then multiplied by :math:`\sqrt{\mathrm{MSWD}}` to account for excess scatter, and further multiplied by the 95th percentile of a Student’s t distribution (with n – 2 degrees of freedom) to obtain 95% confidence limits following [BROOKS1972]_.
+
+.. _model-2:
+
+Model 2
+--------
+
+Equivalent to Isoplot model 2. The regression line slope is computed as the geometric mean of a y on x ordinary least-squares regression, and that of x on y (see [POWELL2020]_). Uncertainties are calculated following McSaveney in [FAURE1977]_ and these are then multiplied by :math:`\sqrt{\mathrm{MSWD}}` and the 95th percentile of a Student’s t distribution (with n – 2 degrees of freedom) to obtain 95 % confidence limits.
+
+.. _model-3:
+
+Model 3
+--------
+
+Equivalent to Isoplot Model 3. This algorithm iteratively adds a uniform component of Gaussian distributed scatted in y to each data point until MSWD converges to 1. This component of excess scatter is returned as an additional model parameter and may have physical significance in some cases. Once a solution is found, slope and y-intercept uncertainties are calculated as per the York algorithm, but including the additional component of scatter, and then multiplied by the 95th percentile of a Student’s t distribution (with n – 2 degrees of freedom) to obtain 95 % confidence limits.

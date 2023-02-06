@@ -1,0 +1,1431 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>API &mdash; pysoplot 0.1.1 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="References" href="references.html" />
+    <link rel="prev" title="Tutorials" href="tutorials.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> pysoplot
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting getting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="age_calcs.html">Age calculation routines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="regression.html">Linear regression algorithms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wtd_average.html">Weighted average algorithms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials.html">Tutorials</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#module-pysoplot.cfg">cfg</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pysoplot.cfg.lam238"><code class="docutils literal notranslate"><span class="pre">lam238</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pysoplot.cfg.lam235"><code class="docutils literal notranslate"><span class="pre">lam235</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pysoplot.cfg.lam234"><code class="docutils literal notranslate"><span class="pre">lam234</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pysoplot.cfg.lam231"><code class="docutils literal notranslate"><span class="pre">lam231</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pysoplot.cfg.lam230"><code class="docutils literal notranslate"><span class="pre">lam230</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pysoplot.cfg.lam226"><code class="docutils literal notranslate"><span class="pre">lam226</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pysoplot.cfg.lam232"><code class="docutils literal notranslate"><span class="pre">lam232</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pysoplot.cfg.s238"><code class="docutils literal notranslate"><span class="pre">s238</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pysoplot.cfg.s235"><code class="docutils literal notranslate"><span class="pre">s235</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pysoplot.cfg.s234"><code class="docutils literal notranslate"><span class="pre">s234</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pysoplot.cfg.s231"><code class="docutils literal notranslate"><span class="pre">s231</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pysoplot.cfg.s230"><code class="docutils literal notranslate"><span class="pre">s230</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pysoplot.cfg.s226"><code class="docutils literal notranslate"><span class="pre">s226</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pysoplot.cfg.s232"><code class="docutils literal notranslate"><span class="pre">s232</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pysoplot.cfg.U"><code class="docutils literal notranslate"><span class="pre">U</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pysoplot.cfg.sU"><code class="docutils literal notranslate"><span class="pre">sU</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pysoplot.cfg.rng"><code class="docutils literal notranslate"><span class="pre">rng</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pysoplot.cfg.h"><code class="docutils literal notranslate"><span class="pre">h</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pysoplot.cfg.mswd_ci_thresholds"><code class="docutils literal notranslate"><span class="pre">mswd_ci_thresholds</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pysoplot.cfg.mswd_wav_ci_thresholds"><code class="docutils literal notranslate"><span class="pre">mswd_wav_ci_thresholds</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pysoplot.cfg.axis_labels_kw"><code class="docutils literal notranslate"><span class="pre">axis_labels_kw</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pysoplot.cfg.conc_age_ellipse_kw"><code class="docutils literal notranslate"><span class="pre">conc_age_ellipse_kw</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pysoplot.cfg.conc_env_kw"><code class="docutils literal notranslate"><span class="pre">conc_env_kw</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pysoplot.cfg.conc_env_line_kw"><code class="docutils literal notranslate"><span class="pre">conc_env_line_kw</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pysoplot.cfg.conc_intercept_markers_kw"><code class="docutils literal notranslate"><span class="pre">conc_intercept_markers_kw</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pysoplot.cfg.conc_line_kw"><code class="docutils literal notranslate"><span class="pre">conc_line_kw</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pysoplot.cfg.conc_markers_kw"><code class="docutils literal notranslate"><span class="pre">conc_markers_kw</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pysoplot.cfg.conc_text_kw"><code class="docutils literal notranslate"><span class="pre">conc_text_kw</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pysoplot.cfg.dp_ellipse_kw"><code class="docutils literal notranslate"><span class="pre">dp_ellipse_kw</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pysoplot.cfg.dp_label_kw"><code class="docutils literal notranslate"><span class="pre">dp_label_kw</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pysoplot.cfg.fig_kw"><code class="docutils literal notranslate"><span class="pre">fig_kw</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pysoplot.cfg.gridlines_kw"><code class="docutils literal notranslate"><span class="pre">gridlines_kw</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pysoplot.cfg.hist_bars_kw"><code class="docutils literal notranslate"><span class="pre">hist_bars_kw</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pysoplot.cfg.hist_fig_kw"><code class="docutils literal notranslate"><span class="pre">hist_fig_kw</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pysoplot.cfg.major_ticks_kw"><code class="docutils literal notranslate"><span class="pre">major_ticks_kw</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pysoplot.cfg.minor_ticks_kw"><code class="docutils literal notranslate"><span class="pre">minor_ticks_kw</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pysoplot.cfg.pb76_line_kw"><code class="docutils literal notranslate"><span class="pre">pb76_line_kw</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pysoplot.cfg.renv_kw"><code class="docutils literal notranslate"><span class="pre">renv_kw</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pysoplot.cfg.renv_line_kw"><code class="docutils literal notranslate"><span class="pre">renv_line_kw</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pysoplot.cfg.rline_kw"><code class="docutils literal notranslate"><span class="pre">rline_kw</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pysoplot.cfg.scatter_markers_kw"><code class="docutils literal notranslate"><span class="pre">scatter_markers_kw</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pysoplot.cfg.spine_kw"><code class="docutils literal notranslate"><span class="pre">spine_kw</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pysoplot.cfg.subplot_kw"><code class="docutils literal notranslate"><span class="pre">subplot_kw</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pysoplot.cfg.wav_env_kw"><code class="docutils literal notranslate"><span class="pre">wav_env_kw</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pysoplot.cfg.wav_fig_kw"><code class="docutils literal notranslate"><span class="pre">wav_fig_kw</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pysoplot.cfg.wav_line_kw"><code class="docutils literal notranslate"><span class="pre">wav_line_kw</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pysoplot.cfg.wav_markers_kw"><code class="docutils literal notranslate"><span class="pre">wav_markers_kw</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-pysoplot.concordia">concordia</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pysoplot.concordia.plot_concordia"><code class="docutils literal notranslate"><span class="pre">plot_concordia()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pysoplot.concordia.plot_diseq_concordia"><code class="docutils literal notranslate"><span class="pre">plot_diseq_concordia()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-pysoplot.dqpb">dqpb</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pysoplot.dqpb.concint_age"><code class="docutils literal notranslate"><span class="pre">concint_age()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pysoplot.dqpb.forced_concordance"><code class="docutils literal notranslate"><span class="pre">forced_concordance()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pysoplot.dqpb.isochron_age"><code class="docutils literal notranslate"><span class="pre">isochron_age()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pysoplot.dqpb.pbu_age"><code class="docutils literal notranslate"><span class="pre">pbu_age()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pysoplot.dqpb.pbu_iterative_age"><code class="docutils literal notranslate"><span class="pre">pbu_iterative_age()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-pysoplot.exceptions">exceptions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pysoplot.exceptions.ConvergenceError"><code class="docutils literal notranslate"><span class="pre">ConvergenceError</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-pysoplot.isochron">isochron</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pysoplot.isochron.age"><code class="docutils literal notranslate"><span class="pre">age()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pysoplot.isochron.mc_uncert"><code class="docutils literal notranslate"><span class="pre">mc_uncert()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-pysoplot.plotting">plotting</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pysoplot.plotting.apply_plot_settings"><code class="docutils literal notranslate"><span class="pre">apply_plot_settings()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pysoplot.plotting.plot_dp"><code class="docutils literal notranslate"><span class="pre">plot_dp()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pysoplot.plotting.plot_rfit"><code class="docutils literal notranslate"><span class="pre">plot_rfit()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pysoplot.plotting.renv"><code class="docutils literal notranslate"><span class="pre">renv()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pysoplot.plotting.rline"><code class="docutils literal notranslate"><span class="pre">rline()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pysoplot.plotting.wav_plot"><code class="docutils literal notranslate"><span class="pre">wav_plot()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-pysoplot.regression">regression</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pysoplot.regression.classical_fit"><code class="docutils literal notranslate"><span class="pre">classical_fit()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pysoplot.regression.lad"><code class="docutils literal notranslate"><span class="pre">lad()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pysoplot.regression.lsq"><code class="docutils literal notranslate"><span class="pre">lsq()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pysoplot.regression.model_3"><code class="docutils literal notranslate"><span class="pre">model_3()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pysoplot.regression.robust_fit"><code class="docutils literal notranslate"><span class="pre">robust_fit()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pysoplot.regression.robust_model_2"><code class="docutils literal notranslate"><span class="pre">robust_model_2()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pysoplot.regression.siegel"><code class="docutils literal notranslate"><span class="pre">siegel()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pysoplot.regression.slim"><code class="docutils literal notranslate"><span class="pre">slim()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pysoplot.regression.spine"><code class="docutils literal notranslate"><span class="pre">spine()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pysoplot.regression.york"><code class="docutils literal notranslate"><span class="pre">york()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#transform">transform</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pysoplot.transform.dp_errors"><code class="docutils literal notranslate"><span class="pre">dp_errors()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-pysoplot.upb">upb</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pysoplot.upb.concint_age"><code class="docutils literal notranslate"><span class="pre">concint_age()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pysoplot.upb.isochron_age"><code class="docutils literal notranslate"><span class="pre">isochron_age()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pysoplot.upb.mc_concint"><code class="docutils literal notranslate"><span class="pre">mc_concint()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#wtd-average">wtd_average</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pysoplot.wtd_average.classical_wav"><code class="docutils literal notranslate"><span class="pre">classical_wav()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pysoplot.wtd_average.robust_wav"><code class="docutils literal notranslate"><span class="pre">robust_wav()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pysoplot.wtd_average.spine_wav_cor"><code class="docutils literal notranslate"><span class="pre">spine_wav_cor()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pysoplot.wtd_average.wav"><code class="docutils literal notranslate"><span class="pre">wav()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pysoplot.wtd_average.wav_cor"><code class="docutils literal notranslate"><span class="pre">wav_cor()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-pysoplot.ludwig">ludwig</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pysoplot.ludwig.bateman"><code class="docutils literal notranslate"><span class="pre">bateman()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pysoplot.ludwig.f"><code class="docutils literal notranslate"><span class="pre">f()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pysoplot.ludwig.g"><code class="docutils literal notranslate"><span class="pre">g()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pysoplot</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a></li>
+      <li class="breadcrumb-item active">API</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/api.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="api">
+<h1>API<a class="headerlink" href="#api" title="Permalink to this heading"></a></h1>
+<section id="module-pysoplot.cfg">
+<span id="cfg"></span><h2>cfg<a class="headerlink" href="#module-pysoplot.cfg" title="Permalink to this heading"></a></h2>
+<p>Package-wide settings and constants.</p>
+<dl class="py data">
+<dt class="sig sig-object py" id="pysoplot.cfg.lam238">
+<span class="sig-prename descclassname"><span class="pre">pysoplot.cfg.</span></span><span class="sig-name descname"><span class="pre">lam238</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.000155125479614</span></em><a class="headerlink" href="#pysoplot.cfg.lam238" title="Permalink to this definition"></a></dt>
+<dd><p>238U decay constant [Ma^-1]. Default <a class="reference internal" href="references.html#jaffey1971" id="id1"><span>[JAFFEY1971]</span></a>.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="pysoplot.cfg.lam235">
+<span class="sig-prename descclassname"><span class="pre">pysoplot.cfg.</span></span><span class="sig-name descname"><span class="pre">lam235</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.000984849860843</span></em><a class="headerlink" href="#pysoplot.cfg.lam235" title="Permalink to this definition"></a></dt>
+<dd><p>235U decay constant [Ma^-1]. Default <a class="reference internal" href="references.html#jaffey1971" id="id2"><span>[JAFFEY1971]</span></a>.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="pysoplot.cfg.lam234">
+<span class="sig-prename descclassname"><span class="pre">pysoplot.cfg.</span></span><span class="sig-name descname"><span class="pre">lam234</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2.822030700105632</span></em><a class="headerlink" href="#pysoplot.cfg.lam234" title="Permalink to this definition"></a></dt>
+<dd><p>234U decay constant [Ma^-1]. Default <a class="reference internal" href="references.html#cheng2013" id="id3"><span>[CHENG2013]</span></a>.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="pysoplot.cfg.lam231">
+<span class="sig-prename descclassname"><span class="pre">pysoplot.cfg.</span></span><span class="sig-name descname"><span class="pre">lam231</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">21.15511004303205</span></em><a class="headerlink" href="#pysoplot.cfg.lam231" title="Permalink to this definition"></a></dt>
+<dd><p>231Pa decay constant [Ma^-1]. Default <a class="reference internal" href="references.html#robert1969" id="id4"><span>[ROBERT1969]</span></a>.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="pysoplot.cfg.lam230">
+<span class="sig-prename descclassname"><span class="pre">pysoplot.cfg.</span></span><span class="sig-name descname"><span class="pre">lam230</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">9.170554357535263</span></em><a class="headerlink" href="#pysoplot.cfg.lam230" title="Permalink to this definition"></a></dt>
+<dd><p>230Th decay constant [Ma^-1]. Default <a class="reference internal" href="references.html#cheng2013" id="id5"><span>[CHENG2013]</span></a>.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="pysoplot.cfg.lam226">
+<span class="sig-prename descclassname"><span class="pre">pysoplot.cfg.</span></span><span class="sig-name descname"><span class="pre">lam226</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">433.2169878499658</span></em><a class="headerlink" href="#pysoplot.cfg.lam226" title="Permalink to this definition"></a></dt>
+<dd><p>226Ra decay constant [Ma^-1]</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="pysoplot.cfg.lam232">
+<span class="sig-prename descclassname"><span class="pre">pysoplot.cfg.</span></span><span class="sig-name descname"><span class="pre">lam232</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">4.947517348750502e-05</span></em><a class="headerlink" href="#pysoplot.cfg.lam232" title="Permalink to this definition"></a></dt>
+<dd><p>232Th decay constant [Ma^-1] (default <a class="reference internal" href="references.html#holden1990" id="id6"><span>[HOLDEN1990]</span></a>)</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="pysoplot.cfg.s238">
+<span class="sig-prename descclassname"><span class="pre">pysoplot.cfg.</span></span><span class="sig-name descname"><span class="pre">s238</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">8.332053601458737e-08</span></em><a class="headerlink" href="#pysoplot.cfg.s238" title="Permalink to this definition"></a></dt>
+<dd><p>238U decay constant 1 sigma uncertainty [Ma^-1]. Default <a class="reference internal" href="references.html#jaffey1971" id="id7"><span>[JAFFEY1971]</span></a>.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="pysoplot.cfg.s235">
+<span class="sig-prename descclassname"><span class="pre">pysoplot.cfg.</span></span><span class="sig-name descname"><span class="pre">s235</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">6.716698160081028e-07</span></em><a class="headerlink" href="#pysoplot.cfg.s235" title="Permalink to this definition"></a></dt>
+<dd><p>235U decay constant 1 sigma uncertainty [Ma^-1]. Default <a class="reference internal" href="references.html#jaffey1971" id="id8"><span>[JAFFEY1971]</span></a>.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="pysoplot.cfg.s234">
+<span class="sig-prename descclassname"><span class="pre">pysoplot.cfg.</span></span><span class="sig-name descname"><span class="pre">s234</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.001493624261109568</span></em><a class="headerlink" href="#pysoplot.cfg.s234" title="Permalink to this definition"></a></dt>
+<dd><p>234U decay constant 1 sigma uncertainty [Ma^-1]. Default <a class="reference internal" href="references.html#cheng2013" id="id9"><span>[CHENG2013]</span></a>.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="pysoplot.cfg.s231">
+<span class="sig-prename descclassname"><span class="pre">pysoplot.cfg.</span></span><span class="sig-name descname"><span class="pre">s231</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.07102280191465059</span></em><a class="headerlink" href="#pysoplot.cfg.s231" title="Permalink to this definition"></a></dt>
+<dd><p>231Pa decay constant 1 sigma uncertainty [Ma^-1]. Default <a class="reference internal" href="references.html#robert1969" id="id10"><span>[ROBERT1969]</span></a>.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="pysoplot.cfg.s230">
+<span class="sig-prename descclassname"><span class="pre">pysoplot.cfg.</span></span><span class="sig-name descname"><span class="pre">s230</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.006673111897550267</span></em><a class="headerlink" href="#pysoplot.cfg.s230" title="Permalink to this definition"></a></dt>
+<dd><p>230Th decay constant 1 sigma uncertainty [Ma^-1]. Default <a class="reference internal" href="references.html#cheng2013" id="id11"><span>[CHENG2013]</span></a>.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="pysoplot.cfg.s226">
+<span class="sig-prename descclassname"><span class="pre">pysoplot.cfg.</span></span><span class="sig-name descname"><span class="pre">s226</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1.8953243218436007</span></em><a class="headerlink" href="#pysoplot.cfg.s226" title="Permalink to this definition"></a></dt>
+<dd><p>226Ra decay constant 1 sigma uncertainty [Ma^-1]</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="pysoplot.cfg.s232">
+<span class="sig-prename descclassname"><span class="pre">pysoplot.cfg.</span></span><span class="sig-name descname"><span class="pre">s232</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">3.531422306388949e-07</span></em><a class="headerlink" href="#pysoplot.cfg.s232" title="Permalink to this definition"></a></dt>
+<dd><p>232Th decay constant 1 sigma uncertainty [Ma^-1]. Default <a class="reference internal" href="references.html#holden1990" id="id12"><span>[HOLDEN1990]</span></a>.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="pysoplot.cfg.U">
+<span class="sig-prename descclassname"><span class="pre">pysoplot.cfg.</span></span><span class="sig-name descname"><span class="pre">U</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">137.818</span></em><a class="headerlink" href="#pysoplot.cfg.U" title="Permalink to this definition"></a></dt>
+<dd><p>Modern natural 238U/235U ratio. Default <a class="reference internal" href="references.html#hiess2012" id="id13"><span>[HIESS2012]</span></a>.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="pysoplot.cfg.sU">
+<span class="sig-prename descclassname"><span class="pre">pysoplot.cfg.</span></span><span class="sig-name descname"><span class="pre">sU</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.0225</span></em><a class="headerlink" href="#pysoplot.cfg.sU" title="Permalink to this definition"></a></dt>
+<dd><p>Modern natural 238U/235U ratio 1 sigma uncertainty. Default <a class="reference internal" href="references.html#hiess2012" id="id14"><span>[HIESS2012]</span></a>.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="pysoplot.cfg.rng">
+<span class="sig-prename descclassname"><span class="pre">pysoplot.cfg.</span></span><span class="sig-name descname"><span class="pre">rng</span></span><a class="headerlink" href="#pysoplot.cfg.rng" title="Permalink to this definition"></a></dt>
+<dd><p>Random number generator used across all modules.
+Allows for reproducible Monte Carlo simulations results.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.Generator</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="pysoplot.cfg.h">
+<span class="sig-prename descclassname"><span class="pre">pysoplot.cfg.</span></span><span class="sig-name descname"><span class="pre">h</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1.4</span></em><a class="headerlink" href="#pysoplot.cfg.h" title="Permalink to this definition"></a></dt>
+<dd><p>Spine h value (see <span id="id15">[Powell2020]</span>).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="pysoplot.cfg.mswd_ci_thresholds">
+<span class="sig-prename descclassname"><span class="pre">pysoplot.cfg.</span></span><span class="sig-name descname"><span class="pre">mswd_ci_thresholds</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[0.85,</span> <span class="pre">0.95]</span></em><a class="headerlink" href="#pysoplot.cfg.mswd_ci_thresholds" title="Permalink to this definition"></a></dt>
+<dd><p>MSWD one-sided confidence interval thresholds for classical
+regression fits. First element is the model 1 –&gt; 1x threshold, second element
+is the model 1x –&gt; 2/3 threshold.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="pysoplot.cfg.mswd_wav_ci_thresholds">
+<span class="sig-prename descclassname"><span class="pre">pysoplot.cfg.</span></span><span class="sig-name descname"><span class="pre">mswd_wav_ci_thresholds</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[0.85,</span> <span class="pre">0.95]</span></em><a class="headerlink" href="#pysoplot.cfg.mswd_wav_ci_thresholds" title="Permalink to this definition"></a></dt>
+<dd><p>MSWD one-sided confidence interval thresholds for classical wtd. averages.
+First element is analytical –&gt; analytical + observed scatter threshold.
+Second element is not yet used. Equivalent Isoplot default for first
+element is 0.70.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="pysoplot.cfg.axis_labels_kw">
+<span class="sig-prename descclassname"><span class="pre">pysoplot.cfg.</span></span><span class="sig-name descname"><span class="pre">axis_labels_kw</span></span><a class="headerlink" href="#pysoplot.cfg.axis_labels_kw" title="Permalink to this definition"></a></dt>
+<dd><p>Axis labels key-word arguments.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="pysoplot.cfg.conc_age_ellipse_kw">
+<span class="sig-prename descclassname"><span class="pre">pysoplot.cfg.</span></span><span class="sig-name descname"><span class="pre">conc_age_ellipse_kw</span></span><a class="headerlink" href="#pysoplot.cfg.conc_age_ellipse_kw" title="Permalink to this definition"></a></dt>
+<dd><p>Concordia age ellipse marker key-word arguments.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="pysoplot.cfg.conc_env_kw">
+<span class="sig-prename descclassname"><span class="pre">pysoplot.cfg.</span></span><span class="sig-name descname"><span class="pre">conc_env_kw</span></span><a class="headerlink" href="#pysoplot.cfg.conc_env_kw" title="Permalink to this definition"></a></dt>
+<dd><p>Concordia uncertainty envelope fill key-word arguments.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="pysoplot.cfg.conc_env_line_kw">
+<span class="sig-prename descclassname"><span class="pre">pysoplot.cfg.</span></span><span class="sig-name descname"><span class="pre">conc_env_line_kw</span></span><a class="headerlink" href="#pysoplot.cfg.conc_env_line_kw" title="Permalink to this definition"></a></dt>
+<dd><p>Concordia envelope line key-word arguments.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="pysoplot.cfg.conc_intercept_markers_kw">
+<span class="sig-prename descclassname"><span class="pre">pysoplot.cfg.</span></span><span class="sig-name descname"><span class="pre">conc_intercept_markers_kw</span></span><a class="headerlink" href="#pysoplot.cfg.conc_intercept_markers_kw" title="Permalink to this definition"></a></dt>
+<dd><p>Concordia intercept markers key-word arguments.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="pysoplot.cfg.conc_line_kw">
+<span class="sig-prename descclassname"><span class="pre">pysoplot.cfg.</span></span><span class="sig-name descname"><span class="pre">conc_line_kw</span></span><a class="headerlink" href="#pysoplot.cfg.conc_line_kw" title="Permalink to this definition"></a></dt>
+<dd><p>Concordia line key-word arguments.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="pysoplot.cfg.conc_markers_kw">
+<span class="sig-prename descclassname"><span class="pre">pysoplot.cfg.</span></span><span class="sig-name descname"><span class="pre">conc_markers_kw</span></span><a class="headerlink" href="#pysoplot.cfg.conc_markers_kw" title="Permalink to this definition"></a></dt>
+<dd><p>Concordia age markers key-word arguments.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="pysoplot.cfg.conc_text_kw">
+<span class="sig-prename descclassname"><span class="pre">pysoplot.cfg.</span></span><span class="sig-name descname"><span class="pre">conc_text_kw</span></span><a class="headerlink" href="#pysoplot.cfg.conc_text_kw" title="Permalink to this definition"></a></dt>
+<dd><p>Concordia marker labels key-word arguments.
+Caution: Be careful changing the annotation_clip and clip_on settings.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="pysoplot.cfg.dp_ellipse_kw">
+<span class="sig-prename descclassname"><span class="pre">pysoplot.cfg.</span></span><span class="sig-name descname"><span class="pre">dp_ellipse_kw</span></span><a class="headerlink" href="#pysoplot.cfg.dp_ellipse_kw" title="Permalink to this definition"></a></dt>
+<dd><p>Data point confidence ellipse key-word arguments.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="pysoplot.cfg.dp_label_kw">
+<span class="sig-prename descclassname"><span class="pre">pysoplot.cfg.</span></span><span class="sig-name descname"><span class="pre">dp_label_kw</span></span><a class="headerlink" href="#pysoplot.cfg.dp_label_kw" title="Permalink to this definition"></a></dt>
+<dd><p>Data point confidence ellipse key-word arguments.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="pysoplot.cfg.fig_kw">
+<span class="sig-prename descclassname"><span class="pre">pysoplot.cfg.</span></span><span class="sig-name descname"><span class="pre">fig_kw</span></span><a class="headerlink" href="#pysoplot.cfg.fig_kw" title="Permalink to this definition"></a></dt>
+<dd><p>Figure key-word arguments.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="pysoplot.cfg.gridlines_kw">
+<span class="sig-prename descclassname"><span class="pre">pysoplot.cfg.</span></span><span class="sig-name descname"><span class="pre">gridlines_kw</span></span><a class="headerlink" href="#pysoplot.cfg.gridlines_kw" title="Permalink to this definition"></a></dt>
+<dd><p>Figure gridline key-word arguments.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="pysoplot.cfg.hist_bars_kw">
+<span class="sig-prename descclassname"><span class="pre">pysoplot.cfg.</span></span><span class="sig-name descname"><span class="pre">hist_bars_kw</span></span><a class="headerlink" href="#pysoplot.cfg.hist_bars_kw" title="Permalink to this definition"></a></dt>
+<dd><p>Histogram bar key-word arguments.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="pysoplot.cfg.hist_fig_kw">
+<span class="sig-prename descclassname"><span class="pre">pysoplot.cfg.</span></span><span class="sig-name descname"><span class="pre">hist_fig_kw</span></span><a class="headerlink" href="#pysoplot.cfg.hist_fig_kw" title="Permalink to this definition"></a></dt>
+<dd><p>Histogram figure key-word arguments.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="pysoplot.cfg.major_ticks_kw">
+<span class="sig-prename descclassname"><span class="pre">pysoplot.cfg.</span></span><span class="sig-name descname"><span class="pre">major_ticks_kw</span></span><a class="headerlink" href="#pysoplot.cfg.major_ticks_kw" title="Permalink to this definition"></a></dt>
+<dd><p>Major axis tick key-word arguments.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="pysoplot.cfg.minor_ticks_kw">
+<span class="sig-prename descclassname"><span class="pre">pysoplot.cfg.</span></span><span class="sig-name descname"><span class="pre">minor_ticks_kw</span></span><a class="headerlink" href="#pysoplot.cfg.minor_ticks_kw" title="Permalink to this definition"></a></dt>
+<dd><p>Minor axis tick key-word arguments.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="pysoplot.cfg.pb76_line_kw">
+<span class="sig-prename descclassname"><span class="pre">pysoplot.cfg.</span></span><span class="sig-name descname"><span class="pre">pb76_line_kw</span></span><a class="headerlink" href="#pysoplot.cfg.pb76_line_kw" title="Permalink to this definition"></a></dt>
+<dd><p>Common 207Pb/206Pb projection line key-word arguments.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="pysoplot.cfg.renv_kw">
+<span class="sig-prename descclassname"><span class="pre">pysoplot.cfg.</span></span><span class="sig-name descname"><span class="pre">renv_kw</span></span><a class="headerlink" href="#pysoplot.cfg.renv_kw" title="Permalink to this definition"></a></dt>
+<dd><p>Regression envelope key-word arguments.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="pysoplot.cfg.renv_line_kw">
+<span class="sig-prename descclassname"><span class="pre">pysoplot.cfg.</span></span><span class="sig-name descname"><span class="pre">renv_line_kw</span></span><a class="headerlink" href="#pysoplot.cfg.renv_line_kw" title="Permalink to this definition"></a></dt>
+<dd><p>Regression envelope line key-word arguments.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="pysoplot.cfg.rline_kw">
+<span class="sig-prename descclassname"><span class="pre">pysoplot.cfg.</span></span><span class="sig-name descname"><span class="pre">rline_kw</span></span><a class="headerlink" href="#pysoplot.cfg.rline_kw" title="Permalink to this definition"></a></dt>
+<dd><p>Regression line key-word arguments.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="pysoplot.cfg.scatter_markers_kw">
+<span class="sig-prename descclassname"><span class="pre">pysoplot.cfg.</span></span><span class="sig-name descname"><span class="pre">scatter_markers_kw</span></span><a class="headerlink" href="#pysoplot.cfg.scatter_markers_kw" title="Permalink to this definition"></a></dt>
+<dd><p>Scatter plot marker key-word arguments.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="pysoplot.cfg.spine_kw">
+<span class="sig-prename descclassname"><span class="pre">pysoplot.cfg.</span></span><span class="sig-name descname"><span class="pre">spine_kw</span></span><a class="headerlink" href="#pysoplot.cfg.spine_kw" title="Permalink to this definition"></a></dt>
+<dd><p>Figure axis spine key-word arguments. Spines are the axis lines.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="pysoplot.cfg.subplot_kw">
+<span class="sig-prename descclassname"><span class="pre">pysoplot.cfg.</span></span><span class="sig-name descname"><span class="pre">subplot_kw</span></span><a class="headerlink" href="#pysoplot.cfg.subplot_kw" title="Permalink to this definition"></a></dt>
+<dd><p>subplot_kw passed to matplotlib.pyplot.subplots().</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="pysoplot.cfg.wav_env_kw">
+<span class="sig-prename descclassname"><span class="pre">pysoplot.cfg.</span></span><span class="sig-name descname"><span class="pre">wav_env_kw</span></span><a class="headerlink" href="#pysoplot.cfg.wav_env_kw" title="Permalink to this definition"></a></dt>
+<dd><p>Weighted average envelope key-word arguments.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="pysoplot.cfg.wav_fig_kw">
+<span class="sig-prename descclassname"><span class="pre">pysoplot.cfg.</span></span><span class="sig-name descname"><span class="pre">wav_fig_kw</span></span><a class="headerlink" href="#pysoplot.cfg.wav_fig_kw" title="Permalink to this definition"></a></dt>
+<dd><p>Weighted average figure key-word arguments.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="pysoplot.cfg.wav_line_kw">
+<span class="sig-prename descclassname"><span class="pre">pysoplot.cfg.</span></span><span class="sig-name descname"><span class="pre">wav_line_kw</span></span><a class="headerlink" href="#pysoplot.cfg.wav_line_kw" title="Permalink to this definition"></a></dt>
+<dd><p>Weighted average line key-word arguments.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="pysoplot.cfg.wav_markers_kw">
+<span class="sig-prename descclassname"><span class="pre">pysoplot.cfg.</span></span><span class="sig-name descname"><span class="pre">wav_markers_kw</span></span><a class="headerlink" href="#pysoplot.cfg.wav_markers_kw" title="Permalink to this definition"></a></dt>
+<dd><p>Weighted average data point marker key-word arguments.</p>
+</dd></dl>
+
+</section>
+<section id="module-pysoplot.concordia">
+<span id="concordia"></span><h2>concordia<a class="headerlink" href="#module-pysoplot.concordia" title="Permalink to this heading"></a></h2>
+<p>Concordia plotting routines for (dis)equilibrium U-Pb datasets.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="pysoplot.concordia.plot_concordia">
+<span class="sig-prename descclassname"><span class="pre">pysoplot.concordia.</span></span><span class="sig-name descname"><span class="pre">plot_concordia</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diagram</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_markers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">age_ellipses</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">marker_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">marker_ages</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auto_markers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove_overlaps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">age_prefix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Ma'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysoplot.concordia.plot_concordia" title="Permalink to this definition"></a></dt>
+<dd><p>Plot equilibrium U-Pb concordia curve on concordia diagram.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ax</strong> (<em>matplotlib.pyplot.Axes</em>) – Axes object to plot concordia curve in.</p></li>
+<li><p><strong>diagram</strong> (<em>{'tw'</em><em>, </em><em>'wc'}</em>) – Concordia diagram type.</p></li>
+<li><p><strong>marker_max</strong> (<em>float</em><em>, </em><em>optional</em>) – User specified age marker max (Ma).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>UserWarning</strong> – if concordia lies entirely outside the axis limits.:</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pysoplot.concordia.plot_diseq_concordia">
+<span class="sig-prename descclassname"><span class="pre">pysoplot.concordia.</span></span><span class="sig-name descname"><span class="pre">plot_diseq_concordia</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">A</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diagram</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sA</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">age_ellipses</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_markers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">marker_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mc'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">marker_ages</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auto_markers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spaghetti</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pA</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove_overlaps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env_trials</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">negative_ratios</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">age_prefix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Ma'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysoplot.concordia.plot_diseq_concordia" title="Permalink to this definition"></a></dt>
+<dd><p>Plot disequilibrium U-Pb concordia curve on concordia diagram.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ax</strong> (<em>matplotlib.pyplot.Axes</em>) – Axes object to plot concordia curve in.</p></li>
+<li><p><strong>A</strong> (<em>array-like</em>) – one-dimensional array of activity ratio values arranged as follows
+- [234U/238U], [230Th/238U], [226Ra/238U], [231Pa/235U]</p></li>
+<li><p><strong>init</strong> (<em>array-like</em>) – two-element list of boolean values, the first is True if [234U/238U]
+is an initial value and False if a present-day value, the second is True
+if [230Th/238U] is an initial value and False if a present-day value</p></li>
+<li><p><strong>sA</strong> (<em>array-like</em><em>, </em><em>optional</em>) – one-dimensional array of activity ratio value uncertainties given
+as 1 sigma absolute and arranged in the same order as A</p></li>
+<li><p><strong>diagram</strong> (<em>{'tw'</em><em>, </em><em>'wc'}</em>) – Concordia diagram type.</p></li>
+<li><p><strong>marker_max</strong> (<em>float</em><em>, </em><em>optional</em>) – User specified age marker max (Ma).</p></li>
+<li><p><strong>spaghetti</strong> (<em>bool</em>) – plot each simulated line using arbitrary colours</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>UserWarning</strong> – if concordia lies entirely outside the axis limits.:</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-pysoplot.dqpb">
+<span id="dqpb"></span><h2>dqpb<a class="headerlink" href="#module-pysoplot.dqpb" title="Permalink to this heading"></a></h2>
+<p>Functions and routines for computing disequilibrium U-Pb ages.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="pysoplot.dqpb.concint_age">
+<span class="sig-prename descclassname"><span class="pre">pysoplot.dqpb.</span></span><span class="sig-name descname"><span class="pre">concint_age</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fit</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">A</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sA</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diagram</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'tw'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dc_errors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trials</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">u_errors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">negative_ratios</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">negative_ages</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">intercept_plot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hist</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(False,</span> <span class="pre">False)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conc_kw</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">intercept_plot_kw</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">A48i_lim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(0.0,</span> <span class="pre">20.0)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">A08i_lim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(0.0,</span> <span class="pre">10.0)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">age_lim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(0.0,</span> <span class="pre">20.0)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uncert</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mc'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysoplot.dqpb.concint_age" title="Permalink to this definition"></a></dt>
+<dd><p>Compute disequilibrium U-Pb concordia intercept age and age uncertainties
+using Monte Carlo simulation. Optionally, produce a plot of the
+concordia intercept.</p>
+<p class="rubric">Notes</p>
+<p>Only accepts data in 2-D Tera-Wasserburg form at present.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fit</strong> (<em>dict</em>) – Linear regression fit parameters.</p></li>
+<li><p><strong>A</strong> (<em>array-like</em>) – One-dimensional array of activity ratio values arranged as follows
+- [234U/238U], [230Th/238U], [226Ra/238U], [231Pa/235U].</p></li>
+<li><p><strong>sA</strong> (<em>array-like</em>) – One-dimensional array of activity ratio value uncertainties given
+as 1 sigma absolute and arranged in the same order as A.</p></li>
+<li><p><strong>init</strong> (<em>array-like</em>) – Two-element list of boolean values, the first is True if [234U/238U]
+is an initial value and False if a present-day value, the second is True
+if [230Th/238U] is an initial value and False if a present-day value.</p></li>
+<li><p><strong>t0</strong> (<em>float</em>) – Initial guess for numerical age solving (the equilibrium age is
+typically good enough).</p></li>
+<li><p><strong>uncert</strong> (<em>{'mc'</em><em>, </em><em>'none'}</em>) – Method of computing age uncertainties.</p></li>
+<li><p><strong>diagram</strong> (<em>{'tw'}</em>) – Concordia diagram type. Currently only accepts ‘tw’, i.e.
+Tera-Waserburg.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pysoplot.dqpb.forced_concordance">
+<span class="sig-prename descclassname"><span class="pre">pysoplot.dqpb.</span></span><span class="sig-name descname"><span class="pre">forced_concordance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fit57</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fit86</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">A</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sA</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t0</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norm_isotope</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'204Pb'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">negative_ratios</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">negative_ages</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hist</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(False,</span> <span class="pre">False)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trials</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50000</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysoplot.dqpb.forced_concordance" title="Permalink to this definition"></a></dt>
+<dd><p>Compute “forced concordance” [234U/238U] value following the approach of
+Engel et al. (2019).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fit57</strong> (<em>dict</em>) – 207Pb isochron linear regression fit</p></li>
+<li><p><strong>fit86</strong> (<em>dict</em>) – 206Pb isochron linear regression fit</p></li>
+<li><p><strong>A</strong> (<em>array-like</em>) – one-dimensional array of activity ratio values arranged as follows
+- np.nan, [230Th/238U], [226Ra/238U], [231Pa/235U]</p></li>
+<li><p><strong>sA</strong> (<em>array-like</em>) – one-dimensional array of activity ratio value uncertainties given
+as 1 sigma absolute and arranged in the same order as A</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">References</p>
+<p>Engel, J., Woodhead, J., Hellstrom, J., Maas, R., Drysdale, R., Ford, D.,
+2019. Corrections for initial isotopic disequilibrium in the speleothem
+U-Pb dating method. Quaternary Geochronology 54, 101009.
+<a class="reference external" href="https://doi.org/10.1016/j.quageo.2019.101009">https://doi.org/10.1016/j.quageo.2019.101009</a></p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pysoplot.dqpb.isochron_age">
+<span class="sig-prename descclassname"><span class="pre">pysoplot.dqpb.</span></span><span class="sig-name descname"><span class="pre">isochron_age</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fit</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">A</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sA</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(True,</span> <span class="pre">True)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">age_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'iso-206Pb'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norm_isotope</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'204Pb'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hist</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(False,</span> <span class="pre">False)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trials</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dc_errors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">negative_ratios</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">negative_ages</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysoplot.dqpb.isochron_age" title="Permalink to this definition"></a></dt>
+<dd><p>Compute disequilibrium 238U-206Pb or 235U-207Pb isochron age and Monte
+Carlo age uncertainties.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fit</strong> (<em>dict</em>) – linear regression fit parameters</p></li>
+<li><p><strong>A</strong> (<em>array-like</em>) – one-dimensional array of activity ratio values arranged as follows
+- [234U/238U], [230Th/238U], [226Ra/238U], [231Pa/235U]</p></li>
+<li><p><strong>sA</strong> (<em>array-like</em>) – one-dimensional array of activity ratio value uncertainties given
+as 1 sigma absolute and arranged in the same order as A</p></li>
+<li><p><strong>init</strong> (<em>array-like</em>) – two-element list of boolean values, the first is True if [234U/238U]
+is an initial value and False if a present-day value, the second is True
+if [230Th/238U] is an initial value and False if a present-day value</p></li>
+<li><p><strong>t0</strong> (<em>float</em>) – initial guess for numerical age solving (the equilibrium age is
+typically good enough)</p></li>
+<li><p><strong>age_type</strong> (<em>{'iso-206Pb'</em><em>, </em><em>'iso-207Pb'}</em>) – Isochron age type.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pysoplot.dqpb.pbu_age">
+<span class="sig-prename descclassname"><span class="pre">pysoplot.dqpb.</span></span><span class="sig-name descname"><span class="pre">pbu_age</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Vx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">DThU</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">DThU_1s</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">DPaU</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">DPaU_1s</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha_1s</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">age_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'206Pb*'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uncert</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'analytical'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rand</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wav</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wav_opts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mc_opts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysoplot.dqpb.pbu_age" title="Permalink to this definition"></a></dt>
+<dd><p>Compute disequilibrium radiogenic 206Pb*/238U, 207Pb*/235U ages, or
+207Pb-corrected age assuming a constant ratio of minerl-melt partition
+coefficients, and optionally compute a weighted average age.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>ndarray</em><em> (</em><em>1-D</em><em>, </em><em>2-D</em><em>)</em>) – Either a 1 x n array of measured 206Pb*/238U for each aliquot (for
+206Pb* age), or 2 x n array of measured 238U/206Pb and 207Pb/206Pb (for
+207Pb-corrected age).</p></li>
+<li><p><strong>Vx</strong> (<em>ndarray</em><em> (</em><em>2-D</em><em>)</em>) – Covariance matrix of uncertainties on measured isotope ratios. This
+should be an n x n array for 206Pb* and 207Pb* ages, or a 2n x 2n array
+for 207Pb-corrected ages.</p></li>
+<li><p><strong>DThU</strong> (<em>float</em><em>, </em><em>optional</em>) – Ratio of mineral-melt distribution coefficients, DTh/DU.</p></li>
+<li><p><strong>DThU_1s</strong> (<em>float</em><em>, </em><em>optional</em>) – Uncertainty on ratio of mineral-melt distribution coefficients, DTh/DU.</p></li>
+<li><p><strong>DPaU</strong> (<em>float</em><em>, </em><em>optional</em>) – Ratio of mineral-melt distribution coefficients, DPu/DU.</p></li>
+<li><p><strong>DPaU_1s</strong> (<em>float</em><em>, </em><em>optional</em>) – Uncertainty on ratio of mineral-melt distribution coefficients, DPu/DU.</p></li>
+<li><p><strong>alpha</strong> (<em>float</em><em>, </em><em>optional</em>) – Common 207Pb/206Pb ratio.</p></li>
+<li><p><strong>alpha_1s</strong> (<em>float</em><em>, </em><em>optional</em>) – Uncertainty on common 207Pb/206Pb ratio.</p></li>
+<li><p><strong>t0</strong> (<em>ndarray</em><em> or </em><em>float</em><em>, </em><em>optional</em>) – Age guess(es).</p></li>
+<li><p><strong>uncert</strong> (<em>{'mc'</em><em>, </em><em>'analytical'}</em><em>, </em><em>optional</em>) – Method of propagating age uncertainties.</p></li>
+<li><p><strong>rand</strong> (<em>bool</em>) – If true, compute random only uncertainties as well as total
+uncertainties (e.g., for plotting error bars).</p></li>
+<li><p><strong>mc_opts</strong> (<em>dict</em>) – Monte Carlo simulation options.</p></li>
+<li><p><strong>wav_opts</strong> (<em>dict</em>) – Weighted average calculation and plotting options.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>results</strong> – Age and uncertainty results.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pysoplot.dqpb.pbu_iterative_age">
+<span class="sig-prename descclassname"><span class="pre">pysoplot.dqpb.</span></span><span class="sig-name descname"><span class="pre">pbu_iterative_age</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Vx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ThU_melt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ThU_melt_1s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Pb208_206</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">V_Pb208_206</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Th232_U238</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">V_Th232_U238</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">DPaU</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">DPaU_1s</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha_1s</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">age_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'206Pb*'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uncert</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'analytical'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rand</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wav</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wav_opts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mc_opts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysoplot.dqpb.pbu_iterative_age" title="Permalink to this definition"></a></dt>
+<dd><p>Compute disequilibrium 206Pb*/U238 or 207Pb-corrected ages iteratively
+along with age uncertainties. Either initial Th/U_min can be inferred from
+measured 232Th/238U, or from radiogenic 208Pb/206Pb and age.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>ndarray</em><em> (</em><em>1-D</em><em>, </em><em>2-D</em><em>)</em>) – Either a 1 x n array of measured 206Pb*/238U for each aliquot (for
+206Pb* age), or 2 x n array of measured 238U/206Pb and 207Pb/206Pb (for
+207Pb-corrected age).</p></li>
+<li><p><strong>Vx</strong> (<em>ndarray</em><em> (</em><em>2-D</em><em>)</em>) – Covariance matrix of uncertainties on measured isotope ratios. This
+should be an n x n array for 206Pb* and 207Pb* ages, or a 2n x 2n array
+for 207Pb-corrected ages.</p></li>
+<li><p><strong>ThU_melt</strong> (<em>float</em>) – Th/U ratio of the melt.</p></li>
+<li><p><strong>ThU_melt_1s</strong> (<em>float</em>) – Uncertainty on Th/U ratio of the melt (1 sigma).</p></li>
+<li><p><strong>Th232_U238</strong> (<em>ndarray</em><em> (</em><em>1-D</em><em>)</em><em>, </em><em>optional</em>) – Measured 232Th/238U for each aliquot.</p></li>
+<li><p><strong>V_Th232_U238</strong> (<em>ndarray</em><em> (</em><em>2-D</em><em>)</em><em>, </em><em>optional</em>) – Covariance matrix of uncertainties on measured 232Th/238U.</p></li>
+<li><p><strong>Pb208_206</strong> (<em>ndarray</em><em> (</em><em>1-D</em><em>)</em>) – Measured radiogenic 208Pb/206Pb for each aliquot.</p></li>
+<li><p><strong>V_Pb208_206</strong> (<em>ndarray</em><em> (</em><em>2-D</em><em>)</em><em>:</em>) – Covariance matrix of uncertainties on radiogenic 208Pb/206Pb values.</p></li>
+<li><p><strong>DPaU</strong> (<em>float</em><em>, </em><em>optional</em>) – Ratio of mineral-melt distribution coefficients, DPu/DU.</p></li>
+<li><p><strong>DPaU_1s</strong> (<em>float</em><em>, </em><em>optional</em>) – Uncertainty on ratio of mineral-melt distribution coefficients, DPu/DU.</p></li>
+<li><p><strong>alpha</strong> (<em>float</em><em>, </em><em>optional</em>) – Common 207Pb/206Pb ratio.</p></li>
+<li><p><strong>alpha_1s</strong> (<em>float</em><em>, </em><em>optional</em>) – Uncertainty on common 207Pb/206Pb ratio.</p></li>
+<li><p><strong>t0</strong> (<em>ndarray</em><em> or </em><em>float</em><em>, </em><em>optional</em>) – Age guess(es).</p></li>
+<li><p><strong>uncert</strong> (<em>{'mc'</em><em>, </em><em>'analytical'}</em><em>, </em><em>optional</em>) – Method of propagating age uncertainties.</p></li>
+<li><p><strong>rand</strong> (<em>bool</em>) – If true, compute random only uncertainties as well as total
+uncertainties (e.g., for plotting error bars).</p></li>
+<li><p><strong>mc_opts</strong> (<em>dict</em>) – Monte Carlo simulation options.</p></li>
+<li><p><strong>wav_opts</strong> (<em>dict</em>) – Weighted average calculation and plotting options.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>results</strong> – Age and uncertainty results.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-pysoplot.exceptions">
+<span id="exceptions"></span><h2>exceptions<a class="headerlink" href="#module-pysoplot.exceptions" title="Permalink to this heading"></a></h2>
+<p>Custom exceptions.</p>
+<dl class="py exception">
+<dt class="sig sig-object py" id="pysoplot.exceptions.ConvergenceError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pysoplot.exceptions.</span></span><span class="sig-name descname"><span class="pre">ConvergenceError</span></span><a class="headerlink" href="#pysoplot.exceptions.ConvergenceError" title="Permalink to this definition"></a></dt>
+<dd><p>Exception raised when a numerical routine fails to meet convergence
+criterion.</p>
+</dd></dl>
+
+</section>
+<section id="module-pysoplot.isochron">
+<span id="isochron"></span><h2>isochron<a class="headerlink" href="#module-pysoplot.isochron" title="Permalink to this heading"></a></h2>
+<p>“Classical” isochron ages.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="pysoplot.isochron.age">
+<span class="sig-prename descclassname"><span class="pre">pysoplot.isochron.</span></span><span class="sig-name descname"><span class="pre">age</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">b</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sb</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">age_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'iso-206Pb'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dc_errors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysoplot.isochron.age" title="Permalink to this definition"></a></dt>
+<dd><p>Calculate classical isochron age.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>b</strong> (<em>float</em>) – Linear regression slope</p></li>
+<li><p><strong>sb</strong> (<em>float</em><em>, </em><em>optional</em>) – Uncertaintiy in regression slope (<span class="math notranslate nohighlight">\(1\sigma\)</span>)</p></li>
+<li><p><strong>age_type</strong> (<em>{'iso-Pb6U8'</em><em>, </em><em>'iso-Pb7U5'}</em>) – Isochron age type.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pysoplot.isochron.mc_uncert">
+<span class="sig-prename descclassname"><span class="pre">pysoplot.isochron.</span></span><span class="sig-name descname"><span class="pre">mc_uncert</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fit</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">age_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'iso-206Pb'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dc_errors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norm_isotope</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'204Pb'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trials</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hist</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysoplot.isochron.mc_uncert" title="Permalink to this definition"></a></dt>
+<dd><p>Compute classical isochron age uncertainties using Monte Carlo approach.</p>
+<p>Compute Monte Carlo age uncertainties for equilibrium concordia intercept
+age.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fit</strong> (<em>dict</em>) – Linear regression fit parameters.</p></li>
+<li><p><strong>age_type</strong> (<em>{'iso-Pb6U8'</em><em>, </em><em>'iso-Pb7U5'}</em>) – Isochron age type.</p></li>
+<li><p><strong>trials</strong> (<em>int</em>) – Number of Monte Carlo trials.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-pysoplot.plotting">
+<span id="plotting"></span><h2>plotting<a class="headerlink" href="#module-pysoplot.plotting" title="Permalink to this heading"></a></h2>
+<p>Plotting routines and functions.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="pysoplot.plotting.apply_plot_settings">
+<span class="sig-prename descclassname"><span class="pre">pysoplot.plotting.</span></span><span class="sig-name descname"><span class="pre">apply_plot_settings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fig</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'isochron'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diagram</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xlim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(None,</span> <span class="pre">None)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ylim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(None,</span> <span class="pre">None)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">axis_labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(None,</span> <span class="pre">None)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norm_isotope</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'204Pb'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysoplot.plotting.apply_plot_settings" title="Permalink to this definition"></a></dt>
+<dd><p>Set axis labels and limits. Apply label, tick, grid formatting settings as
+defined in pysoplot.cfg.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fig</strong> (<em>matplotlib.pyplot.Figure</em>) – Figure to apply settings to.</p></li>
+<li><p><strong>plot_type</strong> (<em>{'isochron'</em><em>, </em><em>'intercept'</em><em>, </em><em>'wav'</em><em>, </em><em>'hist'}</em><em>, </em><em>optional</em>) – Plot type.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pysoplot.plotting.plot_dp">
+<span class="sig-prename descclassname"><span class="pre">pysoplot.plotting.</span></span><span class="sig-name descname"><span class="pre">plot_dp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_xy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.95</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reset_axis_limits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysoplot.plotting.plot_dp" title="Permalink to this definition"></a></dt>
+<dd><p>Plot 2-dimensional data points with assigned uncertainties as confidence
+ellipses.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>np.ndarray</em>) – x values (as 1-dimensional array)</p></li>
+<li><p><strong>sx</strong> (<em>np.ndarray</em>) – uncertainty on x at <span class="math notranslate nohighlight">\(1\sigma\)</span> abs.</p></li>
+<li><p><strong>y</strong> (<em>np.ndarray</em>) – y values</p></li>
+<li><p><strong>sy</strong> (<em>np.ndaray</em>) – uncertainty on y at <span class="math notranslate nohighlight">\(1\sigma\)</span> abs.</p></li>
+<li><p><strong>r_xy</strong> (<em>np.ndarray</em>) – x-y correlation coefficient</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>Assumes a large sample size was used to estimate data point uncertainties
+and covariances.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pysoplot.plotting.plot_rfit">
+<span class="sig-prename descclassname"><span class="pre">pysoplot.plotting.</span></span><span class="sig-name descname"><span class="pre">plot_rfit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fit</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysoplot.plotting.plot_rfit" title="Permalink to this definition"></a></dt>
+<dd><p>Plot regression line and uncertainty envelope about regression line
+indicating 95% confidence limits on fit.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ax</strong> (<em>matplotlib.pyplot.Axes</em>) – Axes to plot fit to.</p></li>
+<li><p><strong>fit</strong> (<em>dict</em>) – Linear regression fit results.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pysoplot.plotting.renv">
+<span class="sig-prename descclassname"><span class="pre">pysoplot.plotting.</span></span><span class="sig-name descname"><span class="pre">renv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fit</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysoplot.plotting.renv" title="Permalink to this definition"></a></dt>
+<dd><p>Plot uncertainty envelope about regression line indicating 95% confidence
+limits on fit. For classical regression fits, uses the approach of
+Ludwig (1980), for non-classical fits uses Monte Carlo simulation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ax</strong> (<em>matplotlib.pyplot.Axes</em>) – Axes to plot to.</p></li>
+<li><p><strong>fit</strong> (<em>dict</em>) – Linear regression fit results.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">References</p>
+<p>Ludwig, K.R., 1980. Calculation of uncertainties of U-Pb
+isotope data. Earth and Planetary Science Letters 212–202.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pysoplot.plotting.rline">
+<span class="sig-prename descclassname"><span class="pre">pysoplot.plotting.</span></span><span class="sig-name descname"><span class="pre">rline</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysoplot.plotting.rline" title="Permalink to this definition"></a></dt>
+<dd><p>Plot regression line.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ax</strong> (<em>matplotlib.pyplot.Axes</em>) – Axes to plot to.</p></li>
+<li><p><strong>theta</strong> (<em>array-like</em>) – Array with y-intercept as first element and slope as second.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pysoplot.plotting.wav_plot">
+<span class="sig-prename descclassname"><span class="pre">pysoplot.plotting.</span></span><span class="sig-name descname"><span class="pre">wav_plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xpm</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xbpm</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rand_pm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sorted</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ylim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(None,</span> <span class="pre">None)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_multiplier</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dp_labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysoplot.plotting.wav_plot" title="Permalink to this definition"></a></dt>
+<dd><p>Plot weighted average as line and uncertainty band and data points as
+uncertainty bars.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>np.ndarray</em>) – Values to be averaged as 1-dimensional array.</p></li>
+<li><p><strong>xpm</strong> (<em>np.ndarray</em>) – Symmetrical +/- errors on x.</p></li>
+<li><p><strong>xb</strong> (<em>float</em>) – Average value (x-bar).</p></li>
+<li><p><strong>xbpm</strong> (<em>float</em>) – Symmetrical +/- error on xb.</p></li>
+<li><p><strong>rand_pm</strong> (<em>np.ndarray</em><em>, </em><em>optional</em>) – Random symmetrical +/- errors on x.</p></li>
+<li><p><strong>x_multiplier</strong> – Use for unit conversion (e.g. set to 1000 for Ma to ka conversion)</p></li>
+<li><p><strong>dp_labels</strong> (<em>array-like</em><em>, </em><em>optional</em>) – Data point labels.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-pysoplot.regression">
+<span id="regression"></span><h2>regression<a class="headerlink" href="#module-pysoplot.regression" title="Permalink to this heading"></a></h2>
+<p>Linear regression algorithms for 2-dimensional datasets.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="pysoplot.regression.classical_fit">
+<span class="sig-prename descclassname"><span class="pre">pysoplot.regression.</span></span><span class="sig-name descname"><span class="pre">classical_fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_xy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ca'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diagram</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">isochron</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xlim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(None,</span> <span class="pre">None)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ylim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(None,</span> <span class="pre">None)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">axis_labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(None,</span> <span class="pre">None)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norm_isotope</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dp_labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysoplot.regression.classical_fit" title="Permalink to this definition"></a></dt>
+<dd><p>Fit a classical linear regression line to 2-dimensional data and optionally
+create plot of the fit. If model is set to ‘ca’, then routine will emulate
+default the protocols of Isoplot Ludwig (2012).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>np.ndarray</em>) – x values (as 1-dimensional array)</p></li>
+<li><p><strong>sx</strong> (<em>np.ndarray</em>) – analytical uncertainty on x at <span class="math notranslate nohighlight">\(1\sigma\)</span> abs.</p></li>
+<li><p><strong>y</strong> (<em>np.ndarray</em>) – y values</p></li>
+<li><p><strong>sy</strong> (<em>np.ndaray</em>) – analytical uncertainty on y at <span class="math notranslate nohighlight">\(1\sigma\)</span> abs.</p></li>
+<li><p><strong>r_xy</strong> (<em>np.ndarray</em>) – x-y correlation coefficient</p></li>
+<li><p><strong>isochron</strong> (<em>bool</em><em>, </em><em>optional</em>) – If true and model is ‘ca’ then fits model 3 for excess scatter data
+sets instead of model 2.</p></li>
+<li><p><strong>model</strong> (<em>{'ca'</em><em>, </em><em>'c1'</em><em>, </em><em>'c2'</em><em>, </em><em>'c3'}</em>) – Regression model to fit to data.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p><cite>model</cite> should be one of</p>
+<ul class="simple">
+<li><p>‘ca’ fit ‘best’ model depending on MSWD of york fit; emulates Isoplot behaviour</p></li>
+<li><p>‘c1’ standard York fit with analytical errors</p></li>
+<li><p>‘c2’ model of McSaveney in Faure (1977), equivalent to Isoplot model 2</p></li>
+<li><p>‘c3’ equivalent to Isoplot model 3</p></li>
+</ul>
+<section id="references">
+<h3>References<a class="headerlink" href="#references" title="Permalink to this heading"></a></h3>
+<p>Faure, G., 1977. Appendix 1: Fitting of isochrons for dating by the Rb-Sr
+method, in: Principles of Isotope Geology. John Wiley and Sons, pp. 1–17.</p>
+<p>Ludwig, K.R., 2012. Isoplot/Ex Version 3.75: A
+Geochronological Toolkit for Microsoft Excel, Special Publication 4.
+Berkeley Geochronology Center.</p>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pysoplot.regression.lad">
+<span class="sig-prename descclassname"><span class="pre">pysoplot.regression.</span></span><span class="sig-name descname"><span class="pre">lad</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysoplot.regression.lad" title="Permalink to this definition"></a></dt>
+<dd><p>Fit least absolute deviation model of Sadovski (1974).</p>
+<p class="rubric">Notes</p>
+<p>Based on code by Roger Powell.</p>
+<p class="rubric">References</p>
+<p>Sadovski, A.N., 1974. Algorithm AS 74: L1-norm Fit of a Straight Line. Journal
+of the Royal Statistical Society. Series C (Applied Statistics) 23,
+244–248. <a class="reference external" href="https://doi.org/10.2307/2347013">https://doi.org/10.2307/2347013</a></p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pysoplot.regression.lsq">
+<span class="sig-prename descclassname"><span class="pre">pysoplot.regression.</span></span><span class="sig-name descname"><span class="pre">lsq</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysoplot.regression.lsq" title="Permalink to this definition"></a></dt>
+<dd><p>Fit ordinary least-squares model</p>
+<p class="rubric">Notes</p>
+<p>Based on code by Roger Powell.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pysoplot.regression.model_3">
+<span class="sig-prename descclassname"><span class="pre">pysoplot.regression.</span></span><span class="sig-name descname"><span class="pre">model_3</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_xy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sy_excess0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mswd_tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">itmax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">york_itmax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">york_atol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-08</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">york_rtol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-08</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysoplot.regression.model_3" title="Permalink to this definition"></a></dt>
+<dd><p>Fit a model 3 regression line that is equivalent to Isoplot model 3 Ludwig (2012).
+Weights each point according to analytical errors, plus an extra component
+of Gaussian distributed scatter in y (applied equally to each data point).
+For each iteration this excess error in y is inflated and a new York fit
+produced, until MSWD converges to 1.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>np.ndarray</em>) – x values (as 1-dimensional array)</p></li>
+<li><p><strong>sx</strong> (<em>np.ndarray</em>) – analytical uncertainty on x at <span class="math notranslate nohighlight">\(1\sigma\)</span> abs.</p></li>
+<li><p><strong>y</strong> (<em>np.ndarray</em>) – y values</p></li>
+<li><p><strong>sy</strong> (<em>np.ndaray</em>) – analytical uncertainty on y at <span class="math notranslate nohighlight">\(1\sigma\)</span> abs.</p></li>
+<li><p><strong>r_xy</strong> (<em>np.ndarray</em>) – x-y correlation coefficient</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>In Isoplot, this is only used for classical isochron ages</p>
+<p>When applying this algorithm,there should be a good justification for the
+assumption of <strong>Guassian</strong> distributed excess scatter.</p>
+<p class="rubric">References</p>
+<p>Ludwig, K.R., 2012. Isoplot/Ex Version 3.75: A Geochronological Toolkit for
+Microsoft Excel, Special Publication 4. Berkeley Geochronology Center.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pysoplot.regression.robust_fit">
+<span class="sig-prename descclassname"><span class="pre">pysoplot.regression.</span></span><span class="sig-name descname"><span class="pre">robust_fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_xy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ra'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diagram</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xlim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(None,</span> <span class="pre">None)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ylim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(None,</span> <span class="pre">None)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">axis_labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(None,</span> <span class="pre">None)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norm_isotope</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'204Pb'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dp_labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysoplot.regression.robust_fit" title="Permalink to this definition"></a></dt>
+<dd><p>Fit a robust linear regression to 2-dimensional data and optionally create
+a plot of the fit.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>np.ndarray</em>) – x values (as 1-dimensional array)</p></li>
+<li><p><strong>sx</strong> (<em>np.ndarray</em>) – analytical uncertainty on x at <span class="math notranslate nohighlight">\(1\sigma\)</span> abs.</p></li>
+<li><p><strong>y</strong> (<em>np.ndarray</em>) – y values</p></li>
+<li><p><strong>sy</strong> (<em>np.ndaray</em>) – analytical uncertainty on y at <span class="math notranslate nohighlight">\(1\sigma\)</span> abs.</p></li>
+<li><p><strong>r_xy</strong> (<em>np.ndarray</em>) – x-y correlation coefficient</p></li>
+<li><p><strong>model</strong> (<em>str</em><em>, </em><em>optional</em>) – Regression model to fit to data.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>model should be one of</p>
+<ul class="simple">
+<li><p><strong>ra</strong> fit ‘best’ robust model depending on whether or no spine width is less than slim</p></li>
+<li><p><strong>rs</strong> spine fit of Powell et al. (2020)</p></li>
+<li><p><strong>r2</strong> robust model 2, a robust version of the Isoplot model 2</p></li>
+<li><p><strong>rx</strong> spine fit with expanded errors, for use if s is a little bit over slim (experimental feature only)</p></li>
+</ul>
+<p>Data should be input as 1-dimensional ndarrays.</p>
+<section id="id16">
+<h3>References<a class="headerlink" href="#id16" title="Permalink to this heading"></a></h3>
+<p>Powell, R., Green, E.C.R., Marillo Sialer, E., Woodhead, J., 2020. Robust
+isochron calculation. Geochronology 2, 325–342.
+<a class="reference external" href="https://doi.org/10.5194/gchron-2-325-2020">https://doi.org/10.5194/gchron-2-325-2020</a></p>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pysoplot.regression.robust_model_2">
+<span class="sig-prename descclassname"><span class="pre">pysoplot.regression.</span></span><span class="sig-name descname"><span class="pre">robust_model_2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xy_err</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">disp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysoplot.regression.robust_model_2" title="Permalink to this definition"></a></dt>
+<dd><p>Fit a robust model 2 linear regression to 2-dimensional data.</p>
+<p>Analytical errors discarded and takes the geometric mean slope of the spine
+y on x fit, and the reciprocal of the spine x on y fit, using data scatter
+in place of analytical weights. Similar to the Isoplot model 2 approach
+but with robust properties.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>np.ndarray</em>) – x values (as 1-dimensional array)</p></li>
+<li><p><strong>y</strong> (<em>np.ndarray</em>) – y values</p></li>
+<li><p><strong>xy_err</strong> (<em>np.ndarray</em><em>, </em><em>optional</em>) – 3 by n array with elements sx, sy, r_xy (i.e. analytical errors on x
+and y, and their correlation coefficient)</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>If xy_err is provided, nmad of the residuals will be checked against the
+median analytical uncertainty, and if larger, this value will be used to
+weight data points instead. Following Powell et al. (2002), this is to
+guard against a situation in which the scatter on the data is smaller than
+that expected with the analytical uncertainties.</p>
+<p>Code by Roger Powell with style modifications by TP.</p>
+<p class="rubric">References</p>
+<p>Powell, R., Hergt, J., Woodhead, J., 2002. Improving isochron calculations
+with robust statistics and the bootstrap. Chemical Geology 191–204.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pysoplot.regression.siegel">
+<span class="sig-prename descclassname"><span class="pre">pysoplot.regression.</span></span><span class="sig-name descname"><span class="pre">siegel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysoplot.regression.siegel" title="Permalink to this definition"></a></dt>
+<dd><p>Median of pairwise median slopes algorithm of Siegel (1982).</p>
+<p>Based on code by Roger Powell.</p>
+<p class="rubric">References</p>
+<p>Siegel, A. F.: Robust regression Using repeated medians, Biometrika,
+69, 242–244, 1982.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pysoplot.regression.slim">
+<span class="sig-prename descclassname"><span class="pre">pysoplot.regression.</span></span><span class="sig-name descname"><span class="pre">slim</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysoplot.regression.slim" title="Permalink to this definition"></a></dt>
+<dd><p>Upper bound of 95% confidence interval on s (spine width) for Spine
+linear regression algorithm. Derived from simulation of Gaussian distributed
+datasets. See Powell et al., (2020).</p>
+<p class="rubric">References</p>
+<p>Powell, R., Green, E.C.R., Marillo Sialer, E., Woodhead, J., 2020. Robust
+isochron calculation. Geochronology 2, 325–342.
+<a class="reference external" href="https://doi.org/10.5194/gchron-2-325-2020">https://doi.org/10.5194/gchron-2-325-2020</a></p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pysoplot.regression.spine">
+<span class="sig-prename descclassname"><span class="pre">pysoplot.regression.</span></span><span class="sig-name descname"><span class="pre">spine</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rxy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.4</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysoplot.regression.spine" title="Permalink to this definition"></a></dt>
+<dd><p>Iteratively re-weighted Huber line-fitting algorithm of Powell et al.
+(2020).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>np.ndarray</em>) – x values (as 1-dimensional array)</p></li>
+<li><p><strong>sx</strong> (<em>np.ndarray</em>) – analytical uncertainty on x at <span class="math notranslate nohighlight">\(1\sigma\)</span> abs.</p></li>
+<li><p><strong>y</strong> (<em>np.ndarray</em>) – y values</p></li>
+<li><p><strong>sy</strong> (<em>np.ndaray</em>) – analytical uncertainty on y at <span class="math notranslate nohighlight">\(1\sigma\)</span> abs.</p></li>
+<li><p><strong>rxy</strong> (<em>np.ndarray</em>) – x-y correlation coefficient</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>Updated to use normalised deltheta as convergence criteria for improved
+performance where slope and y-int are of very different order of
+magnitude.</p>
+<p>Code by Roger Powell with style modifications by TP.</p>
+<p class="rubric">References</p>
+<p>Powell, R., Green, E.C.R., Marillo Sialer, E., Woodhead, J., 2020. Robust
+isochron calculation. Geochronology 2, 325–342.
+<a class="reference external" href="https://doi.org/10.5194/gchron-2-325-2020">https://doi.org/10.5194/gchron-2-325-2020</a></p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pysoplot.regression.york">
+<span class="sig-prename descclassname"><span class="pre">pysoplot.regression.</span></span><span class="sig-name descname"><span class="pre">york</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_xy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sy_excess</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'1'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">itmax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rtol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-08</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-08</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta0</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysoplot.regression.york" title="Permalink to this definition"></a></dt>
+<dd><p>Fit total weighted least squares regression using the algorithm
+of York (2004). Analytical errors on regression
+parameters are equivalent to the Maximum Likelihood approach of
+Titterington and Halliday (1979).</p>
+<p>Can also fit a version of the Isoplot model 2 and model 3 (but see note)
+by adjusting th weightings. Model 2 code is based on McSaveney in Faure (1977).
+Model 3 code emulates Isoplot (Ludwig, 2012).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>np.ndarray</em><em>, </em><em>1-D</em>) – x values</p></li>
+<li><p><strong>sx</strong> (<em>np.ndarray</em><em>, </em><em>1-D</em>) – analytical uncertainty on x at <span class="math notranslate nohighlight">\(1\sigma\)</span> abs.</p></li>
+<li><p><strong>y</strong> (<em>np.ndarray</em><em>, </em><em>1-D</em>) – y values</p></li>
+<li><p><strong>sy</strong> (<em>np.ndaray</em><em>, </em><em>1-D</em>) – analytical uncertainty on y at <span class="math notranslate nohighlight">\(1\sigma\)</span> abs.</p></li>
+<li><p><strong>r_xy</strong> (<em>np.ndarray</em><em>, </em><em>1-D</em>) – x-y correlation coefficient</p></li>
+<li><p><strong>model</strong> (<em>{'1'</em><em>, </em><em>'2'</em><em>, </em><em>'3'}</em><em>, </em><em>optional</em>) – model type to fit</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>Model 3 fits involve an iterative approach that typically requires calling
+this function several times. To perform a model 3 fit, call
+<a class="reference internal" href="pysoplot.html#pysoplot.regression.model_3" title="pysoplot.regression.model_3"><code class="xref py py-func docutils literal notranslate"><span class="pre">pysoplot.regression.model_3()</span></code></a> instead.</p>
+<section id="id17">
+<h3>References<a class="headerlink" href="#id17" title="Permalink to this heading"></a></h3>
+<p>Faure, G., 1977. Appendix 1: Fitting of isochrons for dating by the Rb-Sr
+method, in: Principles of Isotope Geology. John Wiley and Sons, pp. 1–17.</p>
+<p>Ludwig, K.R., 2012. Isoplot/Ex Version 3.75: A
+Geochronological Toolkit for Microsoft Excel, Special Publication 4.
+Berkeley Geochronology Center.</p>
+<p>Titterington, D.M., Halliday, A.N., 1979. On the fitting of parallel
+isochrons and the method of maximum likelihood. Chemical Geology 26, 183–195.</p>
+<p>York, D., Evensen, N.M., Martinez, M.L., De Basabe Delgado, J., 2004. Unified
+equations for the slope, intercept, and standard errors of the best
+straight line. American Journal of Physics 72, 367–375.
+<a class="reference external" href="https://doi.org/10.1119/1.1632486">https://doi.org/10.1119/1.1632486</a></p>
+</section>
+</dd></dl>
+
+</section>
+<section id="transform">
+<h2>transform<a class="headerlink" href="#transform" title="Permalink to this heading"></a></h2>
+<span class="target" id="module-pysoplot.transform"></span><p>Transform data points, regression fits, etc.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="pysoplot.transform.dp_errors">
+<span class="sig-prename descclassname"><span class="pre">pysoplot.transform.</span></span><span class="sig-name descname"><span class="pre">dp_errors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">in_error_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">append_corr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">row_wise</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-10</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysoplot.transform.dp_errors" title="Permalink to this definition"></a></dt>
+<dd><p>Convert data point uncertainties to 1 <span class="math notranslate nohighlight">\(\sigma\)</span> absolute.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>in_error_type</strong> (<em>str</em>) – Error type and sigma level, use: {abs/per/rel}{1s/2s}</p></li>
+<li><p><strong>append_corr</strong> (<em>bool</em><em>, </em><em>optional</em>) – Assume error correlations are zero by appending a column of zeros to the end
+of n x 4 data point array.</p></li>
+<li><p><strong>row_wise</strong> (<em>bool</em><em>, </em><em>optional</em>) – True if each row is a data point and each column is a variable. False if
+vice versa.</p></li>
+<li><p><strong>dim</strong> (<em>int</em>) – 1 for univariate data (e.g. Pb*/U data), 2 for multivariate (2-D) data.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-pysoplot.upb">
+<span id="upb"></span><h2>upb<a class="headerlink" href="#module-pysoplot.upb" title="Permalink to this heading"></a></h2>
+<p>Functions and routines for U-Pb geochronology.</p>
+<p class="rubric">Notes</p>
+<p>See <a class="reference internal" href="pysoplot.html#module-pysoplot.dqpb" title="pysoplot.dqpb"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pysoplot.dqpb</span></code></a> for equivalent functions that account for
+disequilibrium in the uranium-series decay chains.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="pysoplot.upb.concint_age">
+<span class="sig-prename descclassname"><span class="pre">pysoplot.upb.</span></span><span class="sig-name descname"><span class="pre">concint_age</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fit</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'L1980'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diagram</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'tw'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dc_errors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysoplot.upb.concint_age" title="Permalink to this definition"></a></dt>
+<dd><p>Compute concordia-intercept age and uncertainty using various algorithms.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fit</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">dict</span></code>) – Regression fit parameters.</p></li>
+<li><p><strong>method</strong> (<em>{'Powell'</em><em>, </em><em>'L1980'</em><em>, </em><em>'L2000'}</em><em>, </em><em>optional</em>) – Algorithm used to compute age and age uncertainties.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>results</strong> – Age results.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>The ‘Powell’ method focuses on lower intercept age only (&lt; ~1 Ga),
+but works with all fit types. Age uncertainties are symmetric.</p></li>
+<li><p>The ‘L1980’ method only works with classical fits. Age uncertainties
+are asymmetric.</p></li>
+<li><p>The ‘L2000’ method works with all fit types and optionally accounts           for decay constant errors, but requires 2 intercept age solutions.</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pysoplot.upb.isochron_age">
+<span class="sig-prename descclassname"><span class="pre">pysoplot.upb.</span></span><span class="sig-name descname"><span class="pre">isochron_age</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fit</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">age_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'iso-206Pb'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dc_errors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norm_isotope</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'204Pb'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysoplot.upb.isochron_age" title="Permalink to this definition"></a></dt>
+<dd><p>Classical U-Pb isochron age and uncertainty.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fit</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">dict</span></code>) – Regression fit parameters.</p></li>
+<li><p><strong>age_type</strong> (<em>{'iso-206Pb'</em><em>, </em><em>'iso-207Pb'}</em><em>, </em><em>optional</em>) – Isochron type.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>results</strong> – Age results.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pysoplot.upb.mc_concint">
+<span class="sig-prename descclassname"><span class="pre">pysoplot.upb.</span></span><span class="sig-name descname"><span class="pre">mc_concint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fit</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trials</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diagram</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'tw'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dc_errors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">U_errors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">intercept_plot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hist</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xlim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(None,</span> <span class="pre">None)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ylim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(None,</span> <span class="pre">None)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">age_ellipses</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">marker_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">marker_ages</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auto_marker_ages</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove_overlaps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">intercept_points</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">intercept_ellipse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">negative_ages</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">age_prefix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Ma'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysoplot.upb.mc_concint" title="Permalink to this definition"></a></dt>
+<dd><p>Compute Monte Carlo age uncertainties for equilibrium concordia intercept
+age.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>t</strong> (<em>float</em>) – Calculated age (Ma).</p></li>
+<li><p><strong>fit</strong> (<em>dict</em>) – Linear regression fit parameters.</p></li>
+<li><p><strong>trials</strong> (<em>int</em>) – Number of Monte Carlo trials.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="wtd-average">
+<h2>wtd_average<a class="headerlink" href="#wtd-average" title="Permalink to this heading"></a></h2>
+<span class="target" id="module-pysoplot.wtd_average"></span><p>Weighted average algorithms for 1- and 2-dimensional data</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="pysoplot.wtd_average.classical_wav">
+<span class="sig-prename descclassname"><span class="pre">pysoplot.wtd_average.</span></span><span class="sig-name descname"><span class="pre">classical_wav</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">V</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ca'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysoplot.wtd_average.classical_wav" title="Permalink to this definition"></a></dt>
+<dd><p>Compute a classical 1-dimensional weighted average accounting for assigned
+uncertainties (and optionally uncertainty correlations).</p>
+<p>Partly emulates the behaviour of Isoplot Ludwig (2012). If one-sided MSWD
+confidence limit is above lower threshold, uncertainty on weighted average is expanded
+according to data scatter (i.e., by sqrt(mswd)).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sx</strong> (<em>np.ndarray</em><em>, </em><em>optional</em>) – Analytical uncertainties at the 1 sigma level.</p></li>
+<li><p><strong>V</strong> (<em>np.ndarray</em><em>, </em><em>optional</em>) – Uncertainty covariance matrix.</p></li>
+<li><p><strong>method</strong> (<em>{'ca'}</em>) – Weighted average method to use (only one available currently)</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>Does not yet include external error component if MSWD confidence limit is
+above an upper threshold (as in the Isoplot MLE approach), although this
+feature may be added in future.</p>
+<section id="id18">
+<h3>References<a class="headerlink" href="#id18" title="Permalink to this heading"></a></h3>
+<p>Ludwig, K.R., 2012. Isoplot/Ex Version 3.75: A Geochronological Toolkit for
+Microsoft Excel, Special Publication 4. Berkeley Geochronology Center.</p>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pysoplot.wtd_average.robust_wav">
+<span class="sig-prename descclassname"><span class="pre">pysoplot.wtd_average.</span></span><span class="sig-name descname"><span class="pre">robust_wav</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">V</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ra'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysoplot.wtd_average.robust_wav" title="Permalink to this definition"></a></dt>
+<dd><p>Compute a robust 1-dimensional weighted average accounting for
+assigned uncertainties (and optionally uncertainty correlations).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>np.ndarray</em>) – Data points to average (as 1-d array).</p></li>
+<li><p><strong>sx</strong> (<em>np.ndarray</em><em>, </em><em>optional</em>) – Analytical uncertainties at the 1 sigma level (as 1-d array).</p></li>
+<li><p><strong>V</strong> (<em>np.ndarray</em><em>, </em><em>optional</em>) – Uncertainty covariance matrix.</p></li>
+<li><p><strong>method</strong> (<em>{'ra'}</em>) – Weighted average method to use (only one available currently)</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>Only implements spine robust weighted average at present.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pysoplot.wtd_average.spine_wav_cor">
+<span class="sig-prename descclassname"><span class="pre">pysoplot.wtd_average.</span></span><span class="sig-name descname"><span class="pre">spine_wav_cor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">V</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xb0</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxiter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-08</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rtol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-08</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysoplot.wtd_average.spine_wav_cor" title="Permalink to this definition"></a></dt>
+<dd><p>Compute a spine robust uncertainty weighted average accounting for
+uncertainty correlations amongst data points. Equivalent to a 1-dimensional
+version of the spine linear regression algorithm of Powell et al. (2020).
+Note, this reduces to classical statistics uncertainty weighted average for “well-behaved”
+datasets.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>np.ndarray</em>) – Data points to be averaged (1-dimensional array).</p></li>
+<li><p><strong>V</strong> (<em>np.ndarray</em>) – covariance matrix (2-dimensional array).</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">References</p>
+<p>Powell, R., Green, E.C.R., Marillo Sialer, E., Woodhead, J., 2020. Robust
+isochron calculation. Geochronology 2, 325–342.
+<a class="reference external" href="https://doi.org/10.5194/gchron-2-325-2020">https://doi.org/10.5194/gchron-2-325-2020</a></p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pysoplot.wtd_average.wav">
+<span class="sig-prename descclassname"><span class="pre">pysoplot.wtd_average.</span></span><span class="sig-name descname"><span class="pre">wav</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sx</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysoplot.wtd_average.wav" title="Permalink to this definition"></a></dt>
+<dd><p>Compute a 1-dimensional uncertainty weighted mean <strong>without</strong> accounting for
+uncertainty covariances.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pysoplot.wtd_average.wav_cor">
+<span class="sig-prename descclassname"><span class="pre">pysoplot.wtd_average.</span></span><span class="sig-name descname"><span class="pre">wav_cor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">V</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysoplot.wtd_average.wav_cor" title="Permalink to this definition"></a></dt>
+<dd><p>Compute a 1-dimensional uncertainty weighted mean, accounting for uncertainty
+correlations amongst individual data points.</p>
+<p>Based on equations given in, e.g., Powell1 and Holland (1988],
+Lyons et al. (1988), and McLean et al. (2011).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>np.ndarray</em>) – Data points to be averaged (should be a 1-dimensional array).</p></li>
+<li><p><strong>V</strong> (<em>np.ndarray</em>) – covariance matrix (should be a 2-dimensional array).</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>See cautionary note in Lyons et al. (1988):</p>
+<blockquote>
+<div><p>“One point to beware of in practice is
+the situation in which the individual weights become numerically very
+large.” … this happens when [errors are very close to each other and
+highly correlated]. If we have slightly mis-estimated the elements of
+the error matrix, or if our measurements are slightly biassed, the effect
+of the large weights with different signs can be to drive our solution
+far away from the correct value.”</p>
+</div></blockquote>
+<p class="rubric">References</p>
+<p>Lyons, L., Gibaut, D., Clifford, P., 1988. How to combine correlated
+estimates of a single physical quantity. Nuclear Instruments and Methods in
+Physics Research Section A: Accelerators, Spectrometers, Detectors and
+Associated Equipment 270, 110–117.</p>
+<p>McLean, N M, J F Bowring, and S A Bowring, 2011, An Algorithm for U-Pb Isotope
+Dilution Data Reduction and Uncertainty Propagation Geochemistry,
+Geophysics, Geosystems 12, no. 6.
+<a class="reference external" href="https://doi.org/10.1029/2010GC003478">https://doi.org/10.1029/2010GC003478</a>.</p>
+<p>Powell, R., Holland, T.J.B., 1988. An internally consistent dataset with
+uncertainties and correlations: 3. Applications to geobarometry, worked
+examples and a computer program. J Metamorph Geol 6, 173–204.
+<a class="reference external" href="https://doi.org/10.1111/j.1525-1314.1988.tb00415.x">https://doi.org/10.1111/j.1525-1314.1988.tb00415.x</a></p>
+</dd></dl>
+
+</section>
+<section id="module-pysoplot.ludwig">
+<span id="ludwig"></span><h2>ludwig<a class="headerlink" href="#module-pysoplot.ludwig" title="Permalink to this heading"></a></h2>
+<p>Disequilibrium U-Pb equations based on Ludwig (1977).</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="pysoplot.ludwig.bateman">
+<span class="sig-prename descclassname"><span class="pre">pysoplot.ludwig.</span></span><span class="sig-name descname"><span class="pre">bateman</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Lam</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">series</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'238U'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysoplot.ludwig.bateman" title="Permalink to this definition"></a></dt>
+<dd><p>Return Bateman coefficients for the 238U or 235U decay series as defined in
+Ludwig (1977).</p>
+<dl class="simple">
+<dt>Lam<span class="classifier">array-like</span></dt><dd><p>array of relevant decay constants (see below)</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p class="rubric">References</p>
+<p>Ludwig, K.R., 1977. Effect of initial radioactive-daughter disequilibrium
+on U-Pb isotope apparent ages of young minerals. Journal of Research of
+the US Geological Survey 5, 663–667.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pysoplot.ludwig.f">
+<span class="sig-prename descclassname"><span class="pre">pysoplot.ludwig.</span></span><span class="sig-name descname"><span class="pre">f</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">A</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Lam</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coef</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(True,</span> <span class="pre">True)</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysoplot.ludwig.f" title="Permalink to this definition"></a></dt>
+<dd><p>206Pb*/238U ratio (where * denotes radiogenic Pb) as a function of t and
+activity ratio values following Ludwig (1977). Note there is a small typo
+in the original Ludwig article.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>t</strong> (<em>float</em><em> or </em><em>array-like</em>) – Age (Ma)</p></li>
+<li><p><strong>A</strong> (<em>array-like</em>) – One-dimensional array of activity ratio values arranged as follows
+[234U/238U], [230Th/238U], [226Ra/238U],</p></li>
+<li><p><strong>Lam</strong> (<em>array-like</em>) – One-dimensional array of decay constants (Ma^-1) arragend as follows
+[lam238, lam234, lam230, lam226]</p></li>
+<li><p><strong>coef</strong> (<em>array-like</em>) – One-dimensional array of Bateman coefficients
+[c1, c2, c3, c4, c5, p1, p2, p3, h1, h2]</p></li>
+<li><p><strong>init</strong> (<em>array-like</em><em>, </em><em>optional</em>) – Two element array of bools. First element is True if [234U/238U] is
+an initial value. Second element is True if [230Th/238U] is an initial
+value.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">References</p>
+<p>Ludwig, K.R., 1977. Effect of initial radioactive-daughter disequilibrium
+on U-Pb isotope apparent ages of young minerals. Journal of Research of
+the US Geological Survey 5, 663–667.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pysoplot.ludwig.g">
+<span class="sig-prename descclassname"><span class="pre">pysoplot.ludwig.</span></span><span class="sig-name descname"><span class="pre">g</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a231_235_i</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Lam</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coef</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pysoplot.ludwig.g" title="Permalink to this definition"></a></dt>
+<dd><p>207Pb*/235U  ratio (where * denotes radiogenic Pb) as a function of t and
+activity ratio values following Ludwig (1977).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>t</strong> (<em>float</em><em> or </em><em>array-like</em>) – Age (Ma)</p></li>
+<li><p><strong>a231_235_i</strong> (<em>float</em><em> or </em><em>array-like</em>) – [231Pa/235U] activity ratio.</p></li>
+<li><p><strong>Lam</strong> (<em>array-like</em>) – One-dimensional array of decay constants (Ma^-1) arragend as follows
+[lam235, lam231]</p></li>
+<li><p><strong>coef</strong> (<em>array-like</em>) – One-dimensional array of Bateman coefficients
+[d1, d2]</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">References</p>
+<p>Ludwig, K.R., 1977. Effect of initial radioactive-daughter disequilibrium
+on U-Pb isotope apparent ages of young minerals. Journal of Research of
+the US Geological Survey 5, 663–667.</p>
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="tutorials.html" class="btn btn-neutral float-left" title="Tutorials" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="references.html" class="btn btn-neutral float-right" title="References" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Timothy Pollard.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

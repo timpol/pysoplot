@@ -1,0 +1,7 @@
+pysoplot
+========
+
+.. toctree::
+   :maxdepth: 4
+
+   pysoplot
