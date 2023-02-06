@@ -5,62 +5,85 @@
 
 import numpy as np
 
-from . import monte_carlo as mc
+from . import mc as mc
 from . import cfg
 
 
-diagram_names = {'iso-Pb6U8': '238U-206Pb isochron age',
-                 'iso-Pb7U5': '235U-207Pb isochron age'}
+diagram_names = {'iso-206Pb': '238U-206Pb isochron age',
+                 'iso-207Pb': '235U-207Pb isochron age'}
 
 
-def age(b, sb=None, age_type='iso-Pb6U8', dc_errors=False):
+def age(b, sb=None, age_type='iso-206Pb', dc_errors=False):
     """
     Calculate classical isochron age.
+
+    Parameters
+    -----------
+    b : float
+        Linear regression slope
+    sb : float, optional
+        Uncertaintiy in regression slope (:math:`1\sigma`)
+    age_type : {'iso-Pb6U8', 'iso-Pb7U5'}
+        Isochron age type.
+
     """
-    assert age_type in ('iso-Pb6U8', 'iso-Pb7U5')
-    if age_type == 'iso-Pb6U8':
-        dc = cfg.lam238
-        sdc = cfg.s238
-    elif age_type == 'iso-Pb7U5':
-        dc = cfg.lam235
-        sdc = cfg.s235
-    t = 1. / dc * np.log(b + 1.)
+    assert age_type in ('iso-206Pb', 'iso-207Pb')
+    if age_type == 'iso-206Pb':
+        lam = cfg.lam238
+        slam = cfg.s238
+    elif age_type == 'iso-207Pb':
+        lam = cfg.lam235
+        slam = cfg.s235
+    t = 1. / lam * np.log(b + 1.)
     if sb is None:
         return t
-    sdc = 0 if dc_errors else sdc
-    db = 1. / (dc * (b + 1.))
-    ddc = 1. / ((dc ** 2) * np.log(b + 1.)) if dc_errors else 0.
-    st = np.sqrt((ddc * sdc) ** 2 + (db * sb) ** 2)
+    slam = 0 if dc_errors else slam
+    db = 1. / (lam * (b + 1.))
+    dlam = 1. / ((lam ** 2) * np.log(b + 1.)) if dc_errors else 0.
+    st = np.sqrt((dlam * slam) ** 2 + (db * sb) ** 2)
     return t, st
 
 
-def mc_uncert(fit, age_type='iso-68', dc_errors=False, norm_isotope='204Pb',
+def mc_uncert(fit, age_type='iso-206Pb', dc_errors=False, norm_isotope='204Pb',
               trials=50_000, hist=False):
     """
     Compute classical isochron age uncertainties using Monte Carlo approach.
-    """
-    flags = np.zeros(trials)
-    t = age(fit['theta'][1], age_type='iso-Pb6U8')
 
-    if age_type == 'iso-Pb6U8':
-        dc = cfg.lam238
-        sdc = cfg.s238
-    elif age_type == 'iso-Pb7U5':
-        dc = cfg.lam235
-        sdc = cfg.s235
+    Compute Monte Carlo age uncertainties for equilibrium concordia intercept
+    age.
+
+    Parameters
+    -----------
+    fit : dict
+        Linear regression fit parameters.
+    age_type : {'iso-Pb6U8', 'iso-Pb7U5'}
+        Isochron age type.
+    trials : int
+        Number of Monte Carlo trials.
+
+    """
+    failures = np.zeros(trials)
+    t = age(fit['theta'][1], age_type=age_type)
+
+    if age_type == 'iso-206Pb':
+        lam = cfg.lam238
+        slam = cfg.s238
+    elif age_type == 'iso-207Pb':
+        lam = cfg.lam235
+        slam = cfg.s235
 
     # draw randomised slope / intercept values
-    theta, flags = mc.draw_theta(fit, trials, flags)
+    theta, failures = mc.draw_theta(fit, trials, failures)
 
     # draw randomised decay constant values
     if dc_errors:
-        dc = cfg.rng.normal(dc, sdc, trials)
+        lam = cfg.rng.normal(lam, slam, trials)
 
     # simulate ages
-    ts = 1. / dc * np.log(theta[1] + 1.)
-    flags = mc.update_flags(flags, ts < 0, mc.NEGATIVE_AGE)
+    ts = 1. / lam * np.log(theta[1] + 1.)
+    failures = mc.check_ages(ts, ~np.isnan(ts), failures, negative_ages=False)
 
-    ok = (flags == 0)
+    ok = (failures == 0)
     if np.sum(ok) == 0:
         raise ValueError('no successful Monte Carlo simulations')
 
@@ -78,9 +101,9 @@ def mc_uncert(fit, age_type='iso-68', dc_errors=False, norm_isotope='204Pb',
         'mean_y-int': np.nanmean(theta[0][ok]),
         'median_y-int': np.nanmedian(theta[0][ok]),
         'trials': trials,
-        'fails': np.sum(flags != 0),
-        'not_converged': np.sum(flags == mc.NON_CONVERGENCE),
-        'negative_ages': np.sum(flags == mc.NEGATIVE_AGE)
+        'fails': np.sum(failures != 0),
+        'not_converged': np.sum(failures == mc.NON_CONVERGENCE),
+        'negative_ages': np.sum(failures == mc.NEGATIVE_AGE)
     }
 
     if hist:
