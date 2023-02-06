@@ -1,36 +1,5 @@
 """
-Linear regression algorithms for 2-dimensional datasets
-
-References
-----------
-.. [Faure1977]
-    Faure, G., 1977. Appendix 1: Fitting of isochrons for dating by the Rb-Sr
-    method, in: Principles of Isotope Geology. John Wiley and Sons, pp. 1–17.
-.. [Ludwig2012]
-    Ludwig, K.R., 2012. Isoplot/Ex Version 3.75: A Geochronological Toolkit for
-    Microsoft Excel, Special Publication 4. Berkeley Geochronology Center.
-.. [Ludwig1980]
-    Ludwig, K.R., 1980. Calculation of uncertainties of U-Pb isotope data. Earth
-    and Planetary Science Letters 212–202.
-.. [Powell2020]
-    Powell, R., Green, E.C.R., Marillo Sialer, E., Woodhead, J., 2020. Robust
-    isochron calculation. Geochronology 2, 325–342.
-    https://doi.org/10.5194/gchron-2-325-2020
-.. [Sadovski1974]
-    Sadovski, A.N., 1974. Algorithm AS 74: L1-norm Fit of a Straight Line. Journal
-    of the Royal Statistical Society. Series C (Applied Statistics) 23,
-    244–248. https://doi.org/10.2307/2347013
-.. [Siegel1982]
-    Siegel, A. F.: Robust regression Using repeated medians, Biometrika,
-    69, 242–244, 1982.
-.. [Titt1979]
-    Titterington, D.M., Halliday, A.N., 1979. On the fitting of parallel
-    isochrons and the method of maximum likelihood. Chemical Geology 26, 183–195.
-.. [York2004]
-    York, D., Evensen, N.M., Martı́nez, M.L., De Basabe Delgado, J., 2004. Unified
-    equations for the slope, intercept, and standard errors of the best
-    straight line. American Journal of Physics 72, 367–375.
-    https://doi.org/10.1119/1.1632486
+Linear regression algorithms for 2-dimensional datasets.
 
 """
 
@@ -49,26 +18,50 @@ from . import plotting
 #=================================
 
 def classical_fit(x, sx, y, sy, r_xy, model='ca', plot=False, diagram=None,
-                  isochron=True, xlim=(None, None), ylim=(None, None),
-                  axis_labels=(None, None), norm_isotope=None, dp_labels=None):
+        isochron=True, xlim=(None, None), ylim=(None, None),
+        axis_labels=(None, None), norm_isotope=None, dp_labels=None):
     """
-    Fit a classical regression line to data and optionally create plot of the
-    fit. If model is set to 'ca', then routine will emulate default the
-    behaviour of Isoplot (Ludwig, 2012) .
+    Fit a classical linear regression line to 2-dimensional data and optionally
+    create plot of the fit. If model is set to 'ca', then routine will emulate
+    default the protocols of Isoplot Ludwig (2012).
 
     Parameters
     -----------
-    x, sx, y, sy, r_xy : np.ndarray
-        Data points and error correlations as 1d arrays.
+    x : np.ndarray
+        x values (as 1-dimensional array)
+    sx : np.ndarray
+        analytical uncertainty on x at :math:`1\sigma` abs.
+    y : np.ndarray
+        y values
+    sy : np.ndaray
+        analytical uncertainty on y at :math:`1\sigma` abs.
+    r_xy : np.ndarray
+        x-y correlation coefficient
     isochron : bool, optional
         If true and model is 'ca' then fits model 3 for excess scatter data
         sets instead of model 2.
-    model: str, optional
-        'ca': fit 'best' model depending on MSWD of york fit; emulates Isoplot
-                behaviour
-        'c1': standard York fit with analytical errors
-        'c2': model of McSaveney in Faure (1977), equivalent to Isoplot model 2
-        'c3': equivalent to Isoplot model 3
+    model: {'ca', 'c1', 'c2', 'c3'}
+        Regression model to fit to data.
+
+    Notes
+    -----
+    `model` should be one of
+
+    - 'ca' fit 'best' model depending on MSWD of york fit; emulates Isoplot behaviour
+    - 'c1' standard York fit with analytical errors
+    - 'c2' model of McSaveney in Faure (1977), equivalent to Isoplot model 2
+    - 'c3' equivalent to Isoplot model 3
+
+    References
+    ..........
+
+    Faure, G., 1977. Appendix 1: Fitting of isochrons for dating by the Rb-Sr
+    method, in: Principles of Isotope Geology. John Wiley and Sons, pp. 1–17.
+
+    Ludwig, K.R., 2012. Isoplot/Ex Version 3.75: A
+    Geochronological Toolkit for Microsoft Excel, Special Publication 4.
+    Berkeley Geochronology Center.
+
     """
     assert model in ('ca', 'c1', 'c2', 'c3')
 
@@ -118,10 +111,11 @@ def classical_fit(x, sx, y, sy, r_xy, model='ca', plot=False, diagram=None,
         excess_scatter = True
 
     else:
+        if mswd <= 1.:
+            raise RuntimeError('cannot fit model 3 if mswd of York fit is less than 1')
         t_crit = stats.t_critical(df)
         sy_excess0 = np.sqrt(mswd) * np.sqrt(np.diag(covtheta))[0]  # use including scattter error
-        fit_results = model_3(x, sx, y, sy, r_xy, covtheta, sy_excess0,
-                              theta0=theta)
+        fit_results = model_3(x, sx, y, sy, r_xy, sy_excess0, theta0=theta)
         (theta, covtheta, mswd3, xbar, ybar, r, sy_excess) = fit_results
         fitted_model = 'model 3'
         excess_scatter = True
@@ -162,20 +156,41 @@ def robust_fit(x, sx, y, sy, r_xy, model='ra', plot=False,
         diagram=None, xlim=(None, None), ylim=(None, None),
         axis_labels=(None, None), norm_isotope='204Pb', dp_labels=None):
     """
-    Fit data with robust regression line and optionally create a plot of
-    the fit.
+    Fit a robust linear regression to 2-dimensional data and optionally create
+    a plot of the fit.
 
     Parameters
-    ----------
-    x, sx, y, sy, r_xy : np.ndarray
-        Data points and error correlations as 1d arrays.
+    -----------
+    x : np.ndarray
+        x values (as 1-dimensional array)
+    sx : np.ndarray
+        analytical uncertainty on x at :math:`1\sigma` abs.
+    y : np.ndarray
+        y values
+    sy : np.ndaray
+        analytical uncertainty on y at :math:`1\sigma` abs.
+    r_xy : np.ndarray
+        x-y correlation coefficient
     model: str, optional
-        ra : fit 'best' robust model depending on whether or no spine width
-            is < upper limit
-        rs : spine fit of Powell et al., (2020)
-        r2 : robust model 2, robust version of the Isoplot model 2
-        rx : spine fit with expanded errors, for use if s is a little bit over
-            slim (experimental feature only).
+        Regression model to fit to data.
+
+    Notes
+    -----
+
+    model should be one of
+
+    - **ra** fit 'best' robust model depending on whether or no spine width is less than slim
+    - **rs** spine fit of Powell et al. (2020)
+    - **r2** robust model 2, a robust version of the Isoplot model 2
+    - **rx** spine fit with expanded errors, for use if s is a little bit over slim (experimental feature only)
+
+    Data should be input as 1-dimensional ndarrays.
+
+    References
+    ..........
+    Powell, R., Green, E.C.R., Marillo Sialer, E., Woodhead, J., 2020. Robust
+    isochron calculation. Geochronology 2, 325–342.
+    https://doi.org/10.5194/gchron-2-325-2020
 
     """
     assert model in ('ra', 'rs', 'r2', 'rx')
@@ -201,7 +216,8 @@ def robust_fit(x, sx, y, sy, r_xy, model='ra', plot=False,
 
     if model == 'r2' or (model == 'ra' and excess_scatter):
         try:
-            theta, covtheta, r = robust_model_2(x, y, xy_err=[sx, sy, r_xy])
+            theta, covtheta, r = robust_model_2(x, y,
+                                    xy_err=np.asarray([sx, sy, r_xy]))
         except exceptions.ConvergenceError:
             raise RuntimeError('robust model 2 fit failed to converge')
 
@@ -260,7 +276,11 @@ def robust_fit(x, sx, y, sy, r_xy, model='ra', plot=False,
 def lsq(x, y):
     """
     Fit ordinary least-squares model
+
+    Notes
+    ------
     Based on code by Roger Powell.
+
     """
     n = x.shape[0]
     x = np.column_stack((np.ones(n), x))
@@ -276,7 +296,17 @@ def lsq(x, y):
 def lad(x, y):
     """
     Fit least absolute deviation model of Sadovski (1974).
+
+    Notes
+    -----
     Based on code by Roger Powell.
+
+    References
+    ----------
+    Sadovski, A.N., 1974. Algorithm AS 74: L1-norm Fit of a Straight Line. Journal
+    of the Royal Statistical Society. Series C (Applied Statistics) 23,
+    244–248. https://doi.org/10.2307/2347013
+
     """
     n = x.size
     rr = 1e-8 * cfg.rng.random(n - 1) # used for naive breaking of x ties
@@ -317,7 +347,14 @@ def lad(x, y):
 def siegel(x, y):
     """
     Median of pairwise median slopes algorithm of Siegel (1982).
+
     Based on code by Roger Powell.
+
+    References
+    ----------
+    Siegel, A. F.: Robust regression Using repeated medians, Biometrika,
+    69, 242–244, 1982.
+
     """
     n = x.size
     x = x + 1e-8 * cfg.rng.random(n)  # naive breaking of x ties
@@ -343,19 +380,51 @@ def york(x, sx, y, sy, r_xy, sy_excess=None, model="1", itmax=50, rtol=1e-08,
          atol=1e-08, theta0=None):
     """
     Fit total weighted least squares regression using the algorithm
-    of York et al. (2004). Analytical errors on regression
+    of York (2004). Analytical errors on regression
     parameters are equivalent to the Maximum Likelihood approach of
     Titterington and Halliday (1979).
 
-    Can also fit a version of the Isoplot model 2 and model 3 by adjusting the
-    weightings. Model 2 code is based on McSaveney in Faure (1977).
+    Can also fit a version of the Isoplot model 2 and model 3 (but see note)
+    by adjusting th weightings. Model 2 code is based on McSaveney in Faure (1977).
     Model 3 code emulates Isoplot (Ludwig, 2012).
+
+    Parameters
+    -----------
+    x : np.ndarray, 1-D
+        x values
+    sx : np.ndarray, 1-D
+        analytical uncertainty on x at :math:`1\sigma` abs.
+    y : np.ndarray, 1-D
+        y values
+    sy : np.ndaray, 1-D
+        analytical uncertainty on y at :math:`1\sigma` abs.
+    r_xy : np.ndarray, 1-D
+        x-y correlation coefficient
+    model : {'1', '2', '3'}, optional
+        model type to fit
 
     Notes
     -----
     Model 3 fits involve an iterative approach that typically requires calling
-    this function several times. To perform a model 3 fit, call the model_3
-    function.
+    this function several times. To perform a model 3 fit, call
+    :func:`pysoplot.regression.model_3` instead.
+
+    References
+    ..........
+    Faure, G., 1977. Appendix 1: Fitting of isochrons for dating by the Rb-Sr
+    method, in: Principles of Isotope Geology. John Wiley and Sons, pp. 1–17.
+
+    Ludwig, K.R., 2012. Isoplot/Ex Version 3.75: A
+    Geochronological Toolkit for Microsoft Excel, Special Publication 4.
+    Berkeley Geochronology Center.
+
+    Titterington, D.M., Halliday, A.N., 1979. On the fitting of parallel
+    isochrons and the method of maximum likelihood. Chemical Geology 26, 183–195.
+
+    York, D., Evensen, N.M., Martinez, M.L., De Basabe Delgado, J., 2004. Unified
+    equations for the slope, intercept, and standard errors of the best
+    straight line. American Journal of Physics 72, 367–375.
+    https://doi.org/10.1119/1.1632486
 
     """
     assert model in ("1", "2", "3")
@@ -500,32 +569,72 @@ def model_2(x, y):
     return theta, xbar, ybar
 
 
-def model_3(x, sx, y, sy, cor, covtheta, sy_excess0, theta0, mswd_tol=1e-04,
+def model_3(x, sx, y, sy, r_xy, sy_excess0, theta0, mswd_tol=1e-04,
             itmax=100, york_itmax=50, york_atol=1e-08, york_rtol=1e-08):
     """
-    Fir a model 3 regression line (equivalent to Isoplot model 3). Weights each
-    point according to analytical errors, plus an extra component of Gaussian
-    distributed scatter in y (applied equally to each data point). For each
-    iteration this excess error in y is inflated and a new York fit produced,
-    until MSWD = 1.
+    Fit a model 3 regression line that is equivalent to Isoplot model 3 Ludwig (2012).
+    Weights each point according to analytical errors, plus an extra component
+    of Gaussian distributed scatter in y (applied equally to each data point).
+    For each iteration this excess error in y is inflated and a new York fit
+    produced, until MSWD converges to 1.
 
-    In Isoplot, this is only used for classical isochron ages, but it could also
-    be used for Tera-Wasserburg concordia-intercept ages (?). Whatever
-    dataset it is applied to, there must be a good justification for the
-    assumption of Guassian distributed geological scatter.
+    Parameters
+    ----------
+    x : np.ndarray
+        x values (as 1-dimensional array)
+    sx : np.ndarray
+        analytical uncertainty on x at :math:`1\sigma` abs.
+    y : np.ndarray
+        y values
+    sy : np.ndaray
+        analytical uncertainty on y at :math:`1\sigma` abs.
+    r_xy : np.ndarray
+        x-y correlation coefficient
+
+    Notes
+    ------
+    In Isoplot, this is only used for classical isochron ages
+
+    When applying this algorithm,there should be a good justification for the
+    assumption of **Guassian** distributed excess scatter.
+
+    References
+    -----------
+    Ludwig, K.R., 2012. Isoplot/Ex Version 3.75: A Geochronological Toolkit for
+    Microsoft Excel, Special Publication 4. Berkeley Geochronology Center.
 
     """
-    code = 0
     sy_excess = sy_excess0     # starting guess of excess scatter in y
+    i = 0
+    mswd0 = -np.inf
+
+    # check suitable starting sy_excess (i.e. starting mswd must be > 1)
+    while i < itmax:
+        i += 1
+        try:
+            theta, covtheta, mswd, xbar, ybar, r = york(x, sx, y, sy, r_xy,
+                            theta0=theta0, sy_excess=sy_excess, model="3",
+                            itmax=york_itmax, rtol=york_rtol, atol=york_atol)
+            if mswd > 1.:
+                break
+
+        except exceptions.ConvergenceError:
+            raise exceptions.ConvergenceError(f'model 3 routine failed')
+
+        # update guess of excess scatter in y
+        sy_excess *= 0.75
+        theta0 = theta
+
+    # TODO: implement a proper MLE routine here?
     i = 0
     while i < itmax:
         i += 1
         try:
-            theta, covtheta, mswd, xbar, ybar, r = york(x, sx, y, sy, cor,
+            theta, covtheta, mswd, xbar, ybar, r = york(x, sx, y, sy, r_xy,
                             theta0=theta0, sy_excess=sy_excess, model="3",
                             itmax=york_itmax, rtol=york_rtol, atol=york_atol)
             if mswd < 1.:
-                raise ValueError(f'model 3 fit failed - MSWD is < 1 after '
+                raise RuntimeError(f'model 3 fit failed - MSWD is < 1 after '
                                  f'iteration {i}')
 
         except exceptions.ConvergenceError:
@@ -551,22 +660,48 @@ def slim(n):
     """Upper bound of 95% confidence interval on s (spine width) for Spine
     linear regression algorithm. Derived from simulation of Gaussian distributed
     datasets. See Powell et al., (2020).
+
+    References
+    ----------
+    Powell, R., Green, E.C.R., Marillo Sialer, E., Woodhead, J., 2020. Robust
+    isochron calculation. Geochronology 2, 325–342.
+    https://doi.org/10.5194/gchron-2-325-2020
+
     """
     return 1.92 - 0.162 * np.log(10 + n)
 
 
-def spine(x, sx, y, sy, cor, h=1.4):
+def spine(x, sx, y, sy, rxy, h=1.4):
     """
-    Iteratively re-weighted Huber line-fitting algorithm of Powell et al.,
+    Iteratively re-weighted Huber line-fitting algorithm of Powell et al.
     (2020).
 
-    Code by Roger Powell with style modifications by TP.
+    Parameters
+    ----------
+    x : np.ndarray
+        x values (as 1-dimensional array)
+    sx : np.ndarray
+        analytical uncertainty on x at :math:`1\sigma` abs.
+    y : np.ndarray
+        y values
+    sy : np.ndaray
+        analytical uncertainty on y at :math:`1\sigma` abs.
+    rxy : np.ndarray
+        x-y correlation coefficient
 
     Notes
     ------
     Updated to use normalised deltheta as convergence criteria for improved
     performance where slope and y-int are of very different order of
     magnitude.
+
+    Code by Roger Powell with style modifications by TP.
+
+    References
+    ----------
+    Powell, R., Green, E.C.R., Marillo Sialer, E., Woodhead, J., 2020. Robust
+    isochron calculation. Geochronology 2, 325–342.
+    https://doi.org/10.5194/gchron-2-325-2020
 
     """
     n = x.shape[0]
@@ -582,7 +717,7 @@ def spine(x, sx, y, sy, cor, h=1.4):
     sx = sx / avx
     y = y / avy
     sy = sy / avy
-    cov = sx * sy * cor
+    cov = sx * sy * rxy
 
     theta = ntheta = siegel(x, y)
 
@@ -665,6 +800,7 @@ def huberu(x, y, xy_err=None, h=1.4, itmax=250):
 
         # Check if scat is smaller than average analytical uncertainties,
         # and if so, reset average analyutical uncertainties.
+        # TODO: check these calcs
         if xy_err is not None:
             se = np.sqrt(sy ** 2 + (b * sx) ** 2 - 2 * b * sx * sy * r_xy)
             averr = np.median(se)
@@ -695,26 +831,37 @@ def huberu(x, y, xy_err=None, h=1.4, itmax=250):
 
 def robust_model_2(x, y, xy_err=None, h=1.4, disp=True):
     """
-    Fit robust model 2 regression line.
+    Fit a robust model 2 linear regression to 2-dimensional data.
 
     Analytical errors discarded and takes the geometric mean slope of the spine
     y on x fit, and the reciprocal of the spine x on y fit, using data scatter
     in place of analytical weights. Similar to the Isoplot model 2 approach
-    (Ludwig, 2012) but with robust properties.
+    but with robust properties.
 
+    Parameters
+    -----------
+    x : np.ndarray
+        x values (as 1-dimensional array)
+    y : np.ndarray
+        y values
+    xy_err : np.ndarray, optional
+        3 by n array with elements sx, sy, r_xy (i.e. analytical errors on x
+        and y, and their correlation coefficient)
+
+    Notes
+    -----
     If xy_err is provided, nmad of the residuals will be checked against the
     median analytical uncertainty, and if larger, this value will be used to
-    weight data points instead. Following Powell et al., (2002), this is to
+    weight data points instead. Following Powell et al. (2002), this is to
     guard against a situation in which the scatter on the data is smaller than
     that expected with the analytical uncertainties.
 
     Code by Roger Powell with style modifications by TP.
 
-    Parameters
-    -----------
-    dp_err : np.ndarray, optional
-        3 x n array-like with elements sx, sy, r_xy (i.e. analytical
-            errors on x and y, and their correlation coefficient)
+    References
+    ----------
+    Powell, R., Hergt, J., Woodhead, J., 2002. Improving isochron calculations
+    with robust statistics and the bootstrap. Chemical Geology 191–204.
 
     """
     # centre data
