@@ -168,7 +168,7 @@ def plot_rfit(ax, fit):
 
 
 def plot_cor207_projection(ax, x, sx, y, sy, r_xy, Pb76, t=None, A=None,
-                           init=None):
+                           meas=None):
     """
     Plot projection line from the common 207Pb/206Pb value through the center
     of the data ellipse. If t is supplied, then the line will be projected to the
@@ -182,19 +182,15 @@ def plot_cor207_projection(ax, x, sx, y, sy, r_xy, Pb76, t=None, A=None,
     n = x.shape[0]
     if t is not None:
         assert t.shape[0] == n
-        assert A is not None and init is not None
+        assert A is not None and meas is not None
 
     for i in range(n):
         a = Pb76
         b = (y[i] - a) / x[i]
 
         if t is not None:
-            DC8 = np.array((cfg.lam238, cfg.lam234, cfg.lam230, cfg.lam226))
-            DC5 = np.array((cfg.lam235, cfg.lam231))
-            BC8 = ludwig.bateman(DC8)
-            BC5 = ludwig.bateman(DC5, series='235U')
-            xc = 1. / ludwig.f(t[i], A[:-1], DC8, BC8, init=init)
-            yc = ludwig.g(t[i], A[-1], DC5, BC5) * xc / cfg.U
+            xc = 1. / ludwig.f(t[i], A[:-1], meas=meas)
+            yc = ludwig.g(t[i], A[-1]) * xc / cfg.U
         else:
             yc = ax.get_ylim()[0]
             xc = (yc - a) / b
@@ -273,7 +269,7 @@ def confidence_ellipse(ax, x, sx, y, sy, r_xy, p=0.95, mpl_label='data ellipse',
 
     """
     if ellipse_kw is None:
-        ellipse_kw = {}
+        ellipse_kw = {'fc': 'none', 'ec': 'black', 'lw': 0.5}
 
     df = 2
     s = stats.chi2.ppf(p, df)
@@ -467,9 +463,6 @@ def apply_plot_settings(fig, plot_type='isochron', diagram=None,
             set_axis_labels(ax, diagram=diagram, norm_isotope=norm_isotope,
                         axis_labels=axis_labels)
 
-        # set spine params
-        ax.spines[:].set_zorder(100)
-
         # Set major tick properties.
         # TODO: tick zorder still not working properly due a mpl bug.
         if plot_type == 'wav':
@@ -511,6 +504,12 @@ def apply_plot_settings(fig, plot_type='isochron', diagram=None,
             else:
                 ax.grid(True, which='minor', axis='both', **cfg.gridlines_kw)
             ax.set_axisbelow(True)
+
+        # Set spine zorder
+        ax.spines['top'].set_zorder(100)
+        ax.spines['bottom'].set_zorder(100)
+        ax.spines['left'].set_zorder(100)
+        ax.spines['right'].set_zorder(100)
 
         # Hide spines
         if cfg.hide_top_spine:
@@ -750,7 +749,7 @@ def line_intersection(a1, b1, L2):
 def in_box(p, xmin, xmax, ymin, ymax):
     """
     Check if point p = (x, y) is within bounding rectangle
-    defined by x, y limits, allowing some tolerance for floating points numbers.
+    defined by x, y limits, allowing some tolerance for floating point numbers.
     """
     assert not xmin > xmax and not ymin > ymax
     if ((p[0] > xmin or np.isclose(p[0], xmin)) and
