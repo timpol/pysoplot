@@ -27,7 +27,7 @@ nan = np.nan
 # Age calculation routines
 #===========================================
 
-def concint_age(fit, A, sA, init, t0, diagram='tw', dc_errors=False,
+def concint_age(fit, A, sA, t0, meas=(False, False), diagram='tw', dc_errors=False,
         trials=50_000, u_errors=False, negative_ratios=True, negative_ages=True,
         intercept_plot=True, hist=(False, False), conc_kw=None,
         intercept_plot_kw=None, A48i_lim=(0., 20.), A08i_lim=(0., 10.),
@@ -51,10 +51,11 @@ def concint_age(fit, A, sA, init, t0, diagram='tw', dc_errors=False,
     sA : array-like
         One-dimensional array of activity ratio value uncertainties given
         as 1 sigma absolute and arranged in the same order as A.
-    init : array-like
+    meas : array-like
         Two-element list of boolean values, the first is True if [234U/238U]
-        is an initial value and False if a present-day value, the second is True
-        if [230Th/238U] is an initial value and False if a present-day value.
+        is a present-day (i.e. measured) value and False if an initial value.
+        The second is True if [230Th/238U] is a present-day value and False if
+        an initial value.
     t0 : float
         Initial guess for numerical age solving (the equilibrium age is
         typically good enough).
@@ -65,8 +66,7 @@ def concint_age(fit, A, sA, init, t0, diagram='tw', dc_errors=False,
         Tera-Waserburg.
     
     """
-    assert diagram == 'tw'
-    assert type(init[0]) == bool and type(init[1] == bool)
+    assert diagram == 'tw', 'only tw concordia diagram type currently permitted'
 
     if intercept_plot_kw is None:
         intercept_plot_kw = {}
@@ -78,19 +78,18 @@ def concint_age(fit, A, sA, init, t0, diagram='tw', dc_errors=False,
     
     # If a present-day activity ratio given, check for all possible intercept age
     # solutions within given age limits.
-    if not all(init):
-        r = concint_multiple(a, b, A, init, t0, age_lim=age_lim,  t_step=1e-5,
+    if any(meas):
+        r = concint_multiple(a, b, A, meas, t0, age_lim=age_lim,  t_step=1e-5,
                              A48i_lim=A48i_lim, A08i_lim=A08i_lim)
         ages, a234_238_i, a230_238_i = r
         t = ages[0]
     else:
-        t = concint(a, b, A, init, t0)
+        t = concint(a, b, A, meas, t0)
         if t < 0:
             raise RuntimeError(f'negative disequilibrium age solution: {t} Ma')
 
     # Get initial acitivity rario solutions:
-    a234_238_i, a230_238_i = useries.init_ratio_solutions(t, A[:-1], init,
-                   (cfg.lam238, cfg.lam234, cfg.lam230))
+    a234_238_i, a230_238_i = useries.init_ratio_solutions(t, A[:-1], meas)
 
     results = {
         'age_type': 'concordia-intercept',
@@ -102,19 +101,19 @@ def concint_age(fit, A, sA, init, t0, diagram='tw', dc_errors=False,
 
     if uncert == 'mc':
         # Check measured activity ratios
-        if not init[0]:
+        if meas[0]:
             p = stats.two_sample_p(A[0], sA[0], cfg.a234_238_eq, cfg.a234_238_eq_1s)
             if p > 0.05:
                 raise ValueError(f'Cannot run monte carlo simulation: [234U/238U] '
                         f'not sufficiently resolved from equilibrium, p = {p}')
-        if not init[1]:
+        if meas[1]:
             p = stats.two_sample_p(A[0], sA[0], cfg.a234_238_eq, cfg.a234_238_eq_1s)
             if p > 0.05:
                 raise ValueError(f'Cannot run monte carlo simulation: [230Th/238U] '
                         f'not sufficiently resolved from equilibrium, p = {p}')
 
         # Compute age uncertainties:
-        mc_result = mc.concint_diseq_age(t, fit, A, sA, init, trials=trials,
+        mc_result = mc.concint_diseq_age(t, fit, A, sA, meas, trials=trials,
                             dc_errors=dc_errors, u_errors=u_errors,
                             negative_ratios=negative_ratios, negative_ages=negative_ages,
                             hist=hist, intercept_plot=intercept_plot, conc_kw=conc_kw,
@@ -127,11 +126,11 @@ def concint_age(fit, A, sA, init, t0, diagram='tw', dc_errors=False,
                                  mc_result['age_95ci'][1] - t)),
             'mc': mc_result,})
 
-        if not init[0]:
+        if meas[0]:
             results['[234U/238U]i_95ci'] = mc_result['[234U/238U]i_95ci']
             results['[234U/238U]i_95pm'] = np.mean((t - mc_result['[234U/238U]i_95ci'][0],
                                           mc_result['[234U/238U]i_95ci'][1] - t))
-        if not init[1]:
+        if meas[1]:
             results['[230Th/238U]i_95ci'] = mc_result['[230Th/238U]i_95ci']
             results['[230Th/238U]i_95pm'] = np.mean((t - mc_result['[230Th/238U]i_95ci'][0],
                                             mc_result['[230Th/238U]i_95ci'][1] - t))
@@ -139,7 +138,7 @@ def concint_age(fit, A, sA, init, t0, diagram='tw', dc_errors=False,
     return results
 
 
-def isochron_age(fit, A, sA, t0, init=(True, True), age_type='iso-206Pb',
+def isochron_age(fit, A, sA, t0, meas=(False, False), age_type='iso-206Pb',
         norm_isotope='204Pb', hist=(False, False), trials=50_000,
         dc_errors=False, negative_ratios=True, negative_ages=True):
     """
@@ -156,10 +155,11 @@ def isochron_age(fit, A, sA, t0, init=(True, True), age_type='iso-206Pb',
     sA : array-like
         one-dimensional array of activity ratio value uncertainties given
         as 1 sigma absolute and arranged in the same order as A
-    init : array-like
-        two-element list of boolean values, the first is True if [234U/238U]
-        is an initial value and False if a present-day value, the second is True
-        if [230Th/238U] is an initial value and False if a present-day value
+    meas : array-like
+        Two-element list of boolean values, the first is True if [234U/238U]
+        is a present-day (i.e. measured) value and False if an initial value.
+        The second is True if [230Th/238U] is a present-day value and False if
+        an initial value.
     t0 : float
         initial guess for numerical age solving (the equilibrium age is
         typically good enough)
@@ -178,20 +178,19 @@ def isochron_age(fit, A, sA, t0, init=(True, True), age_type='iso-206Pb',
 
     # Compute age:
     a, b = fit['theta']
-    t = isochron(b, A, t0, age_type, init=init)
+    t = isochron(b, A, t0, age_type, meas=meas)
     if t < 0:
         raise RuntimeError(f'negative disequilibrium age solution: {t} Ma')
 
     # Back-calculate activity ratios:
     if age_type == 'iso-206Pb':
-        a234_238_i, a230_238_i = useries.init_ratio_solutions(t, A, init, [cfg.lam238,
-                                    cfg.lam234, cfg.lam230])
-        if not init[0]:
+        a234_238_i, a230_238_i = useries.init_ratio_solutions(t, A, meas)
+        if meas[0]:
             p = stats.two_sample_p(A[0], sA[0], cfg.a234_238_eq, cfg.a234_238_eq_1s)
             if p > 0.05:
                 raise ValueError(f'Cannot run monte carlo simulation: [234U/238U] '
                         f'not sufficiently resolved from equilibrium, p = {p}')
-        if not init[1]:
+        if meas[1]:
             p = stats.two_sample_p(A[0], sA[0], cfg.a234_238_eq, cfg.a234_238_eq_1s)
             if p > 0.05:
                 raise ValueError(f'Cannot run monte carlo simulation: [230Th/238U] '
@@ -200,7 +199,7 @@ def isochron_age(fit, A, sA, t0, init=(True, True), age_type='iso-206Pb',
         a234_238_i, a230_238_i = (None, None)
 
     # Compute age uncertainties:
-    mc_result = mc.isochron_diseq_age(t, fit, A, sA, init=init, trials=trials,
+    mc_result = mc.isochron_diseq_age(t, fit, A, sA, meas=meas, trials=trials,
                            negative_ratios=negative_ratios, negative_ages=negative_ages,
                            hist=hist, age_type=age_type, dc_errors=dc_errors)
 
@@ -429,7 +428,6 @@ def pbu_age(x, Vx, t0, DThU=None, DThU_1s=None, DPaU=None, DPaU_1s=None, alpha=N
 
     # Compute wtd. average
     if wav:
-
         if bad.size != 0:
             msg = f'could not compute wtd. average - age calculation failed for some data points'
             warnings.warn(msg)
@@ -754,16 +752,12 @@ def forced_concordance(fit57, fit86, A, sA, t0=1.0, norm_isotope='204Pb',
     # compute iso-57 diseq age
     t57 = isochron(fit57['theta'][1], A[-1], t0, 'iso-207Pb')
     # compute concordant init [234U/238U] value
-    Lam238 = (cfg.lam238, cfg.lam234, cfg.lam230, cfg.lam226)
-    coef238 = ludwig.bateman(Lam238)
-
-    a234_238_i = concordant_A48i(t57, fit86['theta'][1], A[1], A[2], Lam238, coef238,
-                                 a0=1.)
+    a234_238_i = concordant_A48i(t57, fit86['theta'][1], A[1], A[2], a0=1.)
 
     # Compute init [234U/238U] uncertainties:
-    mc_result = mc.forced_concordance(t57, a234_238_i, fit57, fit86, A, sA, [True, True], trials=trials,
-                                 negative_ratios=negative_ratios, negative_ages=negative_ages,
-                                 hist=hist)
+    mc_result = mc.forced_concordance(t57, a234_238_i, fit57, fit86, A, sA,
+                  [False, False], trials=trials, negative_ratios=negative_ratios,
+                  negative_ages=negative_ages, hist=hist)
 
     results = {
         'norm_isotope': norm_isotope,
@@ -779,16 +773,12 @@ def forced_concordance(fit57, fit86, A, sA, t0=1.0, norm_isotope='204Pb',
 # Numerical age calculation functions
 #=======================================
 
-def concint(a, b, A, init, t0):
+def concint(a, b, A, meas, t0):
     """
     Numercially compute disequilibrium U-Pb concordia-intercept age.
     """
-    Lam238 = (cfg.lam238, cfg.lam234, cfg.lam230, cfg.lam226)
-    Lam235 = (cfg.lam235, cfg.lam231)
-    coef238 = ludwig.bateman(Lam238)
-    coef235 = ludwig.bateman(Lam235, series='235U')
-    fmin, dfmin = minimise.concint(diagram='tw', init=init)
-    args = (a, b, A[:-1], A[-1], Lam238, Lam235, coef238, coef235, cfg.U)
+    fmin, dfmin = minimise.concint(diagram='tw', meas=meas)
+    args = (a, b, A[:-1], A[-1])
     r = optimize.newton(fmin, t0, dfmin, args=args, full_output=True, disp=False)
     if not r[1].converged:
         raise exceptions.ConvergenceError('disequilibrium concordia age did '
@@ -797,19 +787,13 @@ def concint(a, b, A, init, t0):
     return t
 
 
-def isochron(b, A, t0, age_type, init=(True, True)):
+def isochron(b, A, t0, age_type, meas=(False, False)):
     """
-    Numerically compute disequilbrium U-Pb isohcron age.
+    Numerically compute disequilibrium U-Pb isohcron age.
     """
     assert age_type in ('iso-206Pb', 'iso-207Pb')
-    if age_type == 'iso-206Pb':
-        Lam = (cfg.lam238, cfg.lam234, cfg.lam230, cfg.lam226)
-        coef = ludwig.bateman(Lam)
-    elif age_type == 'iso-207Pb':
-        Lam = (cfg.lam235, cfg.lam231)
-        coef = ludwig.bateman(Lam, series='235U')
-    args = (b, A, Lam, coef)
-    fmin, dfmin = minimise.isochron(age_type=age_type, init=init)
+    args = (b, A)
+    fmin, dfmin = minimise.isochron(age_type=age_type, meas=meas)
     r = optimize.newton(fmin, t0, dfmin, args=args, full_output=True,
                         disp=False)
     if not r[1].converged:
@@ -819,19 +803,13 @@ def isochron(b, A, t0, age_type, init=(True, True)):
     return t
 
 
-def pbu(x, A, t0, age_type, alpha=None, init=(True, True)):
+def pbu(x, A, t0, age_type, meas=(False, False)):
     """
     Numerically compute single analysis Pb/U age using Ludwig equations.
     """
     assert age_type in ('206Pb*', '207Pb*')
-    if age_type == '206Pb*':
-        Lam = (cfg.lam238, cfg.lam234, cfg.lam230, cfg.lam226)
-        coef = ludwig.bateman(Lam)
-    elif age_type == '207Pb*':
-        Lam = (cfg.lam235, cfg.lam231)
-        coef = ludwig.bateman(Lam, series='235U')
-    args = (x, A, Lam, coef)
-    fmin, dfmin = minimise.pbu(age_type=age_type, init=init)
+    args = (x, A)
+    fmin, dfmin = minimise.pbu(age_type=age_type, meas=meas)
     t, r = optimize.newton(fmin, t0, dfmin, args=args, full_output=True,
                            disp=False)
     if not r.converged:
@@ -886,7 +864,7 @@ def pbu_iterative(x, ThU_melt, t0, Th232_U238=None, Pb208_206=None,
         Pb206_U238 = x
 
     meas_Th232_U238 = True if Th232_U238 is not None else False
-    fmin, dfmin = minimise.pbu(age_type=age_type)   # note: use pbu not pbu_iterative here
+    fmin, dfmin = minimise.pbu(age_type=age_type, input_dc=True)   # note: use pbu not pbu_iterative here
 
     iter = 1
 
@@ -930,7 +908,7 @@ def pbu_iterative(x, ThU_melt, t0, Th232_U238=None, Pb208_206=None,
             'did not converge after maximum number of iterations')
 
 
-def cor207(x, y, A, alpha, t0, init=(True, True)):
+def cor207(x, y, A, alpha, t0, meas=(False, False)):
     """
     Numerically compute disequilibrium 207Pb-corrected ages.
 
@@ -941,12 +919,8 @@ def cor207(x, y, A, alpha, t0, init=(True, True)):
     the US Geological Survey 5, 663–667.
 
     """
-    Lam238 = (cfg.lam238, cfg.lam234, cfg.lam230, cfg.lam226)
-    Lam235 = (cfg.lam235, cfg.lam231)
-    coef238 = ludwig.bateman(Lam238)
-    coef235 = ludwig.bateman(Lam235, series='235U')
-    args = (x, y, A, alpha, cfg.U, Lam238, Lam235, coef238, coef235)
-    fmin, dfmin = minimise.pbu(age_type='cor207Pb', init=init)
+    args = (x, y, A, alpha)
+    fmin, dfmin = minimise.pbu(age_type='cor207Pb', meas=meas)
     t, r = optimize.newton(fmin, t0, dfmin, args=args, full_output=True,
                            disp=True)
     if not r.converged:
@@ -955,8 +929,7 @@ def cor207(x, y, A, alpha, t0, init=(True, True)):
     return t
 
 
-def concordant_A48i(t75, b86, a230_238, a226_238, Lam238, coef238,
-                    a0=1.):
+def concordant_A48i(t75, b86, a230_238, a226_238, a0=1.):
     """
     Numerically compute initial U234/U238 activity ratio that forces concordance
     between 238U and 235U isochron ages.
@@ -964,17 +937,16 @@ def concordant_A48i(t75, b86, a230_238, a226_238, Lam238, coef238,
     Minimises function: f = F(t75, A234A238) - slope_86, where t75 is
     the 207Pb/x-235U/x isochron age.
     """
-    args = (t75, b86, [nan, a230_238, a226_238], Lam238, coef238)
+    args = (t75, b86, [nan, a230_238, a226_238])
     fmin, dfmin = minimise.concordant_A48()
-    r = optimize.newton(fmin, a0, dfmin, args=args, full_output=True,
-                        disp=False)
+    r = optimize.newton(fmin, a0, dfmin, args=args, full_output=True, disp=False)
     if not r[1].converged:
         raise exceptions.ConvergenceError('forced concordant initial [234U/238U] '
                'value did not converge after maximum number of iterations')
     return r[0]
 
 
-def concint_multiple(a, b, A, init, t0, age_lim=(0., 20.), t_step=1e-5,
+def concint_multiple(a, b, A, meas, t0, age_lim=(0., 20.), t_step=1e-5,
         A48i_lim=(0., 20.), A08i_lim=(0., 20.)):
     """
     Search for all initial disequilibrium concordia-intercept age solutions
@@ -990,23 +962,18 @@ def concint_multiple(a, b, A, init, t0, age_lim=(0., 20.), t_step=1e-5,
     if not age_lim[0] <= t0 <= age_lim[1]:
         raise ValueError('age guess must be b/w upper and lower age limits')
 
-    Lam238 = (cfg.lam238, cfg.lam234, cfg.lam230, cfg.lam226)
-    Lam235 = (cfg.lam235, cfg.lam231)
-    coef238 = ludwig.bateman(Lam238)
-    coef235 = ludwig.bateman(Lam235, series='235U')
-
     # compile args for age solution
-    args = (a, b, A[:-1], A[-1], Lam238, Lam235, coef238, coef235, cfg.U)
+    args = (a, b, A[:-1], A[-1])
 
     # Find all solutions within age limits -- in case there are more than 1.
-    fmin, dfmin = minimise.concint(diagram='tw', init=init)
+    fmin, dfmin = minimise.concint(diagram='tw', meas=meas)
     roots, _ = find_roots(fmin, dfmin, args, range=age_lim, step=t_step)
 
     # If no ages found yet, try using inputted age guess directly in numerical
     # age routine:
     if len(roots) == 0:
         try:
-            t = concint(a, b, A, init, t0)
+            t = concint(a, b, A, meas, t0)
         except exceptions.ConvergenceError:
             raise exceptions.ConvergenceError('no disequilibrium age solutions found')
         roots = np.atleast_1d(t)
@@ -1023,27 +990,25 @@ def concint_multiple(a, b, A, init, t0, age_lim=(0., 20.), t_step=1e-5,
         roots = roots[ind]
 
     # Calculate activity ratios if present-day ratios given
-    a234_238_i = np.zeros(roots.shape) if not init[0] else None
-    a230_238_i = np.zeros(roots.shape) if not init[1] else None
+    a234_238_i = np.zeros(roots.shape) if meas[0] else None
+    a230_238_i = np.zeros(roots.shape) if meas[1] else None
 
     for i, t in enumerate(roots):
-        if not init[0]:
+        if meas[0]:
             # present 234U/238U activity ratio:
-            a234_238_i[i] = useries.ar48i(t, A[0], cfg.lam238, cfg.lam234)
-            if not init[1]:
-                a230_238_i[i] = useries.ar08i(t, A[0], A[1], cfg.lam238, cfg.lam234,
-                                        cfg.lam230, init=init[0])
-        elif not init[0]:
+            a234_238_i[i] = useries.aratio48i(t, A[0])
+            if meas[1]:
+                a230_238_i[i] = useries.aratio08i(t, A[0], A[1], init=not meas[0])
+        elif meas[0]:
             # initial 234U/238U activity ratio:
-            a230_238_i[i] = useries.ar08i(t, A[0], A[1], cfg.lam238, cfg.lam234,
-                                    cfg.lam230, init=init[0])
+            a230_238_i[i] = useries.aratio08i(t, A[0], A[1], init=not meas[0])
 
     # check that activiy ratios are within limits
-    if not init[0]:
+    if meas[0]:
         accept = np.where(np.logical_and(A48i_lim[0] < a234_238_i,
                         a234_238_i < A48i_lim[1]), accept,
                         np.full(roots.shape, False))
-    if not init[1]:
+    if meas[1]:
         accept = np.where(np.logical_and(A08i_lim[0] < a230_238_i,
                         a230_238_i < A08i_lim[1]), accept,
                         np.full(roots.shape, False))
@@ -1161,18 +1126,18 @@ def pbu_uncert(t, x, Vx, a230_238=None, a231_235=None,
 
     n = len(x)
     zeros = np.zeros((n, n))
+    lam238, lam234, lam230, lam226 = cfg.lam238, cfg.lam234, cfg.lam230, cfg.lam226
+    lam235, lam231 = cfg.lam235, cfg.lam231
 
     if age_type in ('206Pb*', 'cor207Pb'):
         if a230_238.ndim != 1 or V_a230_238.shape != (n, n):
             raise ValueError('a230_238 and V_a230_238 have incompatible '
                              'dimensions')
-        Lam238 = [cfg.lam238, cfg.lam234, cfg.lam230, cfg.lam226]
-        coef238 = ludwig.bateman(Lam238)
-
-        f1, f2, f3, f4 = ludwig.f_comp(t, [cfg.a234_238_eq, a230_238, cfg.a226_238_eq],
-                                      Lam238, coef238)
-        df1, df2, df3, df4 = ludwig.dfdt_comp(t, [cfg.a234_238_eq, a230_238, cfg.a226_238_eq],
-                                              Lam238, coef238)
+        coef238 = ludwig.bateman((cfg.lam238, cfg.lam234, cfg.lam230, lam226))
+        f1, f2, f3, f4 = ludwig.f(t, [cfg.a234_238_eq, a230_238, cfg.a226_238_eq],
+                                  comp=True)
+        df1, df2, df3, df4 = ludwig.dfdt(t, [cfg.a234_238_eq, a230_238, cfg.a226_238_eq],
+                                         comp=True)
         f = f1 + f2 + f3 + f4
         dfdt = df1 + df2 + df3 + df4
 
@@ -1180,28 +1145,25 @@ def pbu_uncert(t, x, Vx, a230_238=None, a231_235=None,
         if a231_235.ndim != 1 or V_a231_235.shape != (n, n):
             raise ValueError('a231_235 and V_a231_235 have incompatible '
                              'dimensions')
-        Lam235 = [cfg.lam235, cfg.lam231]
-        coef235 = ludwig.bateman(Lam235, series='235U')
-
-        g1, g2 = ludwig.g_comp(t, a231_235, Lam235, coef235)
-        dg1, dg2 = ludwig.dgdt_comp(t, a231_235, Lam235, coef235)
+        # coef235 = ludwig.bateman((lam235, lam231), series='235U')
+        g1, g2 = ludwig.g(t, a231_235, comp=True)
+        dg1, dg2 = ludwig.dgdt(t, a231_235, comp=True)
         g = g1 + g2
         dgdt = dg1 + dg2
       
     if age_type == '206Pb*':
         # dtdx
-        dtdx = 1. / ludwig.dfdt(t, [cfg.a234_238_eq, a230_238, cfg.a226_238_eq],
-                                Lam238, coef238)
+        dtdx = 1. / ludwig.dfdt(t, [cfg.a234_238_eq, a230_238, cfg.a226_238_eq])
 
         # dtdA08
         num = x - f1 - f2 - f4
         dnum = - df1 - df2 - df4
-        den = Lam238[0]/Lam238[2] * (coef238[7] * exp((Lam238[0]-Lam238[2]) * t)
-                + coef238[8] * exp((Lam238[0]-Lam238[3]) * t) + exp(Lam238[0]*t))
-        dden = Lam238[0]/Lam238[2] * (
-                coef238[7] * (Lam238[0]-Lam238[2]) * exp((Lam238[0]-Lam238[2]) * t)
-                + coef238[8] * (Lam238[0]-Lam238[3]) * exp((Lam238[0]-Lam238[3]) * t)
-                + Lam238[0] * exp(Lam238[0]*t))
+        den = lam238/lam230 * (coef238[7] * exp((lam238-lam230) * t)
+                + coef238[8] * exp((lam238-lam226) * t) + exp(lam238*t))
+        dden = lam238/lam230 * (
+                coef238[7] * (lam238-lam230) * exp((lam238-lam230) * t)
+                + coef238[8] * (lam238-lam226) * exp((lam238-lam226) * t)
+                + lam238 * exp(lam238*t))
         dtdA08 = den ** 2 / (dnum * den - dden * num)
 
         V = np.block([[Vx, zeros], [zeros, V_a230_238]])
@@ -1209,15 +1171,15 @@ def pbu_uncert(t, x, Vx, a230_238=None, a231_235=None,
 
     elif age_type == '207Pb*':
         # dtdx
-        dtdx = 1. / ludwig.dgdt(t, a231_235, Lam235, coef235)
+        dtdx = 1. / ludwig.dgdt(t, a231_235)
 
         # dtd(a231_235)
         num = x - g1
         dnum = - dg1
-        den = Lam235[0] / Lam235[1] *  (exp(Lam235[0] * t)
-                - exp((Lam235[0]-Lam235[1]) * t))
-        dden = Lam235[0] / Lam235[1] *  (Lam235[0] * exp(Lam235[0] * t)
-                 - (Lam235[0]-Lam235[1]) * exp((Lam235[0]-Lam235[1]) * t))
+        den = lam235 / lam231 *  (exp(lam235 * t)
+                - exp((lam235-lam231) * t))
+        dden = lam235 / lam231 *  (lam235 * exp(lam235 * t)
+                 - (lam235-lam231) * exp((lam235-lam231) * t))
         dtdA15 = den ** 2 / (dnum * den - dden * num)
 
         V = np.block([[Vx, zeros], [zeros, V_a231_235]])
@@ -1241,22 +1203,22 @@ def pbu_uncert(t, x, Vx, a230_238=None, a231_235=None,
         # dt/d(a230_238)
         num = g / (cfg.U * alpha) - (y - alpha) / (alpha * x) - f1 - f2 - f4
         dnum = dgdt / (cfg.U * alpha) - df1 - df2 - df4
-        den = Lam238[0] / Lam238[2] * (coef238[7] * exp((Lam238[0] - Lam238[2]) * t)
-               + coef238[8] * exp((Lam238[0] - Lam238[3]) * t) + exp(Lam238[0] * t))
-        dden = Lam238[0] / Lam238[2] * (
-                coef238[7] * (Lam238[0] - Lam238[2]) * exp((Lam238[0] - Lam238[2]) * t)
-                + coef238[8] * (Lam238[0] - Lam238[3]) * exp((Lam238[0] - Lam238[3]) * t)
-                + Lam238[0] * exp(Lam238[0] * t))
+        den = lam238 / lam230 * (coef238[7] * exp((lam238 - lam230) * t)
+               + coef238[8] * exp((lam238 - lam226) * t) + exp(lam238 * t))
+        dden = lam238 / lam230 * (
+                coef238[7] * (lam238 - lam230) * exp((lam238 - lam230) * t)
+                + coef238[8] * (lam238 - lam226) * exp((lam238 - lam226) * t)
+                + lam238 * exp(lam238 * t))
         dA08dt = (dnum * den - num * dden) / den ** 2
         dtdA08 = 1. / dA08dt
         
         # dt/d(a231_235)
         num = alpha * cfg.U * f + cfg.U * (y - alpha) / x - g1
-        den = Lam235[0] / Lam235[1] * (exp(Lam235[0] * t)
-               - exp((Lam235[0] - Lam235[1]) * t))
+        den = lam235 / lam231 * (exp(lam235 * t)
+               - exp((lam235 - lam231) * t))
         dnum = alpha * cfg.U * dfdt - dg1
-        dden = Lam235[0] / Lam235[1] * (Lam235[0] * exp(Lam235[0] * t)
-               - (Lam235[0] - Lam235[1]) * exp((Lam235[0] - Lam235[1]) * t))
+        dden = lam235 / lam231 * (lam235 * exp(lam235 * t)
+               - (lam235 - lam231) * exp((lam235 - lam231) * t))
         dA15dt = (dnum * den - num * dden) / den ** 2
         dtdA15 = 1. / dA15dt
 
@@ -1352,14 +1314,13 @@ def pbu_iterative_uncert(t, ThU_min, x, Vx, ThU_melt, ThU_melt_1s,
     zeros = np.zeros((n, n))
     czeros = np.zeros((n, 1))
 
-    Lam238 = [cfg.lam238, cfg.lam234, cfg.lam230, cfg.lam226]
-    coef238 = ludwig.bateman(Lam238)
+    lam238, lam234, lam230, lam226 = cfg.lam238, cfg.lam234, cfg.lam230, cfg.lam226
+    coef238 = ludwig.bateman((lam238, lam234, lam230, lam226))
 
     fThU = ThU_min / ThU_melt
-    f1, f2, f3, f4 = ludwig.f_comp(t, [cfg.a234_238_eq, fThU, cfg.a226_238_eq],
-                            Lam238, coef238)
-    df1, df2, df3, df4 = ludwig.dfdt_comp(t, [cfg.a234_238_eq, fThU, cfg.a226_238_eq],
-                                   Lam238, coef238)
+    f1, f2, f3, f4 = ludwig.f(t, [cfg.a234_238_eq, fThU, cfg.a226_238_eq], comp=True)
+    df1, df2, df3, df4 = ludwig.dfdt(t, [cfg.a234_238_eq, fThU, cfg.a226_238_eq],
+                                     comp=True)
 
     if age_type == '206Pb*':
 
@@ -1371,25 +1332,25 @@ def pbu_iterative_uncert(t, ThU_min, x, Vx, ThU_melt, ThU_melt_1s,
             dfThU = Th232_U238 / ThU_melt * ((cfg.lam232 * exp(cfg.lam232 * t)
                     * den - exp(cfg.lam232 * t) * (cfg.lam238 * exp(cfg.lam238 * t)
                     + cfg.lam235 * np.exp(cfg.lam235 * t) / cfg.U)) / den ** 2)
-            df3 = dfThU * Lam238[0] / Lam238[2] * (coef238[7] * exp((Lam238[0] - Lam238[2]) * t)
-                    + coef238[8] * exp((Lam238[0] - Lam238[3]) * t) + exp(Lam238[0] * t)) \
-                    + fThU * Lam238[0] / Lam238[2] * (
-                          coef238[7] * (Lam238[0] - Lam238[2]) * exp((Lam238[0] - Lam238[2]) * t)
-                          + coef238[8] * (Lam238[0] - Lam238[3]) * exp((Lam238[0] - Lam238[3]) * t)
-                          + Lam238[0] * exp(Lam238[0] * t))
+            df3 = dfThU * lam238 / lam230 * (coef238[7] * exp((lam238 - lam230) * t)
+                    + coef238[8] * exp((lam238 - lam226) * t) + exp(lam238 * t)) \
+                    + fThU * lam238 / lam230 * (
+                          coef238[7] * (lam238 - lam230) * exp((lam238 - lam230) * t)
+                          + coef238[8] * (lam238 - lam226) * exp((lam238 - lam226) * t)
+                          + lam238 * exp(lam238 * t))
             dtdx = 1. / (df1 + df2 + df3 + df4)
 
             # dt/d(Th232_U238)
             num = x - (f1 + f2 + f4)
             dnum = - (df1 + df2 + df4)
             denu = fThU / Th232_U238
-            denv = Lam238[0] / Lam238[2] * (coef238[7] * exp((Lam238[0] - Lam238[2]) * t)
-                    + coef238[8] * exp((Lam238[0] - Lam238[3]) * t) + exp(Lam238[0] * t))
+            denv = lam238 / lam230 * (coef238[7] * exp((lam238 - lam230) * t)
+                    + coef238[8] * exp((lam238 - lam226) * t) + exp(lam238 * t))
             ddenu = dfThU / Th232_U238
-            ddenv = Lam238[0] / Lam238[2] * (coef238[7]
-                        * (Lam238[0] - Lam238[2]) * exp((Lam238[0] - Lam238[2]) * t)
-                        + coef238[8] * (Lam238[0] - Lam238[3]) * exp((Lam238[0] - Lam238[3]) * t)
-                        + Lam238[0] * exp(Lam238[0] * t))
+            ddenv = lam238 / lam230 * (coef238[7]
+                        * (lam238 - lam230) * exp((lam238 - lam230) * t)
+                        + coef238[8] * (lam238 - lam226) * exp((lam238 - lam226) * t)
+                        + lam238 * exp(lam238 * t))
             den = denu * denv
             dden = ddenu * denv + denu * ddenv
             dtdTh232U238 = den ** 2 / (dnum * den - num * dden)
@@ -1397,12 +1358,12 @@ def pbu_iterative_uncert(t, ThU_min, x, Vx, ThU_melt, ThU_melt_1s,
             # dt/d(ThU_melt)
             numu = fThU * ThU_melt
             dnumu = dfThU * ThU_melt
-            numv = Lam238[0] / Lam238[2] * (coef238[7] * exp((Lam238[0] - Lam238[2]) * t)
-                        + coef238[8] * exp((Lam238[0] - Lam238[3]) * t) + exp(Lam238[0] * t))
-            dnumv = Lam238[0] / Lam238[2] * (coef238[7]
-                        * (Lam238[0] - Lam238[2]) * exp((Lam238[0] - Lam238[2]) * t)
-                        + coef238[8] * (Lam238[0] - Lam238[3]) * exp((Lam238[0] - Lam238[3]) * t)
-                        + Lam238[0] * exp(Lam238[0] * t))
+            numv = lam238 / lam230 * (coef238[7] * exp((lam238 - lam230) * t)
+                        + coef238[8] * exp((lam238 - lam226) * t) + exp(lam238 * t))
+            dnumv = lam238 / lam230 * (coef238[7]
+                        * (lam238 - lam230) * exp((lam238 - lam230) * t)
+                        + coef238[8] * (lam238 - lam226) * exp((lam238 - lam226) * t)
+                        + lam238 * exp(lam238 * t))
             num = numu * numv
             dnum = dnumu * numv + numu * dnumv
             den = x - (f1 + f2 + f4)
@@ -1433,13 +1394,13 @@ def pbu_iterative_uncert(t, ThU_min, x, Vx, ThU_melt, ThU_melt_1s,
             dnum = df1 + df2 + df4
 
             denu = - Pb208_206 / ThU_melt * c
-            denv = Lam238[0]/Lam238[2] * (coef238[7] * exp((Lam238[0]-Lam238[2]) * t)
-                        + coef238[8] * exp((Lam238[0]-Lam238[3]) * t) + exp(Lam238[0]*t))
+            denv = lam238/lam230 * (coef238[7] * exp((lam238-lam230) * t)
+                        + coef238[8] * exp((lam238-lam226) * t) + exp(lam238*t))
             den = 1. + denu * denv
-            ddenv = Lam238[0] / Lam238[2] * (coef238[7] * (Lam238[0] - Lam238[2])
-                     * exp((Lam238[0] - Lam238[2]) * t) + coef238[8]
-                     * (Lam238[0] - Lam238[3]) * exp((Lam238[0] - Lam238[3]) * t)
-                        + Lam238[0] * exp(Lam238[0] * t))
+            ddenv = lam238 / lam230 * (coef238[7] * (lam238 - lam230)
+                     * exp((lam238 - lam230) * t) + coef238[8]
+                     * (lam238 - lam226) * exp((lam238 - lam226) * t)
+                        + lam238 * exp(lam238 * t))
             ddenu = - Pb208_206 / ThU_melt * dcdt
             dden = ddenu * denv + denu * ddenv
             dtdx = den ** 2 / (dnum * den - num * dden)
@@ -1447,12 +1408,12 @@ def pbu_iterative_uncert(t, ThU_min, x, Vx, ThU_melt, ThU_melt_1s,
             # dt/d(ThU_melt)
             numu = x * Pb208_206 * c
             dnumu = x * Pb208_206 * dcdt
-            numv = Lam238[0] / Lam238[2] * (coef238[7] * exp((Lam238[0] - Lam238[2]) * t)
-                        + coef238[8] * exp((Lam238[0] - Lam238[3]) * t) + exp(Lam238[0] * t))
-            dnumv = Lam238[0] / Lam238[2] * (coef238[7] * (Lam238[0] - Lam238[2])
-                         * exp((Lam238[0] - Lam238[2]) * t) + coef238[8]
-                         * (Lam238[0] - Lam238[3]) * exp((Lam238[0] - Lam238[3]) * t)
-                         + Lam238[0] * exp(Lam238[0] * t))
+            numv = lam238 / lam230 * (coef238[7] * exp((lam238 - lam230) * t)
+                        + coef238[8] * exp((lam238 - lam226) * t) + exp(lam238 * t))
+            dnumv = lam238 / lam230 * (coef238[7] * (lam238 - lam230)
+                         * exp((lam238 - lam230) * t) + coef238[8]
+                         * (lam238 - lam226) * exp((lam238 - lam226) * t)
+                         + lam238 * exp(lam238 * t))
             num = numu * numv
             dnum = dnumu * numv + numu * dnumv
             den = x - (f1 + f2 + f4)
@@ -1465,12 +1426,12 @@ def pbu_iterative_uncert(t, ThU_min, x, Vx, ThU_melt, ThU_melt_1s,
 
             denu = c / ThU_melt
             ddenu = dcdt / ThU_melt
-            denv = Lam238[0]/Lam238[2] * (coef238[7] * exp((Lam238[0]-Lam238[2]) * t)
-                    + coef238[8] * exp((Lam238[0]-Lam238[3]) * t) + exp(Lam238[0]*t))
-            ddenv = Lam238[0] / Lam238[2] * (coef238[7] * (Lam238[0] - Lam238[2])
-                        * exp((Lam238[0] - Lam238[2]) * t) + coef238[8]
-                        * (Lam238[0] - Lam238[3]) * exp((Lam238[0] - Lam238[3]) * t)
-                        + Lam238[0] * exp(Lam238[0] * t))
+            denv = lam238/lam230 * (coef238[7] * exp((lam238-lam230) * t)
+                    + coef238[8] * exp((lam238-lam226) * t) + exp(lam238*t))
+            ddenv = lam238 / lam230 * (coef238[7] * (lam238 - lam230)
+                        * exp((lam238 - lam230) * t) + coef238[8]
+                        * (lam238 - lam226) * exp((lam238 - lam226) * t)
+                        + lam238 * exp(lam238 * t))
 
             den = denu * denv
             dden = ddenu * denv + denu * ddenv
