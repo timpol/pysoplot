@@ -7,12 +7,14 @@ import warnings
 import numpy as np
 
 from scipy import integrate
-from scipy.interpolate import interp1d
+from scipy import optimize
 
 from . import plotting, ludwig
 from . import cfg
 from . import misc
 from . import useries
+from . import stats
+from .exceptions import ConvergenceError
 
 
 exp = np.exp
@@ -22,75 +24,93 @@ exp = np.exp
 # Concordia plotting routines
 #=================================
 
-def plot_concordia(ax, diagram, plot_markers=True, env=False,
-                   age_ellipses=False, marker_max=None, marker_ages=(),
-                   auto_markers=True, remove_overlaps=True, age_prefix='Ma'):
+def plot_concordia(ax, diagram='tw', point_markers=True, age_ellipses=False,
+        env=False, marker_max=None, marker_ages=(), auto_markers=True,
+        remove_overlaps=True, age_prefix='Ma'):
     """
-    Plot equilibrium U-Pb concordia curve on concordia diagram.
-    
+    Plot disequilibrium U-Pb concordia curve on concordia diagram.
+
     Parameters
     ----------
     ax : matplotlib.pyplot.Axes
         Axes object to plot concordia curve in.
     diagram : {'tw', 'wc'}
         Concordia diagram type.
-    marker_max: float, optional
+    point_markers : bool, optional
+        If True, plot concordia regular single point age markers.
+    age_ellipses : bool, optional
+        If True plot concordia age ellipse markers that represent effects
+        of decay constant uncertainties.
+    env : bool, optional
+        If True, plot concordia uncertainty envelope showing effects of
+        decay constant uncertainties on trajectory of concordia curve.
+    marker_max : float, optional
         User specified age marker max (Ma).
+    marker_ages : array-like, optional
+        List of user defined age marker locations (in same units as age_prefix).
+    auto_markers : bool, optional
+        If True, this function will attempt to find the most suitable
+        concordia age marker locations.
+    remove_overlaps : bool, optional
+        If True, this function will remove first overlapping concordia age
+        marker and all older labels.
 
     Raises
     -------
     UserWarning: if concordia lies entirely outside the axis limits.
-    
+
     """
+    assert diagram in ('tw', 'wc'), "diagram must be 'wc' (Wetheril) or 'tw' (Tera-Wasserburg)"
+    assert ax.get_xlim()[1] > ax.get_xlim()[0], 'x-axis limits must be in ascending order'
+    assert ax.get_ylim()[1] > ax.get_ylim()[0], 'y-axis limits must be in ascending order'
 
-    assert diagram in ('wc', 'tw')
-    # get hard age bounds
-    t_bounds = cfg.conc_age_bounds
+    ax.autoscale(enable=False, axis='both')     # freeze axis limits
+
+    # ...
+    tbounds = cfg.conc_age_bounds
     if auto_markers and (marker_max is not None):
-        if not marker_max > t_bounds[0]:
-            raise ValueError('marker_max value must be greater than the lower conc_age_bound value')
+        if not marker_max > tbounds[0]:
+            raise ValueError('marker_max value must be greater than the lower '
+                             'conc_age_bound value')
 
-    # get t values at axis extremes
-    t_limits, nsegs, code = age_limits(ax, diagram, t_bounds=t_bounds)
-    if nsegs > 1:
-        raise ValueError('cannot have more than 1 concordia segment '
-                         'for equilibrium concordia')
-    if code != 0:
-        return  # outside axis limits
-
-    t_limits = t_limits[0]
+    code, tlim = eq_age_limits(ax, diagram=diagram, tlim=(0.001, 4600.))
+    if code == 1:
+        warnings.warn('concordia appears to lie entirely outside axis limits')
+        return
 
     # get equally spaced points
-    xy = equi_points(*t_limits, ax.get_xlim(), ax.get_ylim(), diagram)[1:]
+    ct, cx, cy = eq_equi_points(*tlim, ax.get_xlim(), ax.get_ylim(),
+                             diagram, ngp=500_000, n=100)
     # plot line
-    ax.plot(*xy, **cfg.conc_line_kw, label='concordia line')
+    ax.plot(cx, cy, **cfg.conc_line_kw, label='concordia line')
     # plot envelope
     if env:
-        plot_envelope(ax, diagram)
-    # plot markers
-    if plot_markers:
-        if auto_markers and (marker_max is not None) and (marker_max < t_limits[1]):
-            t_limits[1] = marker_max
-            if marker_max < t_limits[0]:
-                warnings.warn('marker_max age is less than auto lower limit - no markers to plot')
+        plot_envelope(ax, diagram, xc=cx)
+    if point_markers or age_ellipses:
+        if auto_markers and (marker_max is not None) and (marker_max < tlim[1]):
+            tlim[1] = marker_max
+            if marker_max < tlim[0]:
+                warnings.warn('marker_max age is less than auto lower limit '
+                              '- no markers to plot')
                 return
-        markers = get_age_markers(ax, *t_limits, t_bounds, diagram, auto=auto_markers,
-                                  marker_ages=marker_ages, ell=age_ellipses,
-                                  age_prefix=age_prefix)
-        markers = plot_age_markers(ax, markers)
+        markers_dict = generate_age_markers(ax, *tlim, tbounds, diagram,
+                auto=auto_markers, marker_ages=marker_ages,
+                ell=age_ellipses, age_prefix=age_prefix,
+                point_markers=point_markers)
+        markers_dict = plot_age_markers(ax, markers_dict)
+
         # label markers
         if cfg.individualised_labels:
-            individualised_labels(ax, markers, diagram,
+            individualised_labels(ax, markers_dict, diagram,
                                   remove_overlaps=remove_overlaps)
         else:
-            labels(ax, markers)
+            labels(ax, markers_dict)
 
 
-def plot_diseq_concordia(ax, A, init, diagram, sA=None, age_ellipses=False,
-                         plot_markers=True, marker_max=None, env=False, env_method='mc',
-                         marker_ages=(), auto_markers=True, spaghetti=False, pA=None,
-                         remove_overlaps=True, env_trials=1_000, negative_ratios=True,
-                         age_prefix='Ma', ):
+def plot_diseq_concordia(ax, A, meas, sA=None, diagram='tw', env=False,
+            point_markers=True, age_ellipses=False, marker_max=None,
+            marker_ages=(), auto_markers=True, remove_overlaps=True,
+            age_prefix='Ma', spaghetti=False):
     """
     Plot disequilibrium U-Pb concordia curve on concordia diagram.
 
@@ -101,124 +121,129 @@ def plot_diseq_concordia(ax, A, init, diagram, sA=None, age_ellipses=False,
     A : array-like
         one-dimensional array of activity ratio values arranged as follows
         - [234U/238U], [230Th/238U], [226Ra/238U], [231Pa/235U]
-    init : array-like
+    meas : array-like
         two-element list of boolean values, the first is True if [234U/238U]
-        is an initial value and False if a present-day value, the second is True
-        if [230Th/238U] is an initial value and False if a present-day value
+        is a present-day value and False if an initial value, the second is True
+        if [230Th/238U] is an present-day value and False if an initial value
     sA : array-like, optional
         one-dimensional array of activity ratio value uncertainties given
         as 1 sigma absolute and arranged in the same order as A
     diagram : {'tw', 'wc'}
         Concordia diagram type.
-    marker_max: float, optional
+    point_markers : bool, optional
+        If True, plot concordia regular single point age markers.
+    age_ellipses : bool, optional
+        If True plot concordia age ellipse markers that represent effects
+        of decay constant uncertainties.
+    env : bool, optional
+        If True, plot concordia uncertainty envelope showing effects of
+        decay constant uncertainties on trajectory of concordia curve.
+    marker_max : float, optional
         User specified age marker max (Ma).
+    marker_ages : array-like, optional
+        List of user defined age marker locations (in same units as age_prefix).
+    auto_markers : bool, optional
+        If True, this function will attempt to find the most suitable
+        concordia age marker locations.
+    remove_overlaps : bool, optional
+        If True, this function will remove first overlapping concordia age
+        marker and all older labels.
     spaghetti : bool
-        plot each simulated line using arbitrary colours
+        Plot each simulated line using arbitrary colours (no longer used).
 
     Raises
     -------
     UserWarning: if concordia lies entirely outside the axis limits.
 
     """
-    # get hard age limits depending on which (if any) activity ratios are
-    # present values
-    if not init[1]:
-        t_bounds = cfg.diseq_conc_age_bounds[2]
-    elif not init[0]:
-        t_bounds = cfg.diseq_conc_age_bounds[1]
+    assert diagram == 'tw', 'Wetheril concordia not yet implemented'
+    assert ax.get_xlim()[1] > ax.get_xlim()[0], 'x-axis limits must be in ascending order'
+    assert ax.get_ylim()[1] > ax.get_ylim()[0], 'y-axis limits must be in ascending order'
+    if env or age_ellipses:
+        assert sA is not None, 'sA must be given to plot concordia envelope or age ellipses'
+
+    ax.autoscale(enable=False, axis='both')     # freeze axis limits
+
+    # Get hard age limits.
+    if meas[1]:
+        tbounds = cfg.diseq_conc_age_bounds[2]
+    elif meas[0]:
+        tbounds = cfg.diseq_conc_age_bounds[1]
     else:
-        t_bounds = cfg.diseq_conc_age_bounds[0]
+        tbounds = cfg.diseq_conc_age_bounds[0]
 
-    # get t-limits
-    t_limits, nsegs, code = age_limits(ax, diagram, eq=False, A=A, init=init,
-                                       t_bounds=t_bounds)
+    if auto_markers and (marker_max is not None):
+        if not marker_max > tbounds[0]:
+            raise ValueError('marker_max value must be greater than the lower '
+                             'conc_age_bound value')
 
-    if code != 0:
-        return  # outside axis limits
+    code, tlim, tbounds = diseq_age_limits(ax, A, meas, diagram='tw', tbounds=tbounds,
+                                  max_age=marker_max)
+    if code == 1:
+        warnings.warn('concordia appears to lie entirely outside axis limits')
+        return
 
-    for s in range(nsegs):
-        # get equally spaced x, y points
-        t, x, y = diseq_equi_points(*t_limits[s], ax.get_xlim(), ax.get_ylim(),
-                                    A, init, diagram)
+    # get equally spaced points
+    ct, cx, cy = diseq_equi_points(*tlim, ax.get_xlim(), ax.get_ylim(), A, meas,
+                        diagram, ngp=500_000, n=100)
+    # plot line
+    ax.plot(cx, cy, **cfg.conc_line_kw, label='concordia line')
 
-        # plot line
-        ax.plot(x, y, **cfg.conc_line_kw, label='concordia line')
-        # plot envelope
-        if env:
-            if s > 0:
-                warnings.warn('concordia envelope for first segment only will be plotted')
-            else:
-                if sA is None or all([x == 0 for x in sA]):
-                    warnings.warn('cannot plot disequilibrium concordia age ellipses if no '
-                              'uncertainity assigned to activity ratios')
-                else:
-                    assert env_method in ('mc', 'analytical')
-                    if env_method == 'mc':
-                        # only plot envelope for first segment for now
-                        mc_diseq_envelope(ax, t_limits[s], t_bounds, A, sA,
-                                  diagram='tw', init=init, trials=env_trials,
-                                  spaghetti=spaghetti, negative_ratios=negative_ratios,
-                                  pA=pA)
-                    # else:
-                        # analytical_diseq_envelope(ax, t, A, sA, 'tw', init=init)
+    # Check if activity ratios are resolvable from equilibrium. Do not plot
+    # envelope or ellipses if not.
+    # Check measured activity ratios.
+    if env or age_ellipses:
+        if meas[0]:
+            p = stats.two_sample_p(A[0], sA[0], cfg.a234_238_eq, cfg.a234_238_eq_1s)
+            if p > 0.05:
+                warnings.warn(f'cannot plot concordia envelope or age ellipses if '
+                        f'[234U/238U] is not sufficiently resolved from equilibrium')
+                env, age_ellipses = False, False
+        if meas[1]:
+            p = stats.two_sample_p(A[0], sA[0], cfg.a234_238_eq, cfg.a234_238_eq_1s)
+            if p > 0.05:
+                warnings.warn(f'cannot plot concordia envelope or age ellipses if '
+                        f'[230Th/238U] is not sufficiently resolved from equilibrium')
+                env, age_ellipses = False, False
 
-    # plot markers
-    if plot_markers:
-        if auto_markers and marker_max is not None and marker_max < t_limits[0][1]:
-            t_limits[0][1] = marker_max
-            if marker_max < t_limits[0][0]:
+    # plot envelope
+    pA = None
+    if env:
+        pA = plot_diseq_envelope(ax, ct, cx, cy, *tlim, tbounds, A, sA, meas,
+                            diagram='tw', trials=10_000, spaghetti=False)
+    if point_markers or age_ellipses:
+        if auto_markers and (marker_max is not None) and (marker_max < tlim[1]):
+            tlim[1] = marker_max
+            if marker_max < tlim[0]:
+                warnings.warn('marker_max age is less than auto lower limit '
+                              '- no markers to plot')
                 return
-        if age_ellipses and (sA is None or all([x == 0 for x in sA])):
-            warnings.warn('cannot plot disequilibrium concordia age ellipses if no '
+            if age_ellipses and (sA is None or all([x == 0 for x in sA])):
+                warnings.warn('cannot plot disequilibrium concordia age ellipses if no '
                           'uncertainity assigned to activity ratios')
-            return
-
-        # plot markers for first segment...
-        markers = get_age_markers(ax, *t_limits[0], t_bounds, diagram, A=A, sA=sA,
-                                  init=init, eq=False, ell=age_ellipses, auto=auto_markers,
-                                  marker_ages=marker_ages, negative_ratios=negative_ratios,
-                                  age_prefix=age_prefix)
-        markers = plot_age_markers(ax, markers)
-        # plot markers for second segment...
-        if nsegs > 1:
-            if auto_markers and (marker_max is not None) and marker_max < t_limits[1][1]:
-                t_limits[1][1] = marker_max
-                if marker_max < t_limits[1][0]:
+                if not point_markers:
                     return
-            markers = segment_2_markers(t_limits, markers)
-            markers = plot_age_markers(ax, markers)
+                age_ellipses = False
+        markers_dict = generate_age_markers(ax, *tlim, tbounds, diagram,
+                        A=A, sA=sA, meas=meas, auto=auto_markers,
+                        marker_ages=marker_ages, eq=False,
+                        ell=age_ellipses, age_prefix=age_prefix,
+                        point_markers=point_markers)
+        markers_dict = plot_age_markers(ax, markers_dict, pA=pA)
+
         # label markers
         if cfg.individualised_labels:
-            individualised_labels(ax, markers, diagram, eq=False, A=A, init=init,
+            individualised_labels(ax, markers_dict, diagram,
                                   remove_overlaps=remove_overlaps)
         else:
-            labels(ax, markers)
-
-
-def segment_2_markers(t_bounds, markers):
-    """ Function for adding markers to the second concordia
-    segment (uses spacing etc. from first segement).
-    """
-    t0 = markers['t'][0]
-    dt = markers['dt']
-    t1, t2 = t_bounds[1]
-    t = np.arange(t0, t2 + dt, dt)
-    if np.all(markers['add_label']):
-        add_label = [True for x in range(len(t))]
-    else:
-        den = 2 if markers['add_label'] else 1
-        add_label = [True if i % den == 0 else False for i, x in
-                        enumerate(range(len(t)))]
-    markers['t'] = t
-    markers['add_label'] = add_label
-    return markers
+            labels(ax, markers_dict)
 
 
 #==============================================================================
 # Eq concordia functions
 #==============================================================================
 
-def conc_xy(t, diagram):
+def eq_xy(t, diagram):
     """
     Return x, y for given t along (equilibrium) concordia curve.
     """
@@ -232,7 +257,7 @@ def conc_xy(t, diagram):
     return x, y
 
 
-def conc_age_x(x, diagram):
+def eq_age_x(x, diagram):
     """
     Age of point on concordia at given x value.
     """
@@ -244,7 +269,7 @@ def conc_age_x(x, diagram):
     return t
 
 
-def conc_slope(t, diagram):
+def eq_slope(t, diagram):
     """
     Compute tangent to concordia at given t. I.e. dy/dx for given t.
     """
@@ -260,7 +285,7 @@ def conc_slope(t, diagram):
         return dy / dx
 
 
-def conc_age_ellipse(t, diagram):
+def eq_age_ellipse(t, diagram):
     """
     Age ellipse params for displaying effects of decay constant
     errors on equilibrium concordia age markers. Requires computing uncertainty
@@ -273,15 +298,16 @@ def conc_age_ellipse(t, diagram):
         sy = t * exp(lam238 * t) * s238
         cov_xy = 0. * t                         # float or array of zeros
     else:
-        x, y = conc_xy(t, diagram)
+        x, y = eq_xy(t, diagram)
         sx = - x ** 2 * t * exp(lam238 * t) * s238
         sy = x * t * np.sqrt((exp(lam235 * t) * s235 / cfg.U) ** 2 + (
                 (y * exp(lam238 * t) * s238) ** 2))
         cov_xy = x ** 3 * y * (t * exp(lam238 * t) * s238) ** 2
-    return sx, sy, cov_xy
+    r_xy = cov_xy / (sx * sy)
+    return sx, sy, r_xy
 
 
-def conc_envelope(x, diagram):
+def eq_envelope(x, diagram):
     """
     Uncertainty in y for a given x value along the concordia to
     display the effects of decay constant errors on trajectory of the concordia
@@ -290,7 +316,7 @@ def conc_envelope(x, diagram):
     """
     assert diagram in ('tw', 'wc')
     lam238, lam235, s238, s235 = cfg.lam238, cfg.lam235, cfg.s238, cfg.s235
-    t = conc_age_x(x, diagram)
+    t = eq_age_x(x, diagram)
     if diagram == 'wc':
         sy =  t * exp(lam238 * t) * np.sqrt(s238 ** 2
                 + (lam238 / lam235 * s235) ** 2)
@@ -300,22 +326,22 @@ def conc_envelope(x, diagram):
     return sy
 
 
-def velocity(t, xlim, ylim, diagram):
+def eq_velocity(t, xlim, ylim, diagram):
     """
-    Estimate dr/dt, which is "velocity" along an equilibrium concordia curve in
+    Estimate dr/dt, which is "eq_velocity" along an equilibrium concordia curve in
     x-y space. Uses axis coordinates to circumvent scaling issues.
     """
     # TODO: this could be calculated analytically for eq case ??
     h = 1e-08 * t
     xspan = xlim[1] - xlim[0]
     yspan = ylim[1] - ylim[0]
-    x2, y2 = conc_xy(t + h, diagram)
-    x1, y1 = conc_xy(t - h, diagram)
+    x2, y2 = eq_xy(t + h, diagram)
+    x1, y1 = eq_xy(t - h, diagram)
     v = np.sqrt(((x2 - x1) / xspan) ** 2 + ((y2 - y1) / yspan) ** 2) / (2. * h)
     return v
 
 
-def equi_points(t1, t2, xlim, ylim, diagram, ngp=500_000, n=500):
+def eq_equi_points(t1, t2, xlim, ylim, diagram, ngp=500_000, n=500):
     """
     Uses numerical method to obtain age points that are approximately evenly
     spaced in x, y along equilibrium U-Pb concordia between age limits t1 and t2.
@@ -325,130 +351,227 @@ def equi_points(t1, t2, xlim, ylim, diagram, ngp=500_000, n=500):
     t = np.linspace(t1, t2, ngp)
     # suppress numpy warnings
     with np.errstate(all='ignore'):
-        dr = velocity(t, xlim, ylim, diagram)
-    # Cumulative integrated area under velocity curve (aka cumulative
+        dr = eq_velocity(t, xlim, ylim, diagram)
+    # Cumulative integrated area under eq_velocity curve (aka cumulative
     # "distance") at each t_j from t1 to t2:
     cum_r = integrate.cumtrapz(dr, t, initial=0)
-    # Divide cumulative area under velocity curve into equal portions.
+    # Divide cumulative area under eq_velocity curve into equal portions.
     rj = np.arange(n + 1) * cum_r[-1] / n
     # Find t_j value at each r_j:
     idx = np.searchsorted(cum_r, rj, side="left")
     idx[-1] = ngp - 1 if idx[-1] >= ngp else idx[-1]
     t = t[idx]
-    x, y = conc_xy(t, diagram)
+    x, y = eq_xy(t, diagram)
     return t, x, y
+
+
+def eq_age_limits(ax, diagram='tw', tlim=(0.001, 4600.)):
+    """
+
+    """
+    assert diagram in ('tw', 'wc'), "diagram must be 'wc' (Wetheril) or 'tw' (Tera-Wasserburg)"
+
+    ax_xmin, ax_xmax = ax.get_xlim()
+    ax_ymin, ax_ymax = ax.get_ylim()
+
+    # --- testing ----
+    # tt = np.linspace(1e-03, 4.6e3, 100_000)
+    # xx, yy = eq_xy(tt, diagram)
+    # ax.plot(xx, yy, 'ro')
+    # ax.get_figure().show()
+    # -----------
+
+    # cx_min, cy_max = eq_xy(tlim[1], diagram)
+    # cx_max, cy_min = eq_xy(tlim[0], diagram)
+    cx_min, cy_min = eq_xy(tlim[0], diagram)
+    cx_max, cy_max = eq_xy(tlim[1], diagram)
+    if diagram == 'tw':
+        cx_min, cx_max = cx_max, cx_min
+
+    # rest ax limits if they extend past hard concordia limits:
+    if ax_xmin < cx_min:
+        ax_xmin = cx_min
+    if ax_xmax > cx_max:
+        ax_xmax = cx_max
+    if ax_ymin < cy_min:
+        ax_ymin = cy_min
+    if ax_ymax > cy_max:
+        ax_ymax = cy_max
+
+    t_min, t_max = None, None
+
+    if diagram == 'tw':
+
+        t_xmax = 1. / cfg.lam238 * np.log(1. / ax_xmax + 1.)
+        t_xmin = 1. / cfg.lam238 * np.log(1. / ax_xmin + 1.)
+
+        # check bottom left corner of ax is not above / right of concordia curve
+        if eq_xy(t_xmin, diagram)[1] < ax_ymin:
+            return 1, [t_min, t_max]
+        # check top right corner of ax is not below / left of concordia curve
+        if eq_xy(t_xmax, diagram)[1] > ax_ymax:
+            return 1, [t_min, t_max]
+
+        # check curve goes through ax_xmax b/w ylim
+        if ax_ymin < eq_xy(t_xmax, diagram)[1] < ax_ymax:
+            t_min = t_xmax
+        # check if curve intersects ymin b/w xlim
+        else:
+            r = optimize.brentq(lambda t: eq_xy(t, diagram)[1] - ax_ymin,
+                                4.6e3, 1e-3, full_output=True, disp=False)
+            if r[1].converged:
+                t_min = r[0]
+            else:
+                return -1, [t_min, t_max]
+
+        # get max t value
+        if ax_ymin < eq_xy(t_xmin, diagram)[1] < ax_ymax:
+            t_max = t_xmin
+        else:
+            r = optimize.brentq(lambda t: eq_xy(t, diagram)[1] - ax_ymax,
+                                4.6e3, 1e-3, full_output=True, disp=False)
+            if r[1].converged:
+                t_max = r[0]
+            else:
+                return -1, [t_min, t_max]
+
+    elif diagram == 'wc':
+
+        t_ymax = 1. / cfg.lam238 * np.log(ax_ymax + 1.)
+        t_ymin = 1. / cfg.lam238 * np.log(ax_ymin + 1.)
+
+        # check bottom left corner of axes is not above / left of concordia curve
+        if eq_xy(t_ymin, diagram)[0] > ax_xmax:
+            return 1, [t_min, t_max]
+        # check top left corner of axes is not below / left of concordia curve
+        if eq_xy(t_ymax, diagram)[0] < ax_xmin:
+            return 1, [t_min, t_max]
+
+        # get min t value
+        # check curve goes through ax_ymin b/w xlim
+        if ax_xmin < eq_xy(t_ymin, diagram)[0] < ax_xmax:
+            t_min = t_ymin
+        # check if curve intersects ymin b/w xlim
+        else:
+            r = optimize.brentq(lambda t: eq_xy(t, diagram)[0] - ax_xmin,
+                                4.6e3, 1e-3, full_output=True, disp=False)
+            if r[1].converged:
+                t_min = r[0]
+            else:
+                return -1, [t_min, t_max]
+
+        # get max t value
+        if ax_xmin < eq_xy(t_ymax, diagram)[1] < ax_xmax:
+            t_max = t_ymax
+        else:
+            r = optimize.brentq(lambda t: eq_xy(t, diagram)[0] - ax_xmax,
+                                4.6e3, 1e-3, full_output=True, disp=False)
+            if r[1].converged:
+                t_max = r[0]
+            else:
+                return -1, [t_min, t_max]
+
+    return 0, [t_min, t_max]
 
 
 #==============================================================
 # Diseq concordia functions
 #==============================================================
 
-def diseq_xy(t, A, init, diagram):
+def diseq_xy(t, A, meas, diagram):
     """Return x, y for given t along disequilibrium concordia curve.
     """
     assert diagram in ('tw', 'wc')
-    Lam238 = np.array((cfg.lam238, cfg.lam234, cfg.lam230, cfg.lam226))
-    Lam235 = np.array((cfg.lam235, cfg.lam231))
-    coef238 = ludwig.bateman(Lam238)
-    coef235 = ludwig.bateman(Lam235, series='235U')
     if diagram == 'tw':
-        x = 1. / ludwig.f(t, A[:-1], Lam238, coef238, init=init)
-        y = ludwig.g(t, A[-1], Lam235, coef235) * x / cfg.U
+        x = 1. / ludwig.f(t, A[:-1], meas=meas)
+        y = ludwig.g(t, A[-1]) * x / cfg.U
     elif diagram == 'wc':
-        y = ludwig.f(t, A[:-1], Lam238, coef238, init=init)
-        x = ludwig.g(t, A[-1], Lam235, coef235)
+        y = ludwig.f(t, A[:-1], meas=meas)
+        x = ludwig.g(t, A[-1])
     return x, y
 
 
-def diseq_dxdt(t, A, init, diagram):
+def diseq_dxdt(t, A, meas, diagram):
     """
     Return x given t along disequilibrium concordia curve.
     Used e.g. to compute dx/dt
     """
     assert diagram == 'tw'
     def conc_x(t):
-        x, _ = diseq_xy(t, A, init, diagram)
+        x, _ = diseq_xy(t, A, meas, diagram)
         return x
     h = abs(t) * np.sqrt(np.finfo(float).eps)
     dxdt = misc.cdiff(t, conc_x, h)
     return dxdt
 
 
-def diseq_slope(t, A, init, diagram):
+def diseq_slope(t, A, meas, diagram):
     """
     Compute tangent to concordia at given t. I.e. dy/dx for given t.
     """
     h = np.sqrt(np.finfo(float).eps) * t
-    x2, y2 = diseq_xy(t + h, A, init, diagram)
-    x1, y1 = diseq_xy(t - h, A, init, diagram)
+    x2, y2 = diseq_xy(t + h, A, meas, diagram)
+    x1, y1 = diseq_xy(t - h, A, meas, diagram)
     return (y2 - y1) / (x2 - x1)
 
 
-def diseq_age_ellipse(t, A, sA, init, diagram, pA=None, trials=1_000,
-                     negative_ratios=True):
+def diseq_age_ellipse(t, A, sA, meas, trials=1_000, pA=None, diagram='tw'):
     """
     Plot disequilibrium concordia marker as an "age ellipse" which provides
     a visual representation of uncertainty in x-y for given t value arising from
     uncertainties in activity ratio values.
     """
+    assert diagram == 'tw', 'can only plot ellipses for Tera-Wasserburg diagram ' \
+                            'at present'
+
+    # do monte carlo simulation
+    #TODO: should take in activity ratios?
     if pA is None:
         pA = cfg.rng.normal(A, sA, (trials, 4))
-        if not negative_ratios:
-            warnings.warn('concordia age ellipse plotting routine does not yet account '
-                          'for rejected negative activity ratios')
     else:
         assert pA.shape[1] == 4
 
     flags = np.zeros(trials)
-    # check for negative initial [234U/238U] and [230Th/238U] solutions and
-    # raise warning if too many found.
-    # TODO: in future negative ar solutions may be rejected?
-    if not init[0]:
-        A48i = useries.ar48i(t, pA[:, 0], cfg.lam238, cfg.lam234)
-        flags = np.where(A48i < 0, -1, 0)
-    if not init[1]:
-        A08i = useries.ar08i(t, pA[:, 0], pA[:, 1], cfg.lam238, cfg.lam234,
-                             cfg.lam230, init=init[0])
-        flags = np.where((A08i < 0) & (flags == 0), -2, 0)
+
+    if meas[0]:
+        a234_238_i = useries.aratio48i(t, pA[:, 0])
+        flags = np.where(a234_238_i < 0, -1, 0)
+    if meas[1]:
+        a230_238_i = useries.aratio08i(t, pA[:, 0], pA[:, 1], init= not meas[0])
+        flags = np.where((a230_238_i < 0) & (flags == 0), -2, 0)
 
     if sum(flags != 0) > (0.99 * trials):
-        msg = f'{sum(flags != 0)}/{trials} negative activity ratio soln. values in age ellipse t = {t} Ma'
+        msg = f'{sum(flags != 0)}/{trials} negative activity ratio soln. ' \
+              f'values in age ellipse t = {t:.3f} Ma'
         warnings.warn(msg)
 
-    # Compute ellipse params
-    pA = np.transpose(pA)
-    xpts, ypts = diseq_xy(t, pA, init, diagram)
-    xy = np.vstack((xpts, ypts))
+    x, y = diseq_xy(t, A, meas, 'tw')    # centre point
+    xpts, ypts = diseq_xy(t, np.transpose(pA), meas, 'tw')
 
-    V = np.cov(xy)
-    x, y = np.nanmean(xy, axis=1)
-    sx, sy = np.sqrt(V.diagonal())
-    cov_xy = V[0, 1]
-    # r_xy = cov_xy / (sx * sy)
+    V_xy = np.cov(np.array([xpts, ypts]))
+    sx, sy = np.sqrt(np.diag(V_xy))
+    r_xy = V_xy[0, 1] / (sx * sy)
+
+    if np.isclose(abs(r_xy), 1.0):
+        #TODO: review this
+        r_xy = (1. - 1e-08) * np.sign(r_xy)
 
     # reset r_xy for special cases:
     if sA[-1] == 0:
         if any(np.asarray(sA[:2]) != 0):
-            r_xy = 1. - 1e-09
-            cov_xy = r_xy * sx * sy
-        pass
+            r_xy = 1. - 1e-08
     else:
         if all((x == 0 for x in sA[:2])):
             sx = 0.
             r_xy = 0.
-            cov_xy = r_xy * sx * sy
 
-    # cov = np.array([[sx ** 2, r_xy * sx * sy],
-    #                 [r_xy * sx * sy, sy ** 2]])
-
-    return x, y, sx, sy, cov_xy
+    return x, y, sx, sy, r_xy
 
 
-def diseq_equi_points(t1, t2, xlim, ylim, A, init, diagram, ngp=500_000, n=500):
+def diseq_equi_points(t1, t2, xlim, ylim, A, meas, diagram, ngp=500_000, n=500):
     """
     Return ages that give equally spaced x, y points along disequilbrium
     concordia between upper and lower age limits.
-
     """
     # TODO: this needs further debugging, sometimes returns t of length n + 1,
     #        also occasionally returns duplicate t values.
@@ -456,30 +579,30 @@ def diseq_equi_points(t1, t2, xlim, ylim, A, init, diagram, ngp=500_000, n=500):
     t = np.linspace(t1, t2, ngp)
     # suppress numpy warnings
     with np.errstate(all='ignore'):
-        dr = diseq_velocity(t, xlim, ylim, A, init, diagram)
-    # Cumulative integrated area under velocity curve (aka cumulative
+        dr = diseq_velocity(t, xlim, ylim, A, meas, diagram)
+    # Cumulative integrated area under eq_velocity curve (aka cumulative
     # "distance") at each t_j from t1 to t2:
     cum_r = integrate.cumtrapz(dr, t, initial=0)
-    # Divide cumulative area under velocity curve into equal portions.
+    # Divide cumulative area under eq_velocity curve into equal portions.
     rj = np.arange(n + 1) * cum_r[-1] / n
     # Find t_j value at each r_j:
     idx = np.searchsorted(cum_r, rj, side="left")
     idx[-1] = ngp - 1 if idx[-1] >= ngp else idx[-1]
     t = t[idx]
-    x, y = diseq_xy(t, A, init, diagram)
+    x, y = diseq_xy(t, A, meas, diagram)
     return t, x, y
 
 
-def diseq_velocity(t, xlim, ylim, A, init, diagram):
+def diseq_velocity(t, xlim, ylim, A, meas, diagram):
     """
-    Estimate dr/dt, which is "velocity" along a diseq concordia curve in
+    Estimate dr/dt, which is "eq_velocity" along a diseq concordia curve in
     x-y space. Uses axis coordinates to circumvent scaling issues.
     """
     h = 1e-08 * t
     xspan = xlim[1] - xlim[0]
     yspan = ylim[1] - ylim[0]
-    x2, y2 = diseq_xy(t + h, A, init, diagram)
-    x1, y1 = diseq_xy(t - h, A, init, diagram)
+    x2, y2 = diseq_xy(t + h, A, meas, diagram)
+    x1, y1 = diseq_xy(t - h, A, meas, diagram)
     v = np.sqrt(((x2 - x1) / xspan) ** 2 + ((y2 - y1) / yspan) ** 2) / (2. * h)
     return v
 
@@ -488,317 +611,216 @@ def diseq_velocity(t, xlim, ylim, A, init, diagram):
 # Concordia age bound functions
 #=================================
 
-def age_limits(ax, diagram, eq=True, A=None, init=(True, True),
-               t_bounds=cfg.conc_age_bounds, max_tries=3):
+def diseq_age_limits(ax, A, meas, diagram='tw', tbounds=(0.010, 100.),
+                     max_age=10.):
     """
-    Find concordia age limits at axis window boundaries. Will return age bound
-    if it is inside the axis window.
+    Find the age limits of a disequilibrium concordia curve segment
+    that plots within the given axis limits.
 
-    """
-    if not eq:
-        assert A is not None
-
-    code = 0
-    tmin, tmax = t_bounds           # maximum and miniumum plotted age
-    xmin, xmax = ax.get_xlim()
-    ymin, ymax = ax.get_ylim()
-
-    # Get starting points:
-    # Generate evenly spaced points in time and check which are in axis window.
-    npts = 100_000
-    for i in range(max_tries):
-        tv = np.linspace(tmin, tmax, npts)
-        # suppress numpy warnings:
-        with np.errstate(all='ignore'):
-            if eq:
-                x, y = conc_xy(tv, diagram)
-            else:
-                x, y = diseq_xy(tv, A, init, diagram)
-
-        # check if points are inside plot window:
-        inside = np.logical_and(np.logical_and(xmin < x, x < xmax),
-                                np.logical_and(ymin < y, y < ymax))
-
-        if np.sum(inside) < 10:
-            if np.sum(inside) == 0 and i == max_tries - 1:
-                warnings.warn('concordia curve appears to lie outside plot window')
-                code = 1
-                return None, 0, code
-            else:
-                npts *= 10  # increase number of points and try again
-        else:
-            break
-
-    limits0, nsegs = t_limits_from_cp(tv, inside, eq=eq, tmin=tmin, tmax=tmax)
-
-    limits = []     # both sets of limits (if 2 segments)
-
-    # Refine age limits by starting at points in box and incrementally
-    # moving out until the boundary is encountered:
-    # for l in limits0:
-    for l0 in limits0:
-
-        l0 = np.sort(l0)
-        l = np.zeros(2)
-
-        # Lower age limit
-        if l0[0] == t_bounds[0]:    # lower bound inside window - no need to refine
-            l[0] = l0[0]
-        else:
-            l[0], code = refine_t_limit(l0, t_bounds, (xmin, xmax), (ymin, ymax),
-                            eq=eq, increasing_t=False, diagram=diagram, ell=False,
-                            ax=ax, A=A, init=init)
-            if code != 0:
-                raise ValueError('failed to find concordia envelope lower age limit')
-
-        # Upper age limit
-        if l0[1] == t_bounds[1]:  # upper bound inside window - no need to refine
-            l[1] = l0[1]
-        else:
-            l[1], code = refine_t_limit(l0, t_bounds, (xmin, xmax), (ymin, ymax),
-                            eq=eq, increasing_t=True, diagram=diagram, ell=False,
-                            A=A, init=init, ax=ax)
-            if code != 0:
-                raise ValueError('failed to find concordia envelope upper age limit')
-
-        # reset limit if outside bounds
-        # TODO: shouldn't need this but just in case?
-        if l[0] < t_bounds[0]:
-            l[0] = t_bounds[0]
-        if l[1] > t_bounds[1]:
-            l[1] = t_bounds[1]
-
-        limits.append(l)
-
-    return limits, nsegs, code
-
-
-def t_limits_from_cp(t, inside, tmin, tmax, eq=True):
-    """
-    Get estimated concordia age bounds from arbitrary age points within
-    the plot window.
+    Uses a brute force method to find approximate limits, then refines these
+    using Newton's method.
 
     """
-    # Get indices of inside / outside change points for different cases:
-    idx = np.where(np.diff(inside) != 0)[0]
-    limits0 = []
-    nsegs = 1
+    assert diagram == 'tw', 'Wetheril concordia not yet implemented'
 
-    if eq and len(idx) > 2:
-        raise RuntimeError('cannot have more than two change points for '
-                           'equilibrium concordia')
-
-    if len(idx) == 0:
-        limits0 = [[tmin, tmax]]
-
-    elif len(idx) == 1:  # either tmin or tmax in box
-        if inside[0]:
-            limits0 = [[tmin, t[idx[0]]]]
-        else:
-            limits0 = [[t[idx[0] + 1], tmax]]
-
-    elif len(idx) == 2:  # neither tmin nor tmax in box
-        limits0 = [[t[idx[1]], t[idx[0] + 1]]]
-
-    else:   # 2 segments
-        nsegs = 2
-        if len(idx) == 3:  # 3 points inside
-            pass
-
-        if len(idx) == 4:  # 4 points inside
-            # deal with first segment:
-            if idx[1] - idx[0] == 1:    # one point inside
-                limits0.append([t[idx[0] + 1], t[idx[0] + 1]])
-            else:
-                limits0.append([t[idx[0] + 1], t[idx[1]]])
-
-            # deal with second segment:
-            if idx[3] - idx[2] == 1:    # one point inside
-                limits0.append([t[idx[2] + 1], t[idx[2] + 1]])
-            else:
-                limits0.append([t[idx[2] + 1], t[idx[3]]])
-
-    return limits0, nsegs
-
-
-def refine_t_limit(limits0, t_bounds, xlim, ylim, increasing_t,
-                    diagram='tw', eq=True, A=None, sA=None, init=(True, True), ell=False,
-                    trials=1_000, ax=None):
-    """
-    Refine concordia age limits so they lie just outside axis window. Will
-    return age bound if it is inside the axis window.
-
-    Parameters
-    ----------
-    tmin : float
-        lowder t-bound
-    tmax : float
-        upper t-bound
-    """
-    if ell:
-        denom = 100.
-    else:
-        denom = 1000.
-
-    xspread = xlim[1] - xlim[0]
-    xtol = xspread / denom
-    yspread = ylim[1] - ylim[0]
-    ytol = yspread / denom
-
-    t0, t1 = limits0
-
-    if eq:
-        # TODO: what is going on here?
-        x0, y0 = conc_xy(t0, diagram)
-        x1, y1 = conc_xy(t1, diagram)
-        tpts, xpts, ypts = equi_points(t0, t1, xlim, ylim, diagram, ngp=20_000,
-                                       n=20)
-    else:
-        x0, y0 = diseq_xy(t0, A, init, diagram)
-        x1, y1 = diseq_xy(t1, A, init, diagram)
-        tpts, xpts, ypts = diseq_equi_points(t0, t1, (x0, x1), (y0, y1), A,
-                                 init, diagram, ngp=100_000, n=20)
+    ax_xmin, ax_xmax = ax.get_xlim()
+    ax_ymin, ax_ymax = ax.get_ylim()
+    tbounds = np.asarray(tbounds, dtype='double')
+    tlim = list(tbounds)
 
     # --- testing ----
-    # ax.plot(xpts, ypts, 'ro', ms=2)
-    # --------
+    # tt = np.logspace(np.log(1e-3), np.log(1e3), num=1_000_000, base=np.exp(1))
+    # xx, yy = concordia.diseq_xy(tt, A, ~np.asarray(meas), diagram)
+    # ax.plot(xx, yy, 'ro')
+    # ax.get_figure().show()
+    # -----------
 
-    if ell:
-        pA = cfg.rng.normal(A, sA, (trials, 4))
+    t_min, t_max = None, None
 
-    if increasing_t:
-        dt = np.diff(tpts[-2:])[0]  # spacing between last two equi age points
-        t_start = t1
-    else:
-        dt = -np.diff(tpts[:2])[0]  # spacing between first two equi age points
-        t_start = t0
+    # Check if tlim[1] exceeds t_max
+    if max_age is not None:
+        if max_age < tlim[0]:
+            raise ValueError('max_age cannot be less than the first element of tlim')
+        if tlim[1] > max_age:
+            tlim[1] = max_age
 
-    for i in range(100):
-        if ell:
-            t, code = walk_ellipse_outward(t_start, dt, t_bounds, xlim, ylim, diagram,
-                        xtol, ytol, trials, A=A, init=init, pA=pA,
-                        ax=ax)
+    # Check if hard limits are inside plot window.
+    xc, yc = diseq_xy(np.asarray(tlim), A, meas, diagram)
+    if all((xc > ax_xmin) & (xc < ax_xmax) & (yc > ax_ymin) & (yc < ax_ymax)):
+        return 0, tlim, tbounds
+
+    # Simulate log-spaced points and check if any are inside axis bounds.
+    tc = np.logspace(np.log10(tlim[0]), np.log10(tlim[1]), num=1_000_000)
+    xc, yc = diseq_xy(tc, A, meas, diagram)
+    inside = ((ax_xmin < xc) & (xc < ax_xmax)) & ((ax_ymin < yc) & (yc < ax_ymax))
+
+    # Verify that a point has been found, if not return error code.
+    if np.sum(inside) < 1:
+        return 1, (t_min, t_max), tbounds
+    elif np.sum(inside) > 3 and any(meas):
+        # If measured 234/238 or 230/238 given, do not allow concordia curve to
+        # loop back over itself. This creates plotting difficulties. Also, the loooping
+        # part is usually (always?) associated with physically implausible initial activity
+        # ratio solutions.
+
+        # check if dx/dt changes sign, if so, there are multiple y for x, and
+        # therefore t needs to be truncated to plot envelope
+        dxdt = diseq_dxdt(tc[inside], A, meas, diagram)
+        ind = np.where(np.diff(np.sign(dxdt)) != 0)[0]
+        if ind.shape[0] != 0:
+            if len(ind) > 1:    # if multiple dx/dt changes, probably a numerical issue computing deriv.
+                warnings.warn(f'multiple dx/dt sign changes in concordia found')
+            else:
+                tlim[1] = float(tc[inside][ind])
+                tbounds[1] = tlim[1]
+                warnings.warn(f'concordia truncated at t = {tlim[1]:.3f} because dx/dt changes sign')
+            # re-do search for inside points
+            tc = np.logspace(np.log10(tlim[0]), np.log10(tlim[1]), num=1_000_000)
+            xc, yc = diseq_xy(tc, A, meas, diagram)
+            inside = ((ax_xmin < xc) & (xc < ax_xmax)) & ((ax_ymin < yc) & (yc < ax_ymax))
+
+    # Get indices of inside / outside change points for different cases:
+    min_inside, max_inside = False, False
+    idx = np.where(np.diff(inside) != 0)[0]
+    cp = len(idx)
+    if cp == 0:
+        return 1, [t_min, t_max], tbounds
+    elif cp == 1:
+        # Either tlim[0] or tlim[1] is inside axis bounds.
+        if inside[0]:
+            min_inside = True
+            t_min = tlim[0]
+            t_max = (tc[idx[0]], tc[idx[0] + 1])
         else:
-            t, code = walk_outward(t_start, dt, t_bounds, xlim, ylim, diagram, xtol,
-                        ytol, eq=eq, A=A, init=init)
-        if code == 0:
-            return t, code
+            max_inside = True
+            t_min = (tc[idx[0]], tc[idx[0] + 1])
+            t_max = tlim[1]
+    elif cp == 2:
+        if inside[0]:
+            # must be more than one segment - only use first!
+            t_min = tlim[0]
+            t_max = (tc[idx[0]], tc[idx[0] + 1])
+            tlim[1] = tc[idx[0] + 1]
+        else:
+            # Neither tlim[0] nor tlim[1] are in axis bounds.
+            t_min = (tc[idx[0]], tc[idx[0] + 1])
+            t_max = (tc[idx[1]], tc[idx[1] + 1])
+    elif cp == 3 and inside[0]:
+        # must be more than one segment - only use first!
+        t_min = tlim[0]
+        t_max = (tc[idx[0]], tc[idx[0] + 1])
+        tlim[1] = tc[idx[0] + 1]
+    elif cp in (3, 4):
+        # Neither tlim[0] nor tlim[1] are in axis bounds.
+        t_min = (tc[idx[0]], tc[idx[0] + 1])
+        t_max = (tc[idx[1]], tc[idx[1] + 1])
+        tlim[1] = tc[idx[1] + 1]
+
+    elif cp > 4:
+        raise RuntimeError('cannot have more than four boundary points')
+
+    if not min_inside:
+        try:
+            t_min = refine_age_lim(ax.get_xlim(), ax.get_ylim(), *t_min, A,
+                                   meas, which='lower')
+        except ConvergenceError:
+            warnings.warn('lower concordia age limit could not be refined')
+            t_min = np.min(t_min)
+    if not max_inside:
+        try:
+            t_max = refine_age_lim(ax.get_xlim(), ax.get_ylim(), *t_max, A,
+                                   meas, which='upper')
+        except ConvergenceError:
+            warnings.warn('upper concordia age limit could not be refined')
+            t_max = np.min(t_max)
+
+    assert t_max > t_min, 'lower concordia age limit should be smaller than ' \
+                          'upper limit'
+
+    return 0, [t_min, t_max], tbounds
 
 
-        # if walk_outward did not meet tol, reduce and try again
-        t_start = t  # reset t0
-        dt /= 2.
-
-    # TODO: throw warning, but return t anyway?
-    msg = 'age limits did not meet convergence criteria, but may be good enough?'
-    warnings.warn(msg)
-
-    return t0, 0
-
-
-def walk_ellipse_outward(t0, dt, t_bounds, xlim, ylim, diagram, xtol,
-                    ytol, trials, A=None, init=None, pA=None, ttol=1e-03,
-                    max_steps=100, p=0.999, ax=None):
+def refine_age_lim(xlim, ylim, t1, t2, A, meas, which='lower'):
     """
-    Walk outward from t0 until an axis boundary is found (i.e. ellipse is
-    pretty much outside axis window, where 'pretty-muchness' is determined
-    by p).
+    Refine limits using newton
     """
-
-    assert diagram == 'tw'
     xmin, xmax = xlim
     ymin, ymax = ylim
-    x0, y0 = diseq_xy(t0, A, init, 'tw')    # centre point
-    pA = np.transpose(pA)
-    step = 0
-    while step < max_steps:
-        t1 = t0 + dt
-        x1, y1 = diseq_xy(t1, A, init, 'tw')    # centre point
-        xpts, ypts = diseq_xy(t1, pA, init, 'tw')   # simulated x-y
-        # print(f'ell step {"+" if dt > 0 else "-"}: {step}')
 
-        # TODO: deal with negative_ratios?
+    # refine lower
+    x1, y1 = diseq_xy(t1, A, meas, 'tw')
+    x2, y2 = diseq_xy(t2, A, meas, 'tw')
+    t0 = np.mean((t1, t2))
 
-        if dt > 0 and t1 > t_bounds[1]: # if bounds exceeded while still in box..
-            return t_bounds[1], 0
-        elif dt < 0 and t0 < t_bounds[0]:
-            return t_bounds[0], 0
-        elif (np.sum(xpts < xmin) / trials > p) or \
-                (np.sum(xpts > xmax) / trials > p) or \
-                (np.sum(ypts > ymax) / trials > p) or \
-                (np.sum(ypts < ymin) / trials > p):  # outside box
-            # check tolerances are met - i.e. check estimate is accurate enough
-            if (abs(x1 - x0) < xtol and abs(y1 - y0) < ytol):
-                return t1, 0
-            else:
-                return t0, 1
-
-        # keep walking
-        t0, x0, y0 = t1, x1, y1
-        step += 1
-
-    code = 1
-    return t0, code
-
-
-def walk_outward(t0, dt, t_bounds, xlim, ylim, diagram, xtol, ytol, eq=True,
-                 A=None, init=(True, True), ttol=1e-03, max_steps=1000,
-                 ell=False, pA=None):
-    """
-    Walk outward from t0 until an axis boundary is found.
-    """
-    # x0, y0 = conc_xy(t0, diagram)
-    if eq:
-        x0, y0 = conc_xy(t0, diagram)
-    else:
-        x0, y0 = diseq_xy(t0, A, init, diagram)
-    step = 0
-    while step < max_steps:
-        t1 = t0 + dt
-        if eq:
-            x1, y1 = conc_xy(t1, diagram)
+    # Lower t limit. t2 inside axis bounds, t1 is outside.
+    if x1 > x2:
+        # check intersection with xmin
+        if which == 'lower':
+            fmin, dfmin = min_tax(xmax, meas, diagram='tw')
         else:
-            x1, y1 = diseq_xy(t1, A, init, diagram)
+            fmin, dfmin = min_tax(xmin, meas, diagram='tw')
+        with np.errstate(all='ignore'):
+            r = optimize.newton(fmin, t0, dfmin, full_output=True, disp=False,
+                                args=([A]))
+        if r[1].converged:
+            if ymin < diseq_xy(r[0], A, meas, 'tw')[1] < ymax:
+                return r[0]
 
-        if dt > 0 and t1 > t_bounds[1]: # if bounds exceeded while still in box..
-            return t_bounds[1], 0
-        elif dt < 0 and t0 < t_bounds[0]:
-            return t_bounds[0], 0
-        elif (x1 > xlim[1] or x1 < xlim[0]) or (y1 > ylim[1] or y1 < ylim[0]):  # outside box
-            if (abs(x1 - x0) < xtol and abs(y1 - y0) < ytol or
-                    abs(t1 - t0) / t0 < ttol):
-                return t1, 0
-            else:
-                return t0, 1
+    if ((y2 > y1) and not (ymin < y1 < ymax)) or ((y2 < y1) and (ymin < y1 < ymax)):
+        # check intersection with ymin
+        fmin, dfmin = min_tay(ymin, meas, diagram='tw')
+        with np.errstate(all='ignore'):
+            r = optimize.newton(fmin, t0, dfmin, full_output=True, disp=False,
+                                args=([A]))
+        if r[1].converged:
+            if xmin < diseq_xy(r[0], A, meas, 'tw')[0] < xmax:
+                return r[0]
+    else:
+        # check intersection with ymax
+        fmin, dfmin = min_tay(ymax, meas, diagram='tw')
+        with np.errstate(all='ignore'):
+            r = optimize.newton(fmin, t0, dfmin, full_output=True, disp=False,
+                                args=([A]))
+        if r[1].converged:
+            if xmin < diseq_xy(r[0], A, meas, 'tw')[0] < xmax:
+                return r[0]
 
-        # keep walking
-        t0, x0, y0 = t1, x1, y1
-        step += 1
-    code = 1
-    return np.nan, code
+    raise ConvergenceError('could not refine concordia age limits')
+
+
+def min_tay(y, meas, diagram='tw'):
+    """
+    Minimisation function to solve concordia age for given y value.
+    """
+    def fmin(t, A):
+        return diseq_xy(t, A, meas, diagram)[1] - y
+    def dfmin(t, A):
+        #TODO: replace with analytical derivative
+        return misc.cdiff(t, fmin, 1e-08 * t, A)
+    return fmin, dfmin
+
+
+def min_tax(x, meas, diagram='tw'):
+    """
+    Minimisation function to solve concordia age for given x value.
+    """
+    def fmin(t, A):
+        return diseq_xy(t, A, meas, diagram)[0] - x
+    def dfmin(t, A):
+        #TODO: replace with analytical derivative
+        return misc.cdiff(t, fmin, 1e-08 * t, A)
+    return fmin, dfmin
 
 
 #====================
 # Concordia markers
 #====================
 
-def estimate_marker_spacing(tspan):
+def generate_age_markers(ax, t1, t2, tbounds, diagram, eq=True,
+            point_markers=True, ell=False, A=None, sA=None, meas=None,
+            marker_ages=(), age_prefix='Ma', auto=True):
     """
-    Get initial estimate of good concordia marker spacing.
-
-    """
-    dt = 10 ** misc.get_exponent(tspan) / 8
-    while abs(tspan / dt) > 12:
-        dt *= 2
-    return misc.round_down(dt, 8)
-
-
-def get_age_markers(ax, t1, t2, t_bounds, diagram, eq=True, ell=False, A=None,
-                    sA=None, init=None, marker_ages=(), age_prefix='Ma',
-                    auto=True, n_segments=1, negative_ratios=True):
-    """
-    Add concordia markers to concordia line and generate label text (but
-    does not actually add marker labels).
+    Generate appropriately spaced concordia age markers and label text.
 
     Parameters
     ----------
@@ -810,10 +832,9 @@ def get_age_markers(ax, t1, t2, t_bounds, diagram, eq=True, ell=False, A=None,
         plot age ellipses
 
     """
-    assert t2 > t1
-    assert age_prefix in ('ka', 'Ma')
+    assert point_markers or ell, 'one of point_markers or ell must be True'
+    assert t2 > t1, 'upper age limit must be greater than lower age limit'
     age_unit = 1. if age_prefix == 'Ma' else 1e-3
-    t_limits = (t1, t2)
     dt = None
 
     if not auto:  # manual age markers
@@ -834,6 +855,7 @@ def get_age_markers(ax, t1, t2, t_bounds, diagram, eq=True, ell=False, A=None,
 
         t_sorted = np.sort(np.array(marker_ages, dtype=np.double))
         t = t_sorted * age_unit
+        t_sorted = t_sorted[(t1 < t_sorted) & (t_sorted < t2)]
         n_inside = len(t[np.logical_and(t1 < t, t2 > t)])
         # which markers to label:
         if n_inside > cfg.every_second_threshold:
@@ -843,22 +865,13 @@ def get_age_markers(ax, t1, t2, t_bounds, diagram, eq=True, ell=False, A=None,
 
     else:  # find auto marker locations
 
-        dt = age_marker_spacing(ax, t1, t2, diagram, A=A, init=init, eq=eq)
+        max_markers = 8 if ell else 12
+        dt = age_marker_spacing(ax, t1, t2, diagram, A=A, meas=meas, eq=eq,
+                                max_markers=max_markers)
 
         # Get marker age points:
         t_start = misc.round_down(np.floor(t1 / dt) * dt, 5)
         t = np.arange(t_start, t2 + dt, dt)
-
-        # Check if there are too many diseq age ellipses in plot window and reduce
-        # dt if necessary:
-        if ell and not eq:
-            t0, dt0 = t, dt
-            t, t_start, dt, code = age_ellipse_marker_spacing(ax, t, dt, A, sA, init, t_limits)
-
-            if code != 0:
-                warnings.warn('age ellipse spacing routine failed')
-                t = t0  # go back to normal marker spacing
-                dt = dt0
 
         # Reset to 0 if sufficiently close in order to avoid labelling problems.
         t = [0. if abs(x) < 1e-9 else x for x in t]
@@ -868,8 +881,7 @@ def get_age_markers(ax, t1, t2, t_bounds, diagram, eq=True, ell=False, A=None,
         # starting on label with less significant digits, then preference starting
         # on label ending in 1, and finally preference starting on even number.
         n = len(t)
-        if ell:
-            n -= 1          # on average, at least one marker will be fully outside?
+
         start_idx = 0
         step = 1
         if n > cfg.every_second_threshold:
@@ -893,12 +905,12 @@ def get_age_markers(ax, t1, t2, t_bounds, diagram, eq=True, ell=False, A=None,
 
         # Add extra markers to ends, in case they are partly displayed in plot
         # window - but this should not affect label starting age.
-        if not ell:
-            t = np.arange(t_start - dt, t2 + 2 * dt, dt)
-            start_idx = 1 if start_idx == 0 else 0
+        # if not ell:
+        t = np.arange(t_start - dt, t2 + 2 * dt, dt)
+        start_idx = 1 if start_idx == 0 else 0
 
         t = np.array([round(x, 10) for x in t])         # round ages again
-        t = t[(t >= t_bounds[0]) & (t <= t_bounds[1])]  # double check bounds
+        t = t[(t >= tbounds[0]) & (t <= tbounds[1])]   # double check bounds
         num_t = len(t)                                  # new number of markers
 
         # list of bools indicating which markers to add a label to:
@@ -908,80 +920,32 @@ def get_age_markers(ax, t1, t2, t_bounds, diagram, eq=True, ell=False, A=None,
         else:
             add_label = [True] * len(t)
 
-    age_markers = {'diagram': diagram, 'eq': eq, 'A': A, 'sA': sA,
-                   'init': init, 'ell': ell, 't': t, 'dt': dt,
-                   'add_label': add_label, 'negative_ratios': negative_ratios,
+    markers_dict = {'diagram': diagram,
+                   't': t,
+                   'dt': dt,
+                   'ell': ell,
+                   'point_markers': point_markers,
+                   'eq': eq,
+                   'A': A,
+                   'sA': sA,
+                   'meas': meas,
+                   'add_label': add_label,
                    'age_prefix': age_prefix}
 
-    return age_markers
+    return markers_dict
 
 
-def age_ellipse_limits(ax, t0, dt, t_bounds, A, sA, init, p=0.998,
-            trials=1_000, diagram='tw', maxiter=40, negative_ratios=True):
+def estimate_marker_spacing(tspan):
     """
-    Find concordia age ellipse limits near axis window boundaries. Will return
-    age bound if it is inside the axis window.
-
-    Parameters
-    ----------
-    t0 : array-like
-        Guess at limits (points must be inside plot window).
-    dt : float
-        appropriate step size
-
+    Get initial estimate of appropriate concordia marker spacing.
     """
-    assert diagram == 'tw'
-    tmin, tmax = t0
-    assert tmax >= tmin
-    tspan = tmax - tmin
-    xmin, xmax = ax.get_xlim()
-    ymin, ymax = ax.get_ylim()
-    t1, t2 = np.nan, np.nan
-    code = 0
-
-    pA = np.transpose(cfg.rng.normal(A, sA, (trials, 4)))
-
-    # Left limit:
-    # move outward until all endpoints are outside axis window
-    t2 = tmax + dt
-    i = 1
-    while i <= maxiter:
-        i += 1
-        xpts, ypts = diseq_xy(t2, pA, init, 'tw')
-        if (np.sum(xpts < xmin) / trials > p) or \
-            (np.sum(ypts > ymax) / trials > p) or \
-            (np.sum(ypts < ymin) / trials > p):
-                break
-        t2 += dt
-        if i == maxiter:
-            code = 1
-            return code, t1, t2
-        if t2 > t_bounds[1]:
-            t2 = t_bounds[1]
-            break
-
-    # Right limit:
-    t1 = tmin
-    i = 1
-    while i <= maxiter:
-        i += 1
-        xpts, ypts = diseq_xy(t1, pA, init, 'tw')
-        if (np.sum(xpts > xmax) / trials > p) or \
-            (np.sum(ypts > ymax) / trials > p) or \
-            (np.sum(ypts < ymin) / trials > p):
-            break
-        t1 -= dt
-        if t1 < t_bounds[0]:
-            t1 = t_bounds[0]
-            break
-        if i == maxiter:
-            code = 1
-            return code, t1, t2
-
-    return code, t1, t2
+    dt = 10 ** misc.get_exponent(tspan) / 8
+    while abs(tspan / dt) > 12:
+        dt *= 2
+    return misc.round_down(dt, 8)
 
 
-def age_marker_spacing(ax, t1, t2, diagram, A=None, init=None, eq=True,
+def age_marker_spacing(ax, t1, t2, diagram, A=None, meas=None, eq=True,
                        max_markers=12):
     """
     Estimate reasonable concordia age marker spacing given upper and lower
@@ -1001,11 +965,11 @@ def age_marker_spacing(ax, t1, t2, diagram, A=None, init=None, eq=True,
     # Check dt after calculaing the fraction of x, y axis spanned by
     # concordia and refine if necessary...
     if eq:
-        x_tmin, y_tmin = conc_xy(t1, diagram)
-        x_tmax, y_tmax = conc_xy(t2, diagram)
+        x_tmin, y_tmin = eq_xy(t1, diagram)
+        x_tmax, y_tmax = eq_xy(t2, diagram)
     else:
-        x_tmin, y_tmin = diseq_xy(t1, A, init, diagram)
-        x_tmax, y_tmax = diseq_xy(t2, A, init, diagram)
+        x_tmin, y_tmin = diseq_xy(t1, A, meas, diagram)
+        x_tmax, y_tmax = diseq_xy(t2, A, meas, diagram)
 
     x_frac = abs((x_tmin - x_tmax) / (ax.get_xlim()[1] - ax.get_xlim()[0]))
     y_frac = abs((y_tmin - y_tmax) / (ax.get_ylim()[1] - ax.get_ylim()[0]))
@@ -1020,38 +984,9 @@ def age_marker_spacing(ax, t1, t2, diagram, A=None, init=None, eq=True,
     return dt
 
 
-def age_ellipse_marker_spacing(ax, t, dt, A, sA, init, t_bounds, diagram='tw',
-                              maxiter=30, trials=1_000):
+def plot_age_markers(ax, markers_dict, p=0.95, pA=None):
     """
-    Starting with regular concordia age marker spacing and limits, check if
-    these are also suitable for disequilibrium age ellipses.
-    """
-    assert diagram == 'tw'
-
-    idx = [int(np.floor((len(t) - 1)/2)), int(np.ceil((len(t) - 1)/2))]
-    t0 = [t[idx[0]], t[idx[1]]]
-    code, t1, t2 = age_ellipse_limits(ax, t0, dt, t_bounds, A, sA, init,
-                                      p=0.998, trials=1_000)
-
-    if code != 0:
-        return np.nan, np.nan, np.nan, code
-
-    t1 = round(t1, 10)
-    t2 = round(t2, 10)
-
-    dt = age_marker_spacing(ax, t1, t2, diagram, A=A, init=init, eq=False,
-                            max_markers=8)
-
-    # Get marker age points:
-    t_start = misc.round_down(np.floor(t1 / dt) * dt, 5)
-    t = np.arange(t_start, t2 + dt, dt)
-
-    return t, t_start, dt, code
-
-
-def plot_age_markers(ax, markers, p=0.95):
-    """
-    Add age markers to plot.
+    Add age markers and/or age ellipses to plot.
 
     Parameters
     ----------
@@ -1060,67 +995,48 @@ def plot_age_markers(ax, markers, p=0.95):
 
     """
     # unpack markers dict
-    diagram = markers['diagram']
-    eq = markers['eq']
-    age_prefix = markers['age_prefix']
-
-    A = markers['A']
-    sA = markers['sA']
-    init = markers['init']
-    negative_ratios = markers['negative_ratios']
-
-    t = markers['t']
-    ell = markers['ell']
-    add_label = markers['add_label']
-
+    diagram = markers_dict['diagram']
+    eq = markers_dict['eq']
+    age_prefix = markers_dict['age_prefix']
+    A = markers_dict['A']
+    sA = markers_dict['sA']
+    meas = markers_dict['meas']
+    t = markers_dict['t']
+    ell = markers_dict['ell']
+    point_markers = markers_dict['point_markers']
+    add_label = markers_dict['add_label']
+    
+    assert ell or point_markers, 'one of ell or point_markers must be True'
     n = len(t)
 
     # Plot markers / ellipses.
     if eq:
-        x, y = conc_xy(t, diagram)
+        x, y = eq_xy(t, diagram)
     else:
-        x, y = diseq_xy(t, A, init, diagram)
+        x, y = diseq_xy(t, A, meas, diagram)
 
     if ell:    # plot age markers as ellipses
+        # pre-allocate arrays to store ellipse params for labelling
         ell_obj = []
         bbox = []
-        xm = np.empty(n)    # use mean simulated x, y in case rejecting negative_ratios
-        ym = np.empty(n)
         sx = np.empty(n)
         sy = np.empty(n)
-        cov_xy = np.empty(n)
+        r_xy = np.empty(n)
 
         for i, age in enumerate(t):
             if eq:
-                xm[i], ym[i] = conc_xy(age, diagram)
-                sx[i], sy[i], cov_xy[i] = conc_age_ellipse(age, diagram)
+                sx[i], sy[i], r_xy[i] = eq_age_ellipse(age, diagram)
             else:
-                xm[i], ym[i], sx[i], sy[i], cov_xy[i] = diseq_age_ellipse(
-                    age, A, sA, init, diagram, negative_ratios=negative_ratios
-                )
-
-        for i in range(n):
-            V = np.diag((sx[i], sy[i])) ** 2
-            V[0, 1] = V[1, 0] = cov_xy[i]
-            # --- choose either this ----
-            # ellipse = plotting.confidence_ellipse2(ax, x[i], y[i], V,
-            #                     n_std=2.0, **cfg.conc_ellipse_kw)
-            # --- or this ----
-            r_xy = cov_xy[i] / (sx[i] * sy[i])
-
-            if abs(r_xy) > (1 - 1e-8):
-                # msg = f'age ellipse correlation is greater than 1, r_xy = {r_xy} '
-                # warnings.warn(msg)
-                r_xy = np.sign(r_xy) * (1. - 1e-8)   # reset to ~1?
-
-            ellipse = plotting.confidence_ellipse(ax, xm[i], sx[i], ym[i], sy[i],
-                                 r_xy, p=p, mpl_label=f'age ellipse, {t[i]:.6f} Ma',
+                _, _, sx[i], sy[i], r_xy[i] = diseq_age_ellipse(age, A, sA, meas, pA=pA)
+            ellipse = plotting.confidence_ellipse(ax, x[i], sx[i], y[i], sy[i],
+                                 r_xy[i], p=p, mpl_label=f'age ellipse, {t[i]:.6f} Ma',
                                  ellipse_kw=cfg.conc_age_ellipse_kw,
                                  outline_alpha=False)
-            # ----------------
             ell_obj.append(ellipse)
+            if point_markers:
+                ax.plot(x[i], y[i], label='concordia marker', **cfg.conc_markers_kw)
 
-    else:   # plot age markers
+    else:   # plot age markers only
         ax.plot(x, y, label='concordia marker', **cfg.conc_markers_kw)
 
     # Generate marker label text.
@@ -1139,208 +1055,97 @@ def plot_age_markers(ax, markers, p=0.95):
             label_format = '{{:,.{}f}}'.format(n_dec)
             text = [label_format.format(x) for x in t_rounded]
 
-        markers['text'] = text
+        markers_dict['text'] = text
 
-    markers['x'] = x
-    markers['y'] = y
-    markers['add_label'] = add_label
-    markers['age_ellipses'] = ell
+    markers_dict['x'] = x
+    markers_dict['y'] = y
+    markers_dict['add_label'] = add_label
+    markers_dict['age_ellipses'] = ell
 
     if ell:
-        markers['bbox'] = bbox
-        markers['ell_obj'] = ell_obj
+        markers_dict['bbox'] = bbox
+        markers_dict['ell_obj'] = ell_obj
     
-    return markers
+    return markers_dict
 
 
 #=====================
 # Concordia envelope
 #=====================
 
-def plot_envelope(ax, diagram, npts=100):
+def plot_envelope(ax, diagram, xc=None, npts=100):
     """
     Plot concordia uncertainty envelope which displays effect of decay constant
     errors.
     """
-    xx = np.linspace(*ax.get_xlim(), num=100, endpoint=True)
-    t = conc_age_x(xx, diagram)
-    x, y = conc_xy(t, diagram)
-    dy = 1.96 * conc_envelope(xx, diagram)
-    ax.fill_between(xx, y + dy, y - dy, label='concordia envelope',
+    if xc is None:
+        xc = np.linspace(*ax.get_xlim(), num=100, endpoint=True)
+    t = eq_age_x(xc, diagram)
+    x, y = eq_xy(t, diagram)
+    dy = 1.96 * eq_envelope(xc, diagram)
+    ax.fill_between(xc, y + dy, y - dy, label='concordia envelope',
                     **cfg.conc_env_kw)
-    ax.plot(xx, y - dy, **cfg.conc_env_line_kw, label='concordia envelope line')
-    ax.plot(xx, y + dy, **cfg.conc_env_line_kw, label='concordia envelope line')
+    ax.plot(xc, y - dy, **cfg.conc_env_line_kw, label='concordia envelope line')
+    ax.plot(xc, y + dy, **cfg.conc_env_line_kw, label='concordia envelope line')
 
 
-def mc_diseq_envelope(ax, t_limits, t_bounds, A, sA, diagram='tw',
-                init=(True, True), trials=1_000, limit_trials = 1_000,
-                spaghetti=False, maxiter=50, negative_ratios=True, pA=None):
+def plot_diseq_envelope(ax, ct, cx, cy, t0, t1, tbounds, A, sA, meas, diagram='tw',
+                        trials=10_000, spaghetti=False):
     """
-    Plot uncertainty envelope about disequilibrium concordia based on Monte
-    Carlo simulation. This displays uncertainty in trajectory of concordia
-    arising from uncertainty in activity ratio values.
-
-    Parameters
-    ----------
-    t_limits : array-like
-        minimum and maximum concordia ages for given axis window
-    t_bounds :
-        minimum and maximum age bounds for full concordia curve
-
+    Plot disequilibrium concordia envelope.
     """
-    assert diagram == 'tw'
-    tmin, tmax = t_limits      # actual age bounds for 'middle' curve only
-    assert tmax > tmin
-    tspan = tmax - tmin
-    xmin, xmax = ax.get_xlim()
-    ymin, ymax = ax.get_ylim()
+    assert diagram == 'tw', 'concordia diagram must be in Tera-Wasserburg form'
 
-    points = 1000
-    interp_points = 250
+    nx = cx.shape[0]
 
-    # Concordia limits - use as initial guess at envelope t limits
-    l0 = np.sort(t_limits)
+    # simulate activity ratios
+    # TODO: should allow simulated activity ratios to be passed in (?)
+    pA = cfg.rng.normal(A, sA, (trials, 4))
 
-    # Refine age limits by starting at points in box and incrementally
-    # moving out until the boundary is encountered:
-    # for l in limits0:
-    l = np.zeros(2)
+    # ---- testing -----
+    if spaghetti:
+        for i in range(trials):
+            t = np.linspace(t0, t1, trials)
+            xy = diseq_xy(t, pA[i, :], meas, 'tw')
+            ax.plot(*xy, lw=0.5)
+    # ------------------
 
-    # Lower age limit
-    if l0[0] == t_bounds[0]:    # lower bound inside window - no need to refine
-        l[0] = l0[0]
+    # get envelope limits
+    y_upper = np.zeros(nx)
+    y_lower = np.zeros(nx)
+    # TODO: use vectorised approach
+    for i in range(nx):
+        y_upper[i], y_lower[i] = mc_concordia_envelope(cx[i], ct[i], pA, meas,
+                                                       ax=ax)
+
+    ok = ~np.isnan(y_lower) & ~np.isnan(y_upper)
+
+    # plot envelope
+    ax.plot(cx[ok], y_lower[ok], **cfg.conc_env_line_kw, label='concordia envelope line')
+    ax.plot(cx[ok], y_upper[ok], **cfg.conc_env_line_kw, label='concordia envelope line')
+
+    return pA
+
+
+def mc_concordia_envelope(x, t0, pA, meas, ax=None):
+    """
+    t is on the concordia curve
+    """
+    trials = pA.shape[0]
+    fmin, dfmin = min_tax(x, meas, diagram='tw')
+    with np.errstate(all='ignore'):
+        r = optimize.newton(fmin, np.full(trials, t0, dtype='double'), dfmin,
+                        full_output=True, disp=False, args=([np.transpose(pA)]))
+    if np.sum(r.converged) < (0.95 * trials):
+        warnings.warn(f'less than 95% of Monte Carlo envelope trials succesful at x = {x:.3f}')
+        y_upper, y_lower = np.nan, np.nan
     else:
-        l[0], code = refine_t_limit(l0, t_bounds, (xmin, xmax), (ymin, ymax),
-                        eq=False, increasing_t=False, diagram=diagram,
-                            A=A, sA=sA, init=init, ell=True, ax=ax)
-        if code != 0:
-            raise ValueError('failed to find concordia envelope lower age limit')
-
-    # Upper age limit
-    if l0[1] == t_bounds[1]:  # lower bound inside window - no need to refine
-        l[1] = l0[1]
-    else:
-        l[1], code = refine_t_limit(l0, t_bounds, (xmin, xmax), (ymin, ymax),
-                        eq=False, increasing_t=True, diagram=diagram,
-                            A=A, sA=sA, init=init, ell=True, ax=ax)
-        if code != 0:
-            raise ValueError('failed to find concordia envelope upper age limit')
-
-    # reset limit if outside bounds
-    # TODO: shouldn't need this?
-    if l[0] < t_bounds[0]:
-        l[0] = t_bounds[0]
-    if l[1] > t_bounds[1]:
-        l[1] = t_bounds[1]
-
-    t0, t1 = l
-    t, x, y = diseq_equi_points(t0, t1, ax.get_xlim(), ax.get_ylim(), A, init,
-                                diagram, n=points)
-    t = t[:points]  # sometimes diseq_equi_points returns vector of length n + 1?
-
-    # Remove duplicate t values
-    # TODO: find a proper solution to this!
-    t, ind = np.unique(t, return_index=True)
-    x = x[ind]
-    y = y[ind]
-    points = len(t)
-    # ----
-
-    # reset xmin and xmax
-    xmin = np.min(x)
-    xmax = np.max(x)
-
-    # Perturb activity ratios
-    if pA is None:
-        pA = cfg.rng.normal(A, sA, (trials, 4))
-        if not negative_ratios:
-            warnings.warn('concordia envelope plotting does not yet account for '
-                          'rejected negative activity ratio trials')
-    else:
-        assert pA.shape[1] == 4
-
-    # check if dx/dt changes sign, if so, there are multiple y for x, and
-    # therefore t needs to be truncated to plot envelope
-    dxdt = diseq_dxdt(t, A, init, diagram)
-    ind = np.where(np.diff(np.sign(dxdt)) != 0)[0]
-    if ind.shape[0] != 0:
-
-        if ind.shape[0] > 1:    # if multiple dx/dt changes, probably a numerical issue computing deriv.
-            warnings.warn(f'multiple dx/dt sign changes in concordia - no truncation')
-
-        else:
-            ind = np.min(ind)
-            t = t[:ind]
-
-            # refine change of sign x-limit....
-            markers_dict = dict(
-                diagram='tw', eq=False, A=A, sA=sA, init=init,
-                negative_ratios=True, t=np.array([t[-1]]), ell=True,
-                add_label=np.array([False]), age_prefix='Ma')
-            plot_age_markers(ax, markers_dict, p=0.99)
-            # get ellipse bounds...
-            ell_obj = ax.patches[-1]
-            ax.get_figure().canvas.draw()
-            ell_bbox = ax.transData.inverted().transform(ell_obj.get_extents())
-            xmin = np.max(ell_bbox[:, 0])
-            ell_obj.remove()
-            warnings.warn(f'concordia envelope truncated at t = {t[-1]} Ma because dx/dt changes sign')
-
-            # Get evenly spaced x,y points over truncated t
-            t, x, y = diseq_equi_points(t0, t[-1], ax.get_xlim(), ax.get_ylim(), A,
-                                        init, diagram, n=points)
-            t = t[:points]  # sometimes diseq_equi_points returns vector of length n + 1?
-            # Remove duplicate t values
-            # TODO: find a proper solution to this!
-            t, ind = np.unique(t, return_index=True)
-            x = x[ind]
-            y = y[ind]
-            # ----
-
-            points = len(t)  # sometimes diseq_equi_points returns vector of length n + 1?
-
-    # pre-allocate arrays to store interpolated points
-    xv = np.linspace(xmin, xmax, interp_points)
-    yv = np.zeros((trials, interp_points))
-
-    # pre-allocate arrays to store simulated curves
-    xc = np.zeros((trials, points))
-    yc = np.zeros((trials, points))
-
-    flags = np.zeros(points)
-    for i in range(trials):
-        # check for negative inital [234U/238U] and [230Th/238U] solutions and
-        # reject these simulated pA curves - these really mess up envelope!
-        if not init[0]:
-            if any(useries.ar48i(t, pA[i, 0], cfg.lam238, cfg.lam234) < 0):
-                flags[i] = -1
-        if not init[1]:
-            if any(useries.ar08i(t, *pA[i, :2], cfg.lam238, cfg.lam234,
-                                 cfg.lam230, init=init[0]) < 0):
-                if flags[i] != -1:
-                    flags[i] = -2
-
-        xc[i, :], yc[i, :] = diseq_xy(t, pA[i, :], init, 'tw')
-        if spaghetti:
-            ax.plot(xc[i, :], yc[i, :], ms=0, lw=0.50)
-        else:
-            # Sample at common x spacing
-            f = interp1d(xc[i, :], yc[i, :], kind='cubic', bounds_error=False,
-                         fill_value='extrapolate')
-            yv[i, :] = f(xv)
-
-    if sum(flags != 0) != 0:
-        msg = f'{sum(flags != 0)} / {points} negative activity ratio soln. values in MC concordia env.'
-        warnings.warn(msg)
-        warnings.warn('MC concordia envelope may be unreliable for given activity ratio values over this age range')
-        # yv = yv[flags == 0]
-
-    # Estimate confidence interval from quantiles:
-    y_low, y_hi = np.quantile(yv, (0.025, 0.975), axis=0)
-    ax.plot(xv, y_low, **cfg.conc_env_line_kw, label='concordia envelope line')
-    ax.plot(xv, y_hi, **cfg.conc_env_line_kw, label='concordia envelope line')
-    ax.fill_between(xv, y_low, y2=y_hi, **cfg.conc_env_kw,
-                    label='concordia envelope')
+        conv = r.converged & ~np.isnan(r.root)
+        t = r.root[conv]
+        # assert np.allclose(x, 1. / ludwig.f(t, pA[:, :3][conv]), meas=meas)
+        y = ludwig.g(t, pA[:, -1][conv]) * x / cfg.U
+        y_lower, y_upper = np.quantile(y, (0.025, 0.975))
+    return y_upper, y_lower
 
 
 #==============================================================================
@@ -1375,7 +1180,7 @@ def labels(ax, markers):
 
 
 def individualised_labels(ax, markers_dict, diagram, eq=True, A=None,
-                  init=None, remove_overlaps=True):
+                  meas=None, remove_overlaps=True):
     """
     Plot concordia age labels using individualised position and rotation.
 
@@ -1387,6 +1192,16 @@ def individualised_labels(ax, markers_dict, diagram, eq=True, A=None,
     assert diagram in ('tw', 'wc')
     fig = ax.get_figure()
     ell = markers_dict['age_ellipses']
+
+    # Mask out values for markers_dict that will not be labelled.
+    add_label = np.array(markers_dict['add_label'])
+    if add_label.size == 0:
+        warnings.warn('no labels to add within concordia age bounds')
+        return
+    x = np.array(markers_dict['x'])[add_label]
+    y = np.array(markers_dict['y'])[add_label]
+    t = np.array(markers_dict['t'])[add_label]
+    txt = np.array(markers_dict['text'])[add_label]
 
     # Calculate some useful axes properties.
     xmin, xmax = ax.get_xlim()
@@ -1415,12 +1230,6 @@ def individualised_labels(ax, markers_dict, diagram, eq=True, A=None,
     # Create labels
     label_annotations = []
 
-    # Mask out values for markers_dict that will not be labelled.
-    add_label = np.array(markers_dict['add_label'])
-    x = np.array(markers_dict['x'])[add_label]
-    y = np.array(markers_dict['y'])[add_label]
-    t = np.array(markers_dict['t'])[add_label]
-    txt = np.array(markers_dict['text'])[add_label]
     n = sum(add_label)
     if ell:
         ell_obj = [b for (a, b) in zip(add_label, markers_dict['ell_obj']) if a]
@@ -1461,9 +1270,9 @@ def individualised_labels(ax, markers_dict, diagram, eq=True, A=None,
 
         # Get concordia slope (i.e. tangent) at t.
         if eq:
-            slope = conc_slope(t[i], diagram)
+            slope = eq_slope(t[i], diagram)
         else:
-            slope = diseq_slope(t[i], A, init, diagram)
+            slope = diseq_slope(t[i], A, meas, diagram)
 
         # angle of concordia at marker location in display coords:
         # angle = np.arctan(slope / scale_factor) * 180 / np.pi
