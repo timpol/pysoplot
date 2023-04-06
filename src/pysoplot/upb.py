@@ -43,7 +43,7 @@ from . import mc as mc
 from . import plotting
 from . import exceptions
 
-from .concordia import conc_xy, conc_slope, conc_age_x, plot_concordia
+from .concordia import eq_xy, eq_slope, eq_age_x, plot_concordia
 
 
 diagram_names = {
@@ -143,7 +143,7 @@ def concint_age(fit, method='L1980', diagram='tw', dc_errors=False):
                             'Ludwig2000 method because < 2 intercept age '
                             'solutions found')
             if diagram == 'tw':     # transform fit to wc
-                theta, covtheta = transform.transform_fit(fit, transform_to='wc')
+                theta, covtheta = transform.fit(fit, transform_to='wc')
             else:
                 theta, covtheta = fit['theta'], fit['covtheta']
             t_95pm, t2_95pm, cov_t12 = concint_uncert_ludwig2000(t, t2, theta,
@@ -247,11 +247,11 @@ def concint_ludwig(theta, diagram='tw', t0=10., maxiter=40):
     while i < maxiter:
         i += 1
         t = t1
-        M = conc_slope(t, diagram)
-        fx, fy = conc_xy(t, diagram)
+        M = eq_slope(t, diagram)
+        fx, fy = eq_xy(t, diagram)
         B = fy - M * fx
         x = (a - B) / (M - b)
-        t1 = conc_age_x(x, diagram)
+        t1 = eq_age_x(x, diagram)
         if np.isclose(t, t1, rtol=1e-08, atol=1e-08):
             return t1
 
@@ -281,14 +281,14 @@ def concint_uncert_ludwig1980(t, theta, theta_95ci, xbar, diagram='wc',
         i = 0
         while i < maxiter:
             i += 1
-            M = conc_slope(t0, diagram)
-            fx, fy = conc_xy(t0, diagram)
+            M = eq_slope(t0, diagram)
+            fx, fy = eq_xy(t0, diagram)
             B = fy - M * fx
             D = 2 *((B - a) * (M - b) + xbar * sb ** 2)
             E = (M - b) ** 2 - sb ** 2
             V = (B - a) ** 2 - sa ** 2
             x = (-D + sign * np.sqrt(D ** 2 - 4 * E * V)) / (2 * E)
-            t1 = conc_age_x(x, diagram)
+            t1 = eq_age_x(x, diagram)
 
             if np.isclose(t1, t0, rtol=1e-08, atol=1e-08):
                 t_95ci.append(t1)
@@ -486,7 +486,7 @@ def mc_concint(t, fit, trials=50_000, diagram='tw', dc_errors=False,
         xlim=(None, None), ylim=(None, None), env=False,
         age_ellipses=False, marker_max=None, marker_ages=(), auto_marker_ages=True,
         remove_overlaps=False, intercept_points=True, intercept_ellipse=False,
-        negative_ages=True, age_prefix='Ma'):
+        negative_ages=True, age_prefix='Ma', point_markers=False):
     """
     Compute Monte Carlo age uncertainties for equilibrium concordia intercept
     age.
@@ -504,14 +504,14 @@ def mc_concint(t, fit, trials=50_000, diagram='tw', dc_errors=False,
     # TODO: take in conc_opt dict as arg
     assert diagram in ('tw', 'wc')
 
-    if env and not dc_errors:
-        warnings.warn('cannot plot equilbrium concordia envelope if dc_errors '
-                      'set to False')
-        env = False
-    if age_ellipses and not dc_errors:
-        warnings.warn('cannot plot equilibrium age ellipse markers if dc_errors '
-                      'set to False')
-        age_ellipses = False
+    # if env and not dc_errors:
+    #     warnings.warn('cannot plot equilbrium concordia envelope if dc_errors '
+    #                   'set to False')
+    #     env = False
+    # if age_ellipses and not dc_errors:
+    #     warnings.warn('cannot plot equilibrium age ellipse markers if dc_errors '
+    #                   'set to False')
+    #     age_ellipses = False
 
     failures = np.zeros(trials)
 
@@ -589,7 +589,7 @@ def mc_concint(t, fit, trials=50_000, diagram='tw', dc_errors=False,
 
         # add other plot elements
         plotting.plot_rfit(ax, fit)
-        plot_concordia(ax, diagram, plot_markers=True, env=env, 
+        plot_concordia(ax, diagram, point_markers=point_markers, env=env,
                        age_ellipses=age_ellipses, marker_max=marker_max,
                        marker_ages=marker_ages, auto_markers=auto_marker_ages,
                        remove_overlaps=remove_overlaps, age_prefix=age_prefix)
