@@ -609,6 +609,7 @@ def model_3(x, sx, y, sy, r_xy, sy_excess0, theta0, mswd_tol=1e-04,
     mswd0 = -np.inf
 
     # check suitable starting sy_excess (i.e. starting mswd must be > 1)
+    # TODO: this routine needs to be made more robust
     while i < itmax:
         i += 1
         try:
