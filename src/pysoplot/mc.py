@@ -190,7 +190,7 @@ def age_hist(ts, age_type, a=None, b=None, x=None, y=None):
     return fig
 
 
-def ratio_hist(A238, A235, init=(True, True)):
+def ratio_hist(A238, A235, meas=(False, False)):
     """
     Create histogram of simulated activity ratio values for successful
     iterations.
@@ -200,12 +200,10 @@ def ratio_hist(A238, A235, init=(True, True)):
     i = 0
     if A238 is not None:
         histogram(axx[i], A238[0])
-        axx[i].set_xlabel("%s\n[$^{234}$U/$^{238}$U]" %
-                          ('initial' if init[0] else 'present-day'))
+        axx[i].set_xlabel("%s\n[$^{234}$U/$^{238}$U]" % ('present-day' if meas[0] else 'initial'))
         i += 1
         histogram(axx[i], A238[1])
-        axx[i].set_xlabel("%s\n[$^{230}$Th/$^{238}$U]" %
-                          ('initial' if init[1] else 'present-day'))
+        axx[i].set_xlabel("%s\n[$^{230}$Th/$^{238}$U]" % ('present-day' if meas[1] else 'initial'))
         i += 1
         histogram(axx[i], A238[2])
         axx[i].set_xlabel("initial\n[$^{226}$Ra/$^{238}$U]")
@@ -299,7 +297,7 @@ def intercept_plot_ax_limits(ax, b, x, y, diagram='tw', min_yspan = 0.001,
 # Disequilibrium U-Pb age functions
 # ===========================================================================
 
-def concint_diseq_age(t, fit, A, sA, init, trials=50_000, dc_errors=False,
+def concint_diseq_age(t, fit, A, sA, meas, trials=50_000, dc_errors=False,
         diagram='tw', u_errors=False, negative_ratios=True, negative_ages=True,
         hist=(False, False), intercept_plot=True,
         intercept_plot_kw=None, conc_kw=None):
@@ -319,10 +317,11 @@ def concint_diseq_age(t, fit, A, sA, init, trials=50_000, dc_errors=False,
     sA : np.ndarray
         one-dimensional array of activity ratio value uncertainties given
         as 1 sigma absolute and arranged in the same order as A
-    init : array-like
+    meas : array-like
         two-element list of boolean values, the first is True if [234U/238U]
-        is an initial value and False if a present-day value, the second is True
-        if [230Th/238U] is an initial value and False if a present-day value
+        is a present-day (i.e. meassured) value and False if an initial value,
+        the second is True if [230Th/238U] is a present-day (i.e. measured)
+        value and False if an initial value
 
     """
     assert diagram == 'tw'  # wc not yet implemented
@@ -342,20 +341,21 @@ def concint_diseq_age(t, fit, A, sA, init, trials=50_000, dc_errors=False,
     coef235 = ludwig.bateman(Lam235, series='235U')
 
     pA = np.empty((4, trials))
-    pA[:3, :], failures = draw_ar(A[:-1], sA[:-1], trials, failures, positive_only=not negative_ratios)
-    pA[3, :], failures = draw_ar(A[-1], sA[-1], trials, failures, series='235U',
+    pA[:3, :], failures = draw_aratio(A[:-1], sA[:-1], trials, failures,
+                              positive_only=not negative_ratios)
+    pA[3, :], failures = draw_aratio(A[-1], sA[-1], trials, failures, series='235U',
                               positive_only=not negative_ratios)
 
     args = (*theta, pA[:3], pA[-1], Lam238, Lam235, coef238, coef235, U)
 
     # run vectorised Newton routine:
-    fmin, dfmin = minimise.concint(diagram='tw', init=init)
+    fmin, dfmin = minimise.concint(diagram='tw', meas=meas, input_dc=True)
     ts, c, zd = optimize.newton(fmin, np.ones(trials) * t, dfmin, args=args,
                                 full_output=True)
     failures = check_ages(ts, c, failures, negative_ages=negative_ages)
 
     # get initial activity ratio solutions
-    a234_238_i, a230_238_i = useries.init_ratio_solutions(ts, pA[:3, :], init, Lam238)
+    a234_238_i, a230_238_i = useries.init_ratio_solutions(ts, pA[:3, :], meas, Lam=Lam238)
 
     if not negative_ratios:
         if a234_238_i is not None:
@@ -403,25 +403,24 @@ def concint_diseq_age(t, fit, A, sA, init, trials=50_000, dc_errors=False,
 
     # compile plots:
     if intercept_plot:
-        fig = diseq_intercept_plot(ts, fit, pA[:3, :], pA[3], Lam238, Lam235, coef238, coef235,
-                                   U, failures, dp=None, init=init, dc_errors=dc_errors,
-                                   u_errors=u_errors, **intercept_plot_kw)
+        fig = diseq_intercept_plot(ts, fit, pA[:3, :], pA[3], Lam238, Lam235,
+                   coef238, coef235, U, failures, dp=None, meas=meas,
+                   dc_errors=dc_errors, u_errors=u_errors, **intercept_plot_kw)
+
         ax = fig.get_axes()[0]
-        # TODO: allow concordia func to accept pre-simulated A values to account
-        # rejected values...
-        concordia.plot_diseq_concordia(ax, A, init, diagram, sA=sA,
-                                       negative_ratios=negative_ratios, **conc_kw)
+        # TODO: allow concordia func to accept pre-simulated A values...
+        concordia.plot_diseq_concordia(ax, A, meas, sA=sA, **conc_kw)
         results['fig'] = fig
 
     if any(hist):
         if hist[0]:
             a, b = theta
-            xs, ys = concordia.diseq_xy(ts, pA, init, diagram)
+            xs, ys = concordia.diseq_xy(ts, pA, meas, diagram)
             fig = age_hist(ts[ok], diagram, a[ok], b[ok], xs[ok], ys[ok])
             results['age_hist'] = fig
         if hist[1]:
             fig = ratio_hist(np.transpose(np.transpose(pA[:3])[ok]),
-                             pA[-1][ok], init)
+                             pA[-1][ok], meas)
             results['ratio_hist'] = fig
         if hist[1] and (a234_238_i is not None or a230_238_i is not None):
             if a234_238_i is not None:
@@ -434,7 +433,7 @@ def concint_diseq_age(t, fit, A, sA, init, trials=50_000, dc_errors=False,
     return results
 
 
-def isochron_diseq_age(t, fit, A, sA, init=(True, True), trials=50_000,
+def isochron_diseq_age(t, fit, A, sA, meas=(False, False), trials=50_000,
         dc_errors=False, negative_ratios=True, negative_ages=True,
         hist=(False, False), age_type='iso-206Pb'):
     """
@@ -447,12 +446,12 @@ def isochron_diseq_age(t, fit, A, sA, init=(True, True), trials=50_000,
     theta, failures = draw_theta(fit, trials, failures)
 
     if age_type == 'iso-206Pb':
-        pA, failures = draw_ar(A, sA, trials, failures,
+        pA, failures = draw_aratio(A, sA, trials, failures,
                                positive_only=not negative_ratios)
         Lam, failures = draw_decay_const(trials, failures, dc_errors=dc_errors)
         coef = ludwig.bateman(Lam, series='238U')
     else:
-        pA, failures = draw_ar(A, sA, trials, failures, series='235U',
+        pA, failures = draw_aratio(A, sA, trials, failures, series='235U',
                             positive_only=not negative_ratios)
         Lam, failures = draw_decay_const(trials, failures, dc_errors=dc_errors,
                                          series='235U')
@@ -461,14 +460,14 @@ def isochron_diseq_age(t, fit, A, sA, init=(True, True), trials=50_000,
     args = (theta[1], pA, Lam, coef)
 
     # run vectorised Newton routine:
-    fmin, dfmin = minimise.isochron(age_type=age_type, init=init)
+    fmin, dfmin = minimise.isochron(age_type=age_type, meas=meas, input_dc=True)
     ts, c, zd = optimize.newton(fmin, np.ones(trials) * t, dfmin, args=args,
                                 full_output=True)
     failures = check_ages(ts, c, failures, negative_ages=negative_ages)
 
     # back-calculate initial activity ratio solutions
     if age_type == 'iso-206Pb':
-        a234_238_i, a230_238_i = useries.init_ratio_solutions(ts, pA, init, Lam)
+        a234_238_i, a230_238_i = useries.init_ratio_solutions(ts, pA, meas, Lam)
         if not negative_ratios:
             if a234_238_i is not None:
                 failures = update_failures(failures, a234_238_i < 0.,
@@ -524,13 +523,13 @@ def isochron_diseq_age(t, fit, A, sA, init=(True, True), trials=50_000,
         if hist[1]:
             A238 = None if age_type != 'iso-206Pb' else pA.T[ok].T
             A235 = None if age_type != 'iso-207Pb' else pA.T[ok].T
-            fig = ratio_hist(A238, A235, init=init)
+            fig = ratio_hist(A238, A235, meas=meas)
             results['ratio_hist'] = fig
         if age_type == 'iso-206Pb':
-            if hist[1] and (not init[0] or not init[1]):
-                if not init[0]:
+            if hist[1] and any(meas):
+                if meas[0]:
                     a234_238_i = a234_238_i[ok]
-                if not init[1]:
+                if meas[1]:
                     a230_238_i = a230_238_i[ok]
                 fig = ratio_solution_hist(ts[ok], a234_238_i, a230_238_i)
                 results['ratio_hist'] = fig
@@ -538,41 +537,42 @@ def isochron_diseq_age(t, fit, A, sA, init=(True, True), trials=50_000,
     return results
 
 
-def forced_concordance(t57, A48i, fit_57, fit_86, A, sA, init, trials=50_000,
-            negative_ratios=True, negative_ages=True, hist=(0, 0, 0)):
+def forced_concordance(t57, A48i, fit_57, fit_86, A, sA, meas=(False, False),
+        trials=50_000, negative_ratios=True, negative_ages=True, hist=(0, 0, 0)):
     """
     Monte Carlo uncertainties for forced-concordance initial [234U/238U] value.
     
     """
-    assert init[1], 'expected initial [230Th/238U] value'
+    assert not meas[1], 'only initial [230Th/238U] values allowed'
     
     failures = np.zeros(trials)
     theta57 = cfg.rng.multivariate_normal(fit_57['theta'], fit_57['covtheta'], trials)
     theta86 = cfg.rng.multivariate_normal(fit_86['theta'], fit_86['covtheta'], trials)
 
     pA = np.empty((4, trials))
-    pA[-1, :], failures = draw_ar(A[-1], sA[-1], trials, failures, series='235U',
+    pA[-1, :], failures = draw_aratio(A[-1], sA[-1], trials, failures, series='235U',
                                positive_only=not negative_ratios)
-    pA[:3, :], failures = draw_ar(A[:-1], sA[:-1], trials, failures, positive_only=not negative_ratios)
+    pA[:3, :], failures = draw_aratio(A[:-1], sA[:-1], trials, failures, positive_only=not negative_ratios)
 
     Lam238, failures = draw_decay_const(trials, failures, dc_errors=False)
     Lam235, failures = draw_decay_const(trials, failures, dc_errors=False, series='235U')
     coef238 = ludwig.bateman(Lam238, series='238U')
-    coef235 = ludwig.bateman(Lam238, series='235U')
+    coef235 = ludwig.bateman(Lam235, series='235U')
 
     args57 = (theta57[:, 1], pA[-1], Lam235, coef235)
 
     # run vectorised Newton routine to get iso-57 ages
-    fmin, dfmin = minimise.isochron(age_type='iso-207Pb')
+    fmin, dfmin = minimise.isochron(age_type='iso-207Pb', input_dc=True)
     ts, c, zd = optimize.newton(fmin, np.ones(trials) * t57, dfmin, args=args57,
                                 full_output=True)
     failures = check_ages(ts, c, failures, negative_ages=negative_ages)
 
     # run vectorised Newton routine to get initial [234U/238U] values:
-    fmin, dfmin = minimise.concordant_A48()
+    fmin, dfmin = minimise.concordant_A48(input_dc=True)
     A48i_s, c, zd = optimize.newton(fmin, np.full(trials, A48i), dfmin,
                 args=(ts, theta86[:, 1], pA[:3], Lam238, coef238), full_output=True)
-    failures = check_ages(A48i_s, c, failures, negative_ages=negative_ratios)  # pretend ar48i solutions are ages
+    # check [234U/238U]_i values:
+    failures = check_ages(A48i_s, c, failures, negative_ages=negative_ratios)
 
     ok = (failures == 0)
     if np.sum(ok) == 0:
@@ -633,7 +633,7 @@ def pbu_diseq_age(t, x, Vx, DThU=None, DThU_1s=None, DPaU=None, DPaU_1s=None,
     # pre-allocate ages arrays to store results
     ts = np.zeros((trials, n))
 
-    fmin, dfmin = minimise.pbu(age_type=age_type)
+    fmin, dfmin = minimise.pbu(age_type=age_type, input_dc=True)
     if age_type in ('206Pb*', 'cor207Pb'):
         Lam238 = (cfg.lam238, cfg.lam234, cfg.lam230, cfg.lam226)
         coef238 = ludwig.bateman(Lam238)
@@ -878,7 +878,7 @@ def pbu_iterative_age(t, ThU_min, x, Vx, ThU_melt, ThU_melt_1s, Th232_U238=None,
 # Simulate constants and activity ratios
 # ===============================================
 
-def draw_ar(A, sA, trials, failures=None, positive_only=False,
+def draw_aratio(A, sA, trials, failures=None, positive_only=False,
             series='238U'):
     """  
     Draw random activity ratio values.
@@ -951,7 +951,7 @@ def draw_decay_const(trials, failures, dc_errors=False, series='238U', cor=False
 # ===============================================
 
 def diseq_intercept_plot(ts, fit, A8, A15, Lam238, Lam235, coef238, coef235, U, failures,
-                         init=(True, True), dp=None, dc_errors=False, u_errors=False,
+                         meas=(False, False), dp=None, dc_errors=False, u_errors=False,
                          diagram='tw', xlim=(None, None), ylim=(None, None),
                          intercept_points=True, intercept_ellipse=False):
     """
@@ -973,8 +973,8 @@ def diseq_intercept_plot(ts, fit, A8, A15, Lam238, Lam235, coef238, coef235, U, 
     A8 = np.transpose(np.transpose(A8)[ok])
     A15 = A15[ok]
 
-    x = 1. / ludwig.f(ts[ok], A8, Lam238, coef238, init=init)
-    y = ludwig.g(ts[ok], A15, Lam235, coef235) * x / U
+    x = 1. / ludwig.f(ts[ok], A8, Lam=Lam238, coef=coef238, meas=meas)
+    y = ludwig.g(ts[ok], A15, Lam=Lam235, coef=coef235) * x / U
     intercept_plot_axis_limits(ax, x, y, diagram=diagram)
 
     if intercept_points:
