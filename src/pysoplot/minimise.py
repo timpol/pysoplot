@@ -3,6 +3,7 @@ Minimisation functions for numerical disequilibrium age solutions.
 
 """
 
+import warnings
 import numpy as np
 
 from pysoplot import misc
@@ -16,58 +17,96 @@ exp = np.exp
 # Disequilibrium Age minimisation functions
 #=================================
 
-def concage_x(diagram, init=(False, False)):
-    """ """
-    assert diagram == 'tw'
-    def fmin(t, x, A, Lam, coef):
-        return x - 1. / ludwig.f(t, A, Lam, coef, init=init)
-    def dfmin(t, x, A, Lam, coef):
-        return - ludwig.f(t, A, Lam, coef, init=init) / (
-                ludwig.f(t, A, Lam, coef, init=init) ** 2)
-    return fmin, dfmin
+# def concage_x(diagram, init=(False, False)):
+#     """ """
+#     assert diagram == 'tw'
+#     def fmin(t, x, A, Lam, coef):
+#         return x - 1. / ludwig.f(t, A, Lam, coef, init=init)
+#     def dfmin(t, x, A, Lam, coef):
+#         return - ludwig.f(t, A, Lam, coef, init=init) / (
+#                 ludwig.f(t, A, Lam, coef, init=init) ** 2)
+#     return fmin, dfmin
 
 
-def concint(diagram='tw', init=(True, True)):
+def concint(diagram='tw', meas=(False, False), input_dc=False):
     """
     Disequilbrium concordia-intercept age minimisation function.
     """
     assert diagram in ('tw', 'wc')
-    # TODO: dfdt doesn't yet handle non-secular eq u-series equations, so this
-    #  analytical derivative may fail if cfg.sec_eq is True .
-    if diagram == 'tw':
-        def fmin(t, a, b, A238, A235, Lam238, Lam235, coef238, coef235, U):
-            return b + a * ludwig.f(t, A238, Lam238, coef238, init=init) \
-                   - ludwig.g(t, A235, Lam235, coef235) / U
-        def dfmin(t, a, b, A238, A235, Lam238, Lam235, coef238, coef235, U):
-            return a * ludwig.dfdt(t, A238, Lam238, coef238, init=init) \
-                   - ludwig.dgdt(t, A235, Lam235, coef235) / U
+    if not cfg.secular_eq:
+        warnings.warn("ludwig.dfdt doesn't yet handle non-secular eq u-series equations, \
+                    so concint age may not converge")
+
+    if input_dc:
+
+        if diagram == 'tw':
+            def fmin(t, a, b, A238, A235, Lam238, Lam235, coef238, coef235, U):
+                return b + a * ludwig.f(t, A238, Lam=Lam238, coef=coef238, meas=meas) \
+                       - ludwig.g(t, A235, Lam=Lam235, coef=coef235) / U
+            def dfmin(t, a, b, A238, A235, Lam238, Lam235, coef238, coef235, U):
+                return a * ludwig.dfdt(t, A238, Lam=Lam238, coef=coef238, meas=meas) \
+                       - ludwig.dgdt(t, A235, Lam=Lam235, coef=coef235) / U
+        else:
+            raise ValueError('not yet coded')
+
     else:
-        raise ValueError('not yet coded')
+
+        if diagram == 'tw':
+            def fmin(t, a, b, A238, A235):
+                return b + a * ludwig.f(t, A238, meas=meas) \
+                   - ludwig.g(t, A235) / cfg.U
+            def dfmin(t, a, b, A238, A235):
+                return a * ludwig.dfdt(t, A238, meas=meas) \
+                   - ludwig.dgdt(t, A235) / cfg.U
+        else:
+            raise ValueError('not yet coded')
+
+
     return fmin, dfmin
 
 
-def isochron(age_type='iso-206Pb', init=(True, True)):
+def isochron(age_type='iso-206Pb', meas=(False, False), input_dc=False):
     """
     Disequilibrium isochron age minimisation function.
 
     """
     assert age_type in ('iso-206Pb', 'iso-207Pb')
-    # TODO: dfdt doesn't yet handle non-secular eq u-series equations, so this
-    #  analytical derivative may fail if cfg.sec_eq is True .
+
+    if not cfg.secular_eq:
+        warnings.warn("ludwig.dfdt doesn't yet handle non-secular eq u-series "
+                      "equations, so concint age may not converge")
+
     if age_type == 'iso-206Pb':
-        def fmin(t, b, A, Lam, coef):
-            return b - ludwig.f(t, A, Lam, coef, init=init)
-        def dfmin(t, b, A, Lam, coef):
-            return -ludwig.dfdt(t, A, Lam, coef, init=init)
+
+        if input_dc:
+            def fmin(t, b, A, Lam, coef):
+                return b - ludwig.f(t, A, Lam=Lam, coef=coef, meas=meas)
+            def dfmin(t, b, A, Lam, coef):
+                return -ludwig.dfdt(t, A, Lam=Lam, coef=coef, meas=meas)
+
+        else:
+            def fmin(t, b, A):
+                return b - ludwig.f(t, A, meas=meas)
+            def dfmin(t, b, A):
+                return -ludwig.dfdt(t, A, meas=meas)
+
     elif age_type == 'iso-207Pb':
-        def fmin(t, b, A, Lam, coef):
-            return b - ludwig.g(t, A, Lam, coef)
-        def dfmin(t, b, A, Lam, coef):
-            return  -ludwig.dgdt(t, A, Lam, coef)
+
+        if input_dc:
+            def fmin(t, b, A, Lam, coef):
+                return b - ludwig.g(t, A, Lam=Lam, coef=coef)
+            def dfmin(t, b, A, Lam, coef):
+                return  -ludwig.dgdt(t, A, Lam=Lam, coef=coef)
+        else:
+            def fmin(t, b, A):
+                return b - ludwig.g(t, A)
+            def dfmin(t, b, A):
+                return  -ludwig.dgdt(t, A)
+
     return fmin, dfmin
 
 
-def concordant_A48():
+def concordant_A48(input_dc=False):
     """
     Minimisation function for computing initial U234/U238 activity ratio that
     forces concordance between 238U and 235U isochron ages.
@@ -75,14 +114,23 @@ def concordant_A48():
     Minimises function: f(t75, A) - slope_86, where t75 is
     the 207Pb/x-235U/x isochron age.
     """
-    def fmin(A48i, t57, slope_86, A, Lam, coef):
-        return ludwig.f(t57, [A48i, A[1], A[2]], Lam, coef) - slope_86
-    def dfmin(A48i, t57, slope_86, A, Lam, coef):
-        return ludwig.dfdt(t57, [A48i, A[1], A[2]], Lam, coef)
+    if input_dc:
+
+        def fmin(A48i, t57, slope_86, A, Lam, coef):
+            return ludwig.f(t57, [A48i, A[1], A[2]], Lam=Lam, coef=coef) - slope_86
+        def dfmin(A48i, t57, slope_86, A, Lam, coef):
+            return ludwig.dfdt(t57, [A48i, A[1], A[2]], Lam=Lam, coef=coef)
+
+    else:
+        def fmin(A48i, t57, slope_86, A):
+            return ludwig.f(t57, [A48i, A[1], A[2]]) - slope_86
+        def dfmin(A48i, t57, slope_86, A):
+            return ludwig.dfdt(t57, [A48i, A[1], A[2]])
+
     return fmin, dfmin
 
 
-def pbu(age_type='206Pb*', init=(True, True)):
+def pbu(age_type='206Pb*', meas=(False, False), input_dc=False):
     """
     Age minimisation function for disequilibrium Pb*/U and
     207Pb-corrected ages.
@@ -91,37 +139,77 @@ def pbu(age_type='206Pb*', init=(True, True)):
 
     if age_type == '206Pb*':
 
-        def fmin(t, x, A, Lam, coef):
-            return x - ludwig.f(t, A, Lam, coef, init=init)
+        if input_dc:
+            def fmin(t, x, A, Lam, coef):
+                return x - ludwig.f(t, A, Lam=Lam, coef=coef, meas=meas)
 
-        def dfmin(t, x, A, Lam, coef):
-            return - ludwig.dfdt(t, A, Lam, coef, init=init)
+            def dfmin(t, x, A, Lam, coef):
+                return - ludwig.dfdt(t, A, Lam=Lam, coef=coef, meas=meas)
+
+        else:
+            def fmin(t, x, A):
+                return x - ludwig.f(t, A, meas=meas)
+
+            def dfmin(t, x, A):
+                return - ludwig.dfdt(t, A, meas=meas)
 
     elif age_type == '207Pb*':
 
-        def fmin(t, x, A, Lam, coef):
-            return x - ludwig.g(t, A, Lam, coef)
+        if input_dc:
 
-        def dfmin(t, x, A, Lam, coef):
-            return -ludwig.dgdt(t, A, Lam, coef)
+            def fmin(t, x, A, Lam, coef):
+                return x - ludwig.g(t, A, Lam=Lam, coef=coef)
+
+            def dfmin(t, x, A, Lam, coef):
+                return -ludwig.dgdt(t, A, Lam=Lam, coef=coef)
+
+        else:
+            def fmin(t, x, A):
+                return x - ludwig.g(t, A)
+
+            def dfmin(t, x, A):
+                return -ludwig.dgdt(t, A)
+
 
     else:
-        def fmin(t, x, y, A, alpha, U, Lam238, Lam235, coef238, coef235):
-            """
-            x : measured 206Pb*/238U
-            y : measured 207Pb*/206Pb
-            alpha : common 207Pb/206Pb
-            """
-            num = ludwig.g(t, A[-1], Lam235, coef235) / U - (y - alpha) / x
-            denom = ludwig.f(t, A[:-1], Lam238, coef238, init=init)
-            return num / denom - alpha
 
-        def dfmin(t, x, y, A, alpha, U, Lam238, Lam235, coef238, coef235):
-            num = ludwig.g(t, A[-1], Lam235, coef235) / U - (y - alpha) / x
-            dnum = ludwig.dgdt(t, A[-1], Lam235, coef235) / U
-            den = ludwig.f(t, A[:-1], Lam238, coef238, init=init)
-            dden = ludwig.dfdt(t, A[:-1], Lam238, coef238, init=init)
-            return (dnum * den - num * dden) / den ** 2
+        if input_dc:
+
+            def fmin(t, x, y, A, alpha, U, Lam238, Lam235, coef238, coef235):
+                """
+                x : measured 206Pb*/238U
+                y : measured 207Pb*/206Pb
+                alpha : common 207Pb/206Pb
+                """
+                num = ludwig.g(t, A[-1], Lam235, coef235) / U - (y - alpha) / x
+                denom = ludwig.f(t, A[:-1], Lam=Lam238, coef=coef238, meas=meas)
+                return num / denom - alpha
+
+            def dfmin(t, x, y, A, alpha, U, Lam238, Lam235, coef238, coef235):
+                num = ludwig.g(t, A[-1], Lam=Lam235, coef=coef235) / U - (y - alpha) / x
+                dnum = ludwig.dgdt(t, A[-1], Lam=Lam235, coef=coef235) / U
+                den = ludwig.f(t, A[:-1], Lam=Lam238, coef=coef238, meas=meas)
+                dden = ludwig.dfdt(t, A[:-1], Lam=Lam238, coef=coef238, meas=meas)
+                return (dnum * den - num * dden) / den ** 2
+
+        else:
+
+            def fmin(t, x, y, A, alpha):
+                """
+                x : measured 206Pb*/238U
+                y : measured 207Pb*/206Pb
+                alpha : common 207Pb/206Pb
+                """
+                num = ludwig.g(t, A[-1]) / cfg.U - (y - alpha) / x
+                denom = ludwig.f(t, A[:-1], meas=meas)
+                return num / denom - alpha
+
+            def dfmin(t, x, y, A, alpha):
+                num = ludwig.g(t, A[-1]) / cfg.U - (y - alpha) / x
+                dnum = ludwig.dgdt(t, A[-1]) / cfg.U
+                den = ludwig.f(t, A[:-1], meas=meas)
+                dden = ludwig.dfdt(t, A[:-1], meas=meas)
+                return (dnum * den - num * dden) / den ** 2
 
     return fmin, dfmin
 
@@ -155,8 +243,8 @@ def pbu_iterative(age_type='206Pb*', meas_232Th_238U=True):
                         cfg.lam232 * den - cfg.lam238 * (cfg.lam238 * t)
                         + np.exp(cfg.lam235 * t) / cfg.U) / den ** 2
 
-                df1, df2, _, df4 = ludwig.dfdt_comp(t, [cfg.a234_238_eq, np.nan,
-                                 cfg.a226_238_eq], Lam238, coef238)
+                df1, df2, _, df4 = ludwig.dfdt(t, [cfg.a234_238_eq, np.nan,
+                                 cfg.a226_238_eq], Lam238, coef238, comp=True)
                 df3 = dfThU * Lam238[0]/Lam238[2] * (coef238[7] * exp((Lam238[0]-Lam238[2]) * t)
                         + coef238[8] * exp((Lam238[0]-Lam238[3]) * t) + exp(Lam238[0]*t)) \
                      + fThU * Lam238[0] / Lam238[2] * (
@@ -192,8 +280,8 @@ def pbu_iterative(age_type='206Pb*', meas_232Th_238U=True):
                 dfThU = x * Pb208_206 / ThU_melt * (dnum * den
                             - num * dden) / den ** 2
 
-                df1, df2, _, df4 = ludwig.dfdt_comp(t, [cfg.a234_238_eq, np.nan,
-                                 cfg.a226_238_eq], Lam238, coef238)
+                df1, df2, _, df4 = ludwig.dfdt(t, [cfg.a234_238_eq, np.nan,
+                                 cfg.a226_238_eq], Lam238, coef238, comp=True)
                 df3 = dfThU * Lam238[0]/Lam238[2] * (coef238[7] * exp((Lam238[0]-Lam238[2]) * t)
                         + coef238[8] * exp((Lam238[0]-Lam238[3]) * t) + exp(Lam238[0]*t)) \
                      + fThU * Lam238[0] / Lam238[2] * (
