@@ -45,7 +45,7 @@ def aratio48i(t, a234_238, Lam=None):
 
 def aratio48(t, a234_238_i, Lam=None):
     """
-    Calculate initial 234U/238U activity ratio as a function of initial
+    Calculate present 234U/238U activity ratio as a function of initial
     ratio and age (Ma).
 
     Notes
