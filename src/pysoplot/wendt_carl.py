@@ -23,8 +23,8 @@ def f(t, A, DC, init=(True, True)):
     assert cfg.secular_eq
 
     # Get initial activity ratios if present value given.
-    A48i = A[0] if init[0] else useries.ar48i(t, A[0], *DC[:2])
-    A08i = A[1] if init[1] else useries.ar08i(t, A48i, A[1], *DC[:3], init=True)
+    A48i = A[0] if init[0] else useries.aratio48i(t, A[0], *DC[:2])
+    A08i = A[1] if init[1] else useries.aratio08i(t, A48i, A[1], *DC[:3], init=True)
 
     A0 = A48i - 1
     B0 = A08i - 1
