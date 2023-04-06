@@ -82,9 +82,9 @@ def dp_errors(dp, in_error_type, append_corr=True, row_wise=True, dim=2,
     return np.array((x, sx, y, sy, cor_xy))
 
 
-def transform_fit(fit, transform_to='wc'):
+def fit(fit, transform_to='wc'):
     """
-    Transform regression theta and covtheta from Tera-Wasserburg
+    Transform regression parameters (y-int and slope) from Tera-Wasserburg
     coordinates to Wetheril coordinates (or vice versa)
     in one go.
 
@@ -96,13 +96,12 @@ def transform_fit(fit, transform_to='wc'):
         Diagram coordinates to output.
 
     """
-    theta = transform_theta(fit['theta'], transform_to=transform_to)
-    covtheta = transform_covtheta(fit['theta'], fit['covtheta'],
-                   transform_to=transform_to)
-    return theta, covtheta
+    th = theta(fit['theta'], transform_to=transform_to)
+    covth = covtheta(fit['theta'], fit['covtheta'], transform_to=transform_to)
+    return th, covth
 
 
-def transform_theta(theta, transform_to='wc'):
+def theta(theta, transform_to='wc'):
     """
     Transform theta from Tera-Wasserburg (tw) coordinates to Wetheril
     (conventional concordia, wc) coordinates or vice versa.
@@ -131,7 +130,7 @@ def transform_theta(theta, transform_to='wc'):
         return np.array((a, b))
 
 
-def transform_covtheta(theta0, covtheta0, transform_to='wc'):
+def covtheta(theta0, covtheta0, transform_to='wc'):
     """
     Transform regression fit covtheta from Tera-Wasserburg coordinates to
     Wetheril (conventional discordia) coordinates or vice versa.
@@ -155,19 +154,21 @@ def transform_covtheta(theta0, covtheta0, transform_to='wc'):
     """
     assert transform_to in ('tw', 'wc')
     a, b = theta0
-    A, B = transform_theta(theta0, transform_to=transform_to)
+    # A, B = theta(theta0, transform_to=transform_to)
+
     if transform_to == 'wc':
         jac = np.array([[b / a ** 2, -1. / a], [1. / (cfg.U * a ** 2), 0. ]])
     else:
         raise ValueError('not yet coded')
-    covtheta = jac @ covtheta0 @ jac.T
+
+    V_th = jac @ covtheta0 @ jac.T
     #TODO: there is an error here causing incorrect sign for covariance!?!
-    covtheta[1, 0] *= -1.
-    covtheta[0, 1] *= -1.
-    return covtheta
+    V_th[1, 0] *= -1.
+    V_th[0, 1] *= -1.
+    return V_th
 
 
-def transform_centroid(xbar, ybar, transform_to='wc'):
+def centroid(xbar, ybar, transform_to='wc'):
     """
     Transform x-bar and y-bar for classical regression fit from Terra-Wasserburg
     to Wetheril or vice versa.
@@ -185,48 +186,141 @@ def transform_centroid(xbar, ybar, transform_to='wc'):
         xbar = 1 / Ybar
         return Ybar * Xbar / cfg.U
 
-
-def transform_dp(x0, ox0, y0, oy0, r_xy0, to='wc'):
+def concordia_dp(dp, to='tw', d=2):
     """
     Transform concordia diagram data points from Tera-Wasserburg to Wetheril
     concordia or vice versa.
 
     Notes
-    -----
-    E.g., see Ludwig (1998) and Noda (2017).
-
-    References
-    ----------
-    Ludwig, K.R., 1998. On the treatment of concordant uranium-lead ages.
-    Geochimica et Cosmochimica Acta 62, 665–676.
-    https://doi.org/10.1016/S0016-7037(98)00059-3
-
-    Noda, A., 2017. A new tool for calculation and visualization of U.
-    Bulletin of the Geological Survey of Japan 1–10.
+    ------
+    Wetheril (conventional) coordinates are x=207/235, y=206/238, (z=204/238).
+    T-W coordinates are u = 238/206, v = 207/206, (w=204/206).
+    See e.g. Eq. (63) in McLean et al. (2011).
     """
+    dp = np.asarray(dp)
+    n = dp.shape[1]
 
-    # WC --> X, Y
-    # T-W --> x, y
+    if d == 2:
+        x, sx, y, sy, r_xy = dp
+    elif d == 3:
+        x, sx, y, sy, z, sz, r_xy, r_xz, r_yz = dp
 
-    assert to in ('wc', 'tw')
-    #TODO: use matrix multiplication instead ??
-    if to == 'wc':
-        x, y = x0, y0
-        ox, oy, r_xy = ox0, oy0, r_xy0
-        # convert to relative errors
-        sx = ox / x
-        sy = oy / y
-        # do transformation
-        Y = 1 / x
-        X = cfg.U * y / x
-        sX = np.sqrt(sx ** 2 + sy ** 2 - 2 * sx * sy * r_xy)
-        sY = sx
-        r_XY = (sx ** 2 - sx * sy * r_xy) / (sx * sy)
-        # back to abs. errors
-        oX = abs(sX * X)
-        oY = abs(sY * Y)
-        return np.array((X, oX, Y, oY, r_XY))
+    if to == 'tw':
 
-    else:
-        raise ValueError('not yet coded')
+        u = 1. / y
+        v = x / (cfg.U * y)
+        dudx = 0. * x                   # this is 0s vector of len(x)
+        dvdx = 1. / (cfg.U * y)
+        dudy = -1. / y ** 2
+        dvdy = -x / (cfg.U * y ** 2)
+        cov_xy = r_xy * sx * sy
+        su = np.zeros(n)
+        sv = np.zeros(n)
+        r_uv = np.zeros(n)
+
+        if d == 3:
+            w = z / y
+            dwdx = 0. * x
+            dwdy = -z / y ** 2
+            dudz = 0. * x              # dbl check # this is 0s vector of len(x)
+            dvdz = 0. * x              # this is 0s vector of len(x)
+            dwdz = 1. / y
+            cov_xz = r_xz * sx * sz
+            cov_yz = r_yz * sy * sz
+            sw = np.zeros(n)
+            r_uw = np.zeros(n)
+            r_vw = np.zeros(n)
+
+        if d == 2:
+            for i in range(n):
+                J = np.array([[dudx[i], dvdx[i]],
+                              [dudy[i], dvdy[i]]])
+                V_xy = np.array([[sx[i] ** 2, cov_xy[i]],
+                              [cov_xy[i], sy[i] ** 2]])
+                V_uv = J.T @ V_xy @ J
+                su[i] = np.sqrt(V_uv[0, 0])
+                sv[i] = np.sqrt(V_uv[1, 1])
+                r_uv[i] = V_uv[1, 0] / (su[i] * sv[i])
+
+            return u, su, v, sv, r_uv
+
+        elif d == 3:
+            for i in range(n):
+                J = np.array([[dudx[i], dvdx[i], dwdx[i]],
+                              [dudy[i], dvdy[i], dwdy[i]],
+                              [dudz[i], dvdz[i], dwdz[i]]])
+                V_xyz = np.array([[sx[i] ** 2, cov_xy[i], cov_xz[i]],
+                                  [cov_xy[i], sy[i] ** 2, cov_yz[i]],
+                                  [cov_xy[i], cov_yz[i], sz[i] ** 2]])
+                V_uvw = J.T @ V_xyz @ J
+                su[i] = np.sqrt(V_uvw[0, 0])
+                sv[i] = np.sqrt(V_uvw[1, 1])
+                sw[i] = np.sqrt(V_uvw[2, 2])
+                r_uv[i] = V_uvw[1, 0] / (su[i] * sv[i])
+                r_uw[i] = V_uvw[2, 0] / (su[i] * sw[i])
+                r_vw[i] = V_uvw[2, 1] / (sv[i] * sw[i])
+
+            return u, su, v, sv, w, sw, r_uv, r_uw, r_vw
+
+    elif to == 'wc':
+
+        if d == 2:
+            u, su, v, sv, r_uv = dp
+        elif d == 3:
+            u, su, v, sv, w, sw, r_uv, r_uw, r_vw = dp
+
+        y = 1. / u
+        x = cfg.U * v / u
+        dudx = 0. * x                   # this is 0s vector of len(x)
+        dvdx = 1. / (cfg.U * y)
+        dudy = -1. / y ** 2
+        dvdy = -x / (cfg.U * y ** 2)
+        cov_xy = r_uv * su * sv
+        su = np.zeros(n)
+        sv = np.zeros(n)
+        r_uv = np.zeros(n)
+
+        if d == 3:
+            z = w / u
+            dwdx = 0. * x
+            dwdy = -z / y ** 2
+            dudz = 0. * x              # dbl check # this is 0s vector of len(x)
+            dvdz = 0. * x              # this is 0s vector of len(x)
+            dwdz = 1. / y
+            cov_xz = r_xz * sx * sz
+            cov_yz = r_yz * sy * sz
+            sw = np.zeros(n)
+            r_uw = np.zeros(n)
+            r_vw = np.zeros(n)
+
+        if d == 2:
+            for i in range(n):
+                J = np.array([[dudx[i], dvdx[i]],
+                              [dudy[i], dvdy[i]]])
+                V_xy = np.array([[sx[i] ** 2, cov_xy[i]],
+                              [cov_xy[i], sy[i] ** 2]])
+                V_uv = J.T @ V_xy @ J
+                su[i] = np.sqrt(V_uv[0, 0])
+                sv[i] = np.sqrt(V_uv[1, 1])
+                r_uv[i] = V_uv[1, 0] / (su[i] * sv[i])
+
+            return u, su, v, sv, r_uv
+
+        elif d == 3:
+            for i in range(n):
+                J = np.array([[dudx[i], dvdx[i], dwdx[i]],
+                              [dudy[i], dvdy[i], dwdy[i]],
+                              [dudz[i], dvdz[i], dwdz[i]]])
+                V_xyz = np.array([[sx[i] ** 2, cov_xy[i], cov_xz[i]],
+                                  [cov_xy[i], sy[i] ** 2, cov_yz[i]],
+                                  [cov_xy[i], cov_yz[i], sz[i] ** 2]])
+                V_uvw = J.T @ V_xyz @ J
+                su[i] = np.sqrt(V_uvw[0, 0])
+                sv[i] = np.sqrt(V_uvw[1, 1])
+                sw[i] = np.sqrt(V_uvw[2, 2])
+                r_uv[i] = V_uvw[1, 0] / (su[i] * sv[i])
+                r_uw[i] = V_uvw[2, 0] / (su[i] * sw[i])
+                r_vw[i] = V_uvw[2, 1] / (sv[i] * sw[i])
+
+            return u, su, v, sv, w, sw, r_uv, r_uw, r_vw
 
