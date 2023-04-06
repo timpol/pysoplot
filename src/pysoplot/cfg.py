@@ -57,7 +57,7 @@ a231_235_eq_1s = 0.
 #==============================================================================
 
 #: bool: If False, U-series equations based on Bateman (1910) are implemented
-#:    rather than the standard equations that rely on the assumption of negligible
+#:   rather than the standard equations that rely on the assumption of negligible
 #:   decay of 238U. Note, that the default Cheng et al. (2013) decay constants
 #:   are computed assuming secular equilibrium so these should be re-computed
 #:   using their measured eq. 234U/238U and 230Th/238U values if implementing
@@ -138,12 +138,12 @@ wav_minor_gridlines = False
 #==============================================================================
 conc_age_bounds = [0.010, 4600]                  # eq. age bounds (Ma)
 # Diseq. concordia age upper and lower bounds (Ma) if
-#   0) inital A08 and ar48
-#   1) present ar48 only
-#   2) present A08
+#   0) initial [234U/238U] and [230Th/238U]
+#   1) present [234U/238U], initial [230Th/238U]
+#   2) present [230Th/238U]
 diseq_conc_age_bounds = [[1e-03, 100.,],
-                         [1e-03, 2.5],
-                         [1e-03, 1.5]]
+                         [1e-03, 5.0],
+                         [1e-03, 2.0]]
 
 plot_age_markers = True
 label_markers = True
@@ -176,6 +176,7 @@ conc_age_ellipse_kw = {
     'linewidth': 0.5,
     'zorder': 10
 }
+
 #: Concordia uncertainty envelope fill key-word arguments.
 conc_env_kw = {
     'alpha': 1.0,
